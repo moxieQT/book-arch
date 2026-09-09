@@ -23,6 +23,10 @@ export function BookStage() {
     if (!canvasRef.current || !stageRef.current) return
     const scene = new BookScene(canvasRef.current, stageRef.current)
     sceneRef.current = scene
+    if (typeof window !== 'undefined') {
+      ;(window as any).__bookScene = scene
+      ;(window as any).__bookStore = useBookStore
+    }
 
     // Начальная книга (эталон 02.04.1994)
     const initialProfile = calculateArchetypes(new Date(1994, 3, 2))

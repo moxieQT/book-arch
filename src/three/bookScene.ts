@@ -771,19 +771,25 @@ export class BookScene {
       metalness: 0.75,
     })
 
+    const transparentMat = new THREE.MeshBasicMaterial({
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+    })
+
     // 1. Нижняя жесткая крышка переплета (Bottom Cover Board)
-    const boardW = BOOK_W + 0.08
+    const boardW = BOOK_W + 0.06
     const boardD = BOOK_D + 0.08
     const boardH = 0.025
     const boardGeo = new THREE.BoxGeometry(boardW, boardH, boardD)
     this.bottomCoverBoard = new THREE.Mesh(boardGeo, leatherMat)
-    this.bottomCoverBoard.position.set(boardW / 2 - 0.03, -boardH / 2, 0)
+    this.bottomCoverBoard.position.set(boardW / 2 - 0.02, -boardH / 2, 0)
     this.bottomCoverBoard.castShadow = true
     this.bottomCoverBoard.receiveShadow = true
     this.bookRoot.add(this.bottomCoverBoard)
 
     // 2. Корешок книги (Rounded Leather Spine) вдоль оси Z при X = 0
-    const spineRadius = BOOK_THICKNESS / 2 + 0.02
+    const spineRadius = BOOK_THICKNESS / 2 + 0.015
     const spineLength = BOOK_D + 0.08
     const spineGeo = new THREE.CylinderGeometry(spineRadius, spineRadius, spineLength, 24, 1, false, Math.PI / 2, Math.PI)
     spineGeo.rotateX(Math.PI / 2)
@@ -804,13 +810,16 @@ export class BookScene {
     })
 
     // 4. Правый книжный блок страниц (толщина книги)
+    // +Z: НИЖНИЙ СРЕЗ КНИГИ (прямо перед глазами пользователя)
+    // +X: передний срез, -Z: верхний срез
+    // +Y (верх): прозрачный, чтобы не перекрывать листы и обложку книги!
     const blockMaterials = [
-      gildedMat,     // +X (fore-edge)
-      innerPageMat,  // -X (spine side)
-      innerPageMat,  // +Y (top)
-      innerPageMat,  // -Y (bottom)
-      gildedMat,     // +Z (НИЖНИЙ СРЕЗ/КОРЕШОК - прямо перед глазами пользователя)
-      gildedMat,     // -Z (верхний срез)
+      gildedMat,       // +X (fore-edge)
+      innerPageMat,    // -X (spine side)
+      transparentMat,  // +Y (верх - прозрачно, здесь лежат страницы!)
+      transparentMat,  // -Y (низ)
+      gildedMat,       // +Z (НИЖНИЙ СРЕЗ/КОРЕШОК - прямо перед глазами пользователя)
+      gildedMat,       // -Z (верхний срез)
     ]
 
     const blockW = BOOK_W - 0.04
@@ -829,16 +838,16 @@ export class BookScene {
     const leftBlockGeo = new THREE.BoxGeometry(blockW, blockH, blockD)
     leftBlockGeo.translate(-blockW / 2, blockH / 2, 0)
     const leftMaterials = [
-      innerPageMat,  // +X (spine side)
-      gildedMat,     // -X (left fore-edge)
-      innerPageMat,  // +Y
-      innerPageMat,  // -Y
-      gildedMat,     // +Z (нижний срез)
-      gildedMat,     // -Z (верхний срез)
+      innerPageMat,    // +X (spine side)
+      gildedMat,       // -X (left fore-edge)
+      transparentMat,  // +Y (верх - прозрачно)
+      transparentMat,  // -Y
+      gildedMat,       // +Z (нижний срез)
+      gildedMat,       // -Z (верхний срез)
     ]
     this.bookBlockLeft = new THREE.Mesh(leftBlockGeo, leftMaterials)
     this.bookBlockLeft.position.set(-0.02, 0, 0)
-    this.bookBlockLeft.scale.set(1, 0.001, 1)
+    this.bookBlockLeft.visible = false
     this.bookBlockLeft.castShadow = true
     this.bookBlockLeft.receiveShadow = true
     this.bookRoot.add(this.bookBlockLeft)
@@ -848,6 +857,10 @@ export class BookScene {
     if (!this.bookBlockRight || !this.bookBlockLeft) return
     const total = Math.max(1, this.chapters.length)
     const frac = this.turnsCount / total
+
+    this.bookBlockLeft.visible = this.turnsCount > 0
+    this.bookBlockRight.visible = this.turnsCount < total
+
     const rightScale = Math.max(0.015, 1 - frac)
     const leftScale = Math.max(0.015, frac)
     this.bookBlockRight.scale.y = rightScale
