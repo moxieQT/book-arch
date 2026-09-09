@@ -153,3 +153,8 @@ export const useBookStore = create<BookState>((set, get) => {
     setActiveLayerTab: (tab) => set({ activeLayerTab: tab }),
   }
 })
+
+if (typeof window !== 'undefined') {
+  ;(window as any).__bookStore = useBookStore
+}
+

@@ -100,16 +100,16 @@ export class BookScene {
       look: new THREE.Vector3(BOOK_W / 2, 0.08, 0.05),
     },
     reading_spread: {
-      pos: new THREE.Vector3(0, 5.8, 0.05),
-      look: new THREE.Vector3(0, 0, 0.05),
+      pos: new THREE.Vector3(0, 4.5, 0.02),
+      look: new THREE.Vector3(0, 0, 0.02),
     },
     reading_left: {
-      pos: new THREE.Vector3(-1.1, 4.9, 0.05),
-      look: new THREE.Vector3(-1.1, 0, 0.05),
+      pos: new THREE.Vector3(-1.1, 4.02, 0.02),
+      look: new THREE.Vector3(-1.1, 0, 0.02),
     },
     reading_right: {
-      pos: new THREE.Vector3(1.1, 4.9, 0.05),
-      look: new THREE.Vector3(1.1, 0, 0.05),
+      pos: new THREE.Vector3(1.1, 4.02, 0.02),
+      look: new THREE.Vector3(1.1, 0, 0.02),
     },
   }
 
@@ -568,21 +568,22 @@ export class BookScene {
     const halfFovRad = (42 / 2) * (Math.PI / 180)
     const tanHalf = Math.tan(halfFovRad)
 
-    // Фокус чтения страницы: высота 3.0 занимает ~76% экрана, оставляя безопасные отступы сверху и снизу
-    const neededH = Math.max(3.95, 2.75 / aspect)
-    const readDist = Math.max(4.9, neededH / (2 * tanHalf))
+    // Фокус чтения страницы: страница занимает практически весь экран (100% высоты листа, 90% рамки)
+    // Высота страницы BOOK_D = 3.0, ширина BOOK_W = 2.2
+    const neededH = Math.max(2.80, 2.25 / aspect)
+    const readDist = neededH / (2 * tanHalf)
 
-    this.targets.reading_left.pos.set(-1.1, readDist, 0.05)
-    this.targets.reading_left.look.set(-1.1, 0, 0.05)
+    this.targets.reading_left.pos.set(-1.1, readDist, 0.02)
+    this.targets.reading_left.look.set(-1.1, 0, 0.02)
 
-    this.targets.reading_right.pos.set(1.1, readDist, 0.05)
-    this.targets.reading_right.look.set(1.1, 0, 0.05)
+    this.targets.reading_right.pos.set(1.1, readDist, 0.02)
+    this.targets.reading_right.look.set(1.1, 0, 0.02)
 
-    // Общий разворот обеих страниц
-    const neededSpreadH = Math.max(4.1, 5.2 / aspect)
-    const spreadDist = Math.max(5.8, neededSpreadH / (2 * tanHalf))
-    this.targets.reading_spread.pos.set(0, spreadDist, 0.05)
-    this.targets.reading_spread.look.set(0, 0, 0.05)
+    // Общий разворот обеих страниц (ширина 4.4, высота 3.0)
+    const neededSpreadH = Math.max(3.25, 4.55 / aspect)
+    const spreadDist = neededSpreadH / (2 * tanHalf)
+    this.targets.reading_spread.pos.set(0, spreadDist, 0.02)
+    this.targets.reading_spread.look.set(0, 0, 0.02)
 
     // Презентация закрытой книги: видна вся книга, нижний срез страниц, корешок и стол
     const neededCoverH = Math.max(4.2, 3.1 / aspect)
@@ -953,13 +954,13 @@ export class BookScene {
         this.readingView = 'spread'
         this.setCamState('reading_spread')
         if (this.openTimer) window.clearTimeout(this.openTimer)
-        // Через 1.5 секунды камера плавно едет на первую страницу для детального чтения
+        // Через 1 секунду камера плавно едет на первую страницу для детального чтения
         this.openTimer = window.setTimeout(() => {
           if (this.turnsCount > 0 && !this.disposed) {
             this.readingView = 'left'
             this.setCamState('reading_left')
           }
-        }, 1500)
+        }, 1000)
       }
     } else {
       leaf.pivot.rotation.z = 0
