@@ -1,0 +1,695 @@
+<title>Книга Чисел</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0710;
+    --bg-rail:#120a1c;
+    --bg-lift:#1b1029;
+    --ink:#f3ead9;
+    --ink-dim:rgba(243,234,217,.68);
+    --ink-muted:rgba(243,234,217,.45);
+    --ink-faint:rgba(243,234,217,.25);
+    --gold:#c9a24b;
+    --gold-deep:#8a6a2e;
+    --gold-16:rgba(201,162,75,.16);
+    --gold-25:rgba(201,162,75,.25);
+    --violet:#9b7bff;
+    --panel:rgba(18,10,30,.78);
+    --panel-border:rgba(201,162,75,.35);
+    --shadow-panel:0 20px 60px rgba(0,0,0,.45);
+    --serif:Georgia,'Times New Roman',serif;
+    --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+    color-scheme:dark;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--serif);
+    font-variant-numeric:tabular-nums;
+  }
+  ::selection{background:var(--gold-25);color:var(--ink);}
+
+  a{color:inherit;}
+  h1,h2,h3,h4{text-wrap:balance;margin:0;}
+  p{margin:0;}
+
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--gold);
+  }
+
+  /* ---------- shell ---------- */
+  .shell{
+    display:grid;
+    grid-template-columns:240px minmax(0,1fr);
+    min-height:100vh;
+  }
+  .rail{
+    position:sticky;top:0;height:100vh;
+    background:var(--bg-rail);
+    border-right:1px solid rgba(201,162,75,.16);
+    padding:28px 22px;
+    display:flex;flex-direction:column;
+    gap:36px;
+    overflow-y:auto;
+  }
+  .rail__mark{
+    display:flex;flex-direction:column;gap:2px;
+  }
+  .rail__mark strong{
+    font-size:20px;color:var(--gold);letter-spacing:.02em;
+  }
+  .rail__mark span{
+    font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--ink-muted);text-transform:uppercase;
+  }
+  .rail__nav{display:flex;flex-direction:column;gap:2px;}
+  .rail__nav a{
+    font-family:var(--mono);font-size:12px;letter-spacing:.04em;
+    color:var(--ink-dim);text-decoration:none;
+    padding:8px 10px;border-radius:6px;
+    display:flex;align-items:baseline;gap:8px;
+    transition:background .15s ease,color .15s ease;
+  }
+  .rail__nav a:hover,.rail__nav a.active{background:var(--gold-16);color:var(--ink);}
+  .rail__nav a.active{color:var(--gold);}
+  .rail__nav em{font-style:normal;color:var(--ink-faint);}
+  .rail__nav a.active em{color:var(--gold);}
+  .rail__foot{
+    margin-top:auto;
+    font-family:var(--mono);font-size:10.5px;line-height:1.7;
+    color:var(--ink-faint);
+    border-top:1px solid rgba(201,162,75,.16);
+    padding-top:16px;
+  }
+  .rail__foot b{color:var(--ink-muted);font-weight:500;}
+
+  .main{padding:0 0 120px;}
+  .section{
+    padding:88px clamp(24px,5vw,88px) 0;
+    max-width:1180px;
+  }
+  .section + .section{padding-top:104px;}
+  .section__head{margin-bottom:40px;max-width:640px;}
+  .section__head h2{font-size:34px;color:var(--ink);margin-top:6px;}
+  .section__head p{margin-top:12px;font-size:15px;line-height:1.6;color:var(--ink-dim);}
+
+  hr.divider{border:none;border-top:1px solid rgba(201,162,75,.16);margin:0;}
+
+  /* ---------- 00 cover / imprint ---------- */
+  .cover{
+    padding:96px clamp(24px,5vw,88px) 88px;
+    position:relative;
+    overflow:hidden;
+    border-bottom:1px solid rgba(201,162,75,.16);
+    background:
+      radial-gradient(120% 140% at 12% -10%, rgba(155,123,255,.16), transparent 55%),
+      radial-gradient(90% 120% at 100% 0%, rgba(201,162,75,.14), transparent 60%);
+  }
+  .cover__title{
+    font-size:clamp(48px,7vw,84px);
+    color:var(--gold);
+    line-height:.98;
+  }
+  .cover__sub{
+    margin-top:14px;
+    font-family:var(--mono);
+    font-size:13px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--violet);
+  }
+  .cover__desc{
+    margin-top:28px;
+    max-width:560px;
+    font-size:17px;
+    line-height:1.65;
+    color:var(--ink-dim);
+    font-style:italic;
+  }
+
+  .imprint{
+    margin-top:56px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:1px;
+    background:rgba(201,162,75,.16);
+    border:1px solid rgba(201,162,75,.16);
+    border-radius:2px;
+  }
+  .imprint__cell{background:var(--bg);padding:18px 20px;}
+  .imprint__cell .eyebrow{margin-bottom:8px;}
+  .imprint__cell div{font-size:14px;color:var(--ink);line-height:1.5;}
+  .imprint__cell code{font-family:var(--mono);font-size:12.5px;color:var(--ink-dim);}
+
+  .toc{margin-top:56px;}
+  .toc__list{
+    margin-top:16px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:2px 32px;
+    list-style:none;padding:0;
+  }
+  .toc__list li{
+    display:flex;gap:14px;align-items:baseline;
+    padding:9px 0;
+    border-bottom:1px solid rgba(243,234,217,.08);
+    font-size:14.5px;
+  }
+  .toc__list b{font-family:var(--mono);font-size:12px;color:var(--gold);min-width:18px;}
+  .toc__list span.k{color:var(--ink-muted);font-size:12.5px;font-style:italic;}
+
+  /* ---------- foundations : color ---------- */
+  .swatch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:20px;}
+  .swatch{border-radius:10px;overflow:hidden;border:1px solid rgba(243,234,217,.1);}
+  .swatch__fill{height:84px;}
+  .swatch__meta{padding:10px 12px 12px;background:var(--bg-rail);}
+  .swatch__name{font-size:13px;color:var(--ink);}
+  .swatch__val{margin-top:3px;font-family:var(--mono);font-size:11px;color:var(--ink-muted);}
+
+  /* ---------- foundations : type ---------- */
+  .type-row{
+    display:grid;grid-template-columns:200px 1fr;gap:24px;align-items:baseline;
+    padding:18px 0;border-bottom:1px solid rgba(243,234,217,.08);
+  }
+  .type-row__meta .name{font-size:12.5px;color:var(--ink);}
+  .type-row__meta .spec{margin-top:4px;font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);}
+  .type-row__sample{color:var(--ink);overflow-wrap:anywhere;}
+
+  /* ---------- foundations : spacing / radius ---------- */
+  .scale-list{display:flex;flex-direction:column;gap:12px;}
+  .scale-row{display:grid;grid-template-columns:140px 1fr 60px;align-items:center;gap:16px;}
+  .scale-row .label{font-family:var(--mono);font-size:12px;color:var(--ink-dim);}
+  .scale-row .bar-track{height:22px;display:flex;align-items:center;}
+  .scale-row .bar{height:14px;background:linear-gradient(135deg,var(--gold),var(--gold-deep));border-radius:3px;}
+  .scale-row .px{font-family:var(--mono);font-size:11.5px;color:var(--ink-muted);text-align:right;}
+
+  .radius-row{display:flex;flex-wrap:wrap;gap:24px;}
+  .radius-item{display:flex;flex-direction:column;gap:8px;align-items:center;}
+  .radius-item .box{width:76px;height:76px;background:var(--panel);border:1px solid var(--panel-border);}
+  .radius-item .label{font-family:var(--mono);font-size:11px;color:var(--ink-muted);}
+
+  .shadow-demo{
+    width:220px;height:96px;border-radius:14px;background:var(--bg-lift);
+    box-shadow:var(--shadow-panel);
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--mono);font-size:11px;color:var(--ink-muted);
+  }
+
+  /* ---------- components ---------- */
+  .comp-block{padding:36px 0;border-bottom:1px solid rgba(243,234,217,.08);}
+  .comp-block:last-child{border-bottom:none;}
+  .comp-block__head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px;}
+  .comp-block__head h3{font-size:20px;color:var(--gold);}
+  .comp-block__head .spec-note{font-family:var(--mono);font-size:11px;color:var(--ink-faint);}
+  .comp-stage{
+    display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start;
+    padding:32px;border-radius:12px;
+    background:
+      radial-gradient(120% 160% at 0% 0%, rgba(155,123,255,.08), transparent 60%),
+      var(--bg-rail);
+  }
+  .comp-cell{display:flex;flex-direction:column;gap:10px;align-items:flex-start;}
+  .comp-cell .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);}
+
+  /* real component styles, ported 1:1 from the app */
+  .btn-open{
+    padding:12px 22px;font-family:var(--serif);font-size:15px;letter-spacing:.08em;text-transform:uppercase;
+    background:linear-gradient(135deg,var(--gold),var(--gold-deep));border:none;border-radius:10px;
+    color:#1b1030;font-weight:700;cursor:pointer;
+  }
+  .btn-open[disabled]{opacity:.4;cursor:not-allowed;}
+  .btn-open.hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(201,162,75,.35);}
+
+  .nav-btn{
+    padding:9px 16px;font-family:var(--serif);font-size:13px;letter-spacing:.06em;text-transform:uppercase;
+    background:rgba(243,234,217,.06);border:1px solid var(--panel-border);border-radius:8px;color:var(--ink);cursor:pointer;
+  }
+  .nav-btn.hover{background:var(--gold-16);}
+  .nav-btn[disabled]{opacity:.3;cursor:not-allowed;}
+
+  .field{display:flex;flex-direction:column;gap:8px;}
+  .field label{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-faint);}
+  .date-input{
+    padding:10px 12px;font-family:var(--serif);font-size:16px;
+    background:rgba(0,0,0,.35);border:1px solid var(--panel-border);border-radius:10px;color:var(--ink);
+    width:220px;color-scheme:dark;
+  }
+  .date-input.focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,162,75,.16);}
+
+  .panel-swatch{
+    width:260px;padding:20px 22px;background:var(--panel);border:1px solid var(--panel-border);
+    border-radius:18px;backdrop-filter:blur(10px);box-shadow:var(--shadow-panel);
+    font-family:var(--mono);font-size:11px;color:var(--ink-muted);
+    display:flex;align-items:center;justify-content:center;text-align:center;height:120px;
+  }
+
+  .number-badge{
+    width:64px;height:64px;border-radius:50%;border:2px solid var(--gold);
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--serif);font-size:26px;font-weight:700;color:var(--gold);
+    background:radial-gradient(circle at 30% 30%,var(--gold-25),transparent 70%);
+  }
+  @media (prefers-reduced-motion:no-preference){
+    .number-badge.live{animation:badge-pulse 3.6s ease-in-out infinite;}
+  }
+  @keyframes badge-pulse{
+    0%,100%{box-shadow:0 0 0 0 rgba(201,162,75,0);}
+    50%{box-shadow:0 0 26px 2px rgba(201,162,75,.25);}
+  }
+
+  .dots-row{display:flex;gap:6px;align-items:center;}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--ink-faint);}
+  .dot.active{background:var(--gold);}
+
+  .flip-card{perspective:800px;height:150px;width:130px;cursor:pointer;}
+  .flip-card__inner{position:relative;width:100%;height:100%;transition:transform .6s cubic-bezier(.2,.8,.2,1);transform-style:preserve-3d;}
+  .flip-card.flipped .flip-card__inner{transform:rotateY(180deg);}
+  .flip-card__face{
+    position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;border:1px solid var(--panel-border);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;text-align:center;font-family:var(--serif);
+  }
+  .flip-card__back{background:linear-gradient(135deg,#241338,#160b26);color:var(--gold);font-size:12px;letter-spacing:.08em;text-transform:uppercase;}
+  .flip-card__front{background:linear-gradient(135deg,#2c1a44,#1b1030);transform:rotateY(180deg);gap:5px;}
+  .flip-card__value{font-size:26px;font-weight:700;color:var(--gold);}
+  .flip-card__label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-dim);}
+  .flip-card__caption{font-size:11px;color:var(--ink);line-height:1.3;}
+  .flip-card__hint{font-family:var(--mono);font-size:10px;color:var(--ink-faint);}
+
+  .tap-hint-demo{
+    font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-dim);
+    font-family:var(--serif);opacity:.85;
+  }
+
+  /* ---------- screens ---------- */
+  .screen-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:40px;}
+  .device{
+    border-radius:20px;overflow:hidden;border:1px solid rgba(201,162,75,.16);
+    box-shadow:0 30px 80px rgba(0,0,0,.5);
+  }
+  .device__label{
+    padding:12px 18px;background:var(--bg-rail);font-family:var(--mono);font-size:11px;color:var(--ink-muted);
+    display:flex;justify-content:space-between;border-bottom:1px solid rgba(201,162,75,.16);
+  }
+  .device__label b{color:var(--gold);font-weight:500;}
+  .stage{
+    position:relative;aspect-ratio:3/4;
+    background:radial-gradient(120% 120% at 50% 20%,var(--bg-lift) 0%,var(--bg) 60%);
+    display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+    padding:24px 18px;
+    overflow:hidden;
+  }
+  .book-ph{
+    position:absolute;top:14%;left:50%;transform:translateX(-50%);
+    width:44%;aspect-ratio:1.28/1.71;
+    border-radius:6px;
+    background:linear-gradient(155deg,#241338,#150b26 55%,#0d0716);
+    border:1px solid rgba(201,162,75,.25);
+    box-shadow:0 24px 50px rgba(0,0,0,.55), inset 0 0 0 1px rgba(0,0,0,.4);
+  }
+  .book-ph::after{
+    content:'';position:absolute;left:0;top:0;bottom:0;width:10%;
+    background:linear-gradient(90deg,rgba(0,0,0,.5),transparent);
+  }
+  .book-ph__label{
+    position:absolute;bottom:-26px;left:0;right:0;text-align:center;
+    font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;color:var(--ink-faint);
+  }
+  .tap-hint-abs{position:absolute;top:6%;left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-dim);font-family:var(--serif);}
+
+  .mock-panel{
+    position:relative;z-index:1;width:100%;padding:20px 22px;background:var(--panel);border:1px solid var(--panel-border);
+    border-radius:18px;backdrop-filter:blur(10px);box-shadow:var(--shadow-panel);
+  }
+  .mock-panel.gate{text-align:center;padding:22px 24px 24px;}
+  .mock-panel .k-title{font-size:14px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;}
+  .mock-panel .k-hint{font-size:12.5px;color:var(--ink-dim);font-style:italic;margin-bottom:14px;}
+  .mock-panel .k-input{width:100%;margin-bottom:12px;}
+  .mock-panel .k-btn{width:100%;}
+
+  .reader__progress{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-family:var(--serif);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim);}
+  .reader__title{margin:0 0 2px;font-size:20px;color:var(--gold);}
+  .reader__subtitle{margin:0 0 12px;font-size:12px;color:var(--ink-dim);font-style:italic;font-family:var(--mono);letter-spacing:.02em;}
+  .reader__lead{display:flex;gap:14px;align-items:flex-start;margin-bottom:12px;}
+  .reader__lead-text h4{margin:0 0 4px;font-size:15px;color:var(--ink);}
+  .reader__lead-text p{margin:0;font-size:12.5px;line-height:1.5;color:var(--ink-dim);}
+  .reader__footnote{margin:10px 0 0;font-size:11px;color:var(--ink-muted);font-style:italic;}
+  .reader__nav{display:flex;justify-content:space-between;gap:8px;margin-top:10px;}
+  .reader__nav .nav-btn{flex:1;font-size:11.5px;padding:8px 10px;text-align:center;}
+  .reader__cards{display:flex;gap:10px;margin-bottom:6px;}
+  .reader__cards .flip-card{height:118px;width:auto;flex:1;}
+  .reader__cards .flip-card__value{font-size:20px;}
+
+  @media (max-width:860px){
+    .shell{grid-template-columns:1fr;}
+    .rail{position:static;height:auto;border-right:none;border-bottom:1px solid var(--panel-border);}
+    .rail__nav{display:flex;flex-wrap:wrap;gap:6px 16px;}
+  }
+
+  .foot{
+    padding:64px clamp(24px,5vw,88px) 0;
+    max-width:1180px;
+    font-family:var(--mono);font-size:11.5px;color:var(--ink-faint);
+    line-height:1.8;
+  }
+</style>
+
+<div class="shell">
+  <nav class="rail">
+    <div class="rail__mark">
+      <strong>Книга Чисел</strong>
+      <span>Design reference</span>
+    </div>
+    <div class="rail__nav" id="rail-nav">
+      <a href="#cover"><em>00</em> Обложка</a>
+      <a href="#foundations"><em>01</em> Основы</a>
+      <a href="#components"><em>02</em> Компоненты</a>
+      <a href="#screens"><em>03</em> Экраны</a>
+    </div>
+    <div class="rail__foot">
+      <div><b>Стек</b> React · Three.js · Zustand</div>
+      <div><b>Тема</b> только тёмная</div>
+      <div><b>Шрифт</b> Georgia (доступный аналог — PT&nbsp;Serif)</div>
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <header class="cover" id="cover">
+      <p class="eyebrow">00 — Титульный лист</p>
+      <h1 class="cover__title">Книга Чисел</h1>
+      <p class="cover__sub">Интерактивная нумерологическая книга · дизайн-справочник</p>
+      <p class="cover__desc">Приложение показывает 3D‑книгу в Three.js: обложка проявляет дату рождения, затем страницы переворачиваются к главам нумерологического разбора. Эта страница фиксирует визуальный язык поверх той книги — токены, компоненты интерфейса и два экрана — построенный на реальных значениях из кода приложения.</p>
+
+      <div class="imprint">
+        <div class="imprint__cell">
+          <p class="eyebrow">Стадии</p>
+          <div><code>cover → opening → reading</code></div>
+        </div>
+        <div class="imprint__cell">
+          <p class="eyebrow">Пример даты</p>
+          <div><code>14.03.1990</code> — используется во всех демонстрациях ниже</div>
+        </div>
+        <div class="imprint__cell">
+          <p class="eyebrow">Глав в книге</p>
+          <div>11 — от Жизненного Пути до Итогового Архетипа</div>
+        </div>
+      </div>
+
+      <div class="toc">
+        <p class="eyebrow">Оглавление примера</p>
+        <ul class="toc__list">
+          <li><b>00</b> Число Жизненного Пути <span class="k">27 → 9</span></li>
+          <li><b>01</b> Число Дня Рождения <span class="k">14 → 5</span></li>
+          <li><b>02</b> Энергия Месяца <span class="k">3</span></li>
+          <li><b>03</b> Число Года Рождения <span class="k">1990 → 1</span></li>
+          <li><b>04</b> Текущий Личный Год <span class="k">18 → 9</span></li>
+          <li><b>05</b> Кармические Долги <span class="k">14</span></li>
+          <li><b>06</b> Три Цикла Жизни <span class="k">3 · 5 · 1</span></li>
+          <li><b>07</b> Четыре Вызова <span class="k">2 · 4 · 2 · 2</span></li>
+          <li><b>08</b> Четыре Пика <span class="k">8 · 6 · 5 · 4</span></li>
+          <li><b>09</b> Путь и День <span class="k">9 + 5</span></li>
+          <li><b>10</b> Итоговый Архетип <span class="k">Мудрец · Искатель</span></li>
+        </ul>
+      </div>
+    </header>
+
+    <!-- ================= 01 FOUNDATIONS ================= -->
+    <section class="section" id="foundations">
+      <div class="section__head">
+        <p class="eyebrow">01 — Основы</p>
+        <h2>Токены</h2>
+        <p>Цвет, типографика, отступы и скругления — взятые дословно из <code style="font-family:var(--mono)">App.css</code> и <code style="font-family:var(--mono)">index.css</code>, без домыслов.</p>
+      </div>
+
+      <h3 class="eyebrow" style="font-size:12px;margin-bottom:16px;display:block;">Цвет</h3>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch__fill" style="background:#0b0710"></div><div class="swatch__meta"><div class="swatch__name">bg</div><div class="swatch__val">#0b0710</div></div></div>
+        <div class="swatch"><div class="swatch__fill" style="background:#f3ead9"></div><div class="swatch__meta"><div class="swatch__name">ink</div><div class="swatch__val">#f3ead9</div></div></div>
+        <div class="swatch"><div class="swatch__fill" style="background:rgba(243,234,217,.68)"></div><div class="swatch__meta"><div class="swatch__name">ink-dim</div><div class="swatch__val">rgba(…,.68)</div></div></div>
+        <div class="swatch"><div class="swatch__fill" style="background:#c9a24b"></div><div class="swatch__meta"><div class="swatch__name">gold</div><div class="swatch__val">#c9a24b</div></div></div>
+        <div class="swatch"><div class="swatch__fill" style="background:#9b7bff"></div><div class="swatch__meta"><div class="swatch__name">violet</div><div class="swatch__val">#9b7bff</div></div></div>
+        <div class="swatch"><div class="swatch__fill" style="background:rgba(18,10,30,.78)"></div><div class="swatch__meta"><div class="swatch__name">panel</div><div class="swatch__val">rgba(18,10,30,.78)</div></div></div>
+        <div class="swatch"><div class="swatch__fill" style="background:rgba(201,162,75,.35)"></div><div class="swatch__meta"><div class="swatch__name">panel-border</div><div class="swatch__val">rgba(…,.35)</div></div></div>
+        <div class="swatch"><div class="swatch__fill" style="background:linear-gradient(135deg,#c9a24b,#8a6a2e)"></div><div class="swatch__meta"><div class="swatch__name">gold gradient</div><div class="swatch__val">#c9a24b → #8a6a2e</div></div></div>
+      </div>
+
+      <h3 class="eyebrow" style="font-size:12px;margin:44px 0 4px;display:block;">Типографика</h3>
+      <p style="font-size:13px;color:var(--ink-muted);margin-bottom:8px;">Шрифт кода — <b style="color:var(--ink-dim)">Georgia, "Times New Roman", serif</b>. Образец: «Книга Чисел — Аа 123».</p>
+      <div>
+        <div class="type-row"><div class="type-row__meta"><div class="name">.date-gate__title</div><div class="spec">15px · 700 tracking · uppercase</div></div><div class="type-row__sample" style="font-size:15px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);">Книга Чисел</div></div>
+        <div class="type-row"><div class="type-row__meta"><div class="name">.date-gate__hint</div><div class="spec">13px · italic</div></div><div class="type-row__sample" style="font-size:13px;font-style:italic;color:var(--ink-dim);">Введите дату рождения — Аа 123</div></div>
+        <div class="type-row"><div class="type-row__meta"><div class="name">input[type=date]</div><div class="spec">17px</div></div><div class="type-row__sample" style="font-size:17px;">14.03.1990</div></div>
+        <div class="type-row"><div class="type-row__meta"><div class="name">.btn-open</div><div class="spec">15px · 700 · tracking .08em · uppercase</div></div><div class="type-row__sample" style="font-size:15px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">Открыть книгу</div></div>
+        <div class="type-row"><div class="type-row__meta"><div class="name">.reader__title</div><div class="spec">22px</div></div><div class="type-row__sample" style="font-size:22px;color:var(--gold);">Число Жизненного Пути</div></div>
+        <div class="type-row"><div class="type-row__meta"><div class="name">.reader__subtitle</div><div class="spec">13px · italic</div></div><div class="type-row__sample" style="font-size:13px;font-style:italic;color:var(--ink-dim);">27 → 9</div></div>
+        <div class="type-row"><div class="type-row__meta"><div class="name">.reader__lead-text h4</div><div class="spec">16px</div></div><div class="type-row__sample" style="font-size:16px;">Мудрец</div></div>
+        <div class="type-row"><div class="type-row__meta"><div class="name">.reader__lead-text p</div><div class="spec">14px · line-height 1.5</div></div><div class="type-row__sample" style="font-size:14px;line-height:1.5;color:var(--ink-dim);max-width:52ch;">Энергия отдачи. Это число завершает циклы и раздаёт то, что накопило.</div></div>
+        <div class="type-row"><div class="type-row__meta"><div class="name">.number-badge</div><div class="spec">26px · 700</div></div><div class="type-row__sample" style="font-size:26px;font-weight:700;color:var(--gold);">9</div></div>
+        <div class="type-row"><div class="type-row__meta"><div class="name">.flip-card__label</div><div class="spec">10px · tracking .08em · uppercase</div></div><div class="type-row__sample" style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-dim);">Формирующий</div></div>
+        <div class="type-row"><div class="type-row__meta"><div class="name">.nav-btn</div><div class="spec">13px · tracking .06em · uppercase</div></div><div class="type-row__sample" style="font-size:13px;letter-spacing:.06em;text-transform:uppercase;">Далее →</div></div>
+        <div class="type-row"><div class="type-row__meta"><div class="name">.tap-hint</div><div class="spec">12px · tracking .14em · uppercase</div></div><div class="type-row__sample" style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-dim);">Коснитесь края страницы</div></div>
+      </div>
+
+      <h3 class="eyebrow" style="font-size:12px;margin:44px 0 16px;display:block;">Отступы</h3>
+      <div class="scale-list">
+        <div class="scale-row"><span class="label">spacing-2xs</span><span class="bar-track"><span class="bar" style="width:4px"></span></span><span class="px">4px</span></div>
+        <div class="scale-row"><span class="label">spacing-xs</span><span class="bar-track"><span class="bar" style="width:6px"></span></span><span class="px">6px</span></div>
+        <div class="scale-row"><span class="label">spacing-sm</span><span class="bar-track"><span class="bar" style="width:8px"></span></span><span class="px">8px</span></div>
+        <div class="scale-row"><span class="label">spacing-md</span><span class="bar-track"><span class="bar" style="width:10px"></span></span><span class="px">10px</span></div>
+        <div class="scale-row"><span class="label">spacing-lg</span><span class="bar-track"><span class="bar" style="width:12px"></span></span><span class="px">12px</span></div>
+        <div class="scale-row"><span class="label">spacing-xl</span><span class="bar-track"><span class="bar" style="width:16px"></span></span><span class="px">16px</span></div>
+        <div class="scale-row"><span class="label">spacing-2xl</span><span class="bar-track"><span class="bar" style="width:20px"></span></span><span class="px">20px</span></div>
+        <div class="scale-row"><span class="label">spacing-3xl</span><span class="bar-track"><span class="bar" style="width:24px"></span></span><span class="px">24px</span></div>
+        <div class="scale-row"><span class="label">spacing-4xl</span><span class="bar-track"><span class="bar" style="width:26px"></span></span><span class="px">26px</span></div>
+      </div>
+
+      <h3 class="eyebrow" style="font-size:12px;margin:44px 0 16px;display:block;">Скругления и тень</h3>
+      <div style="display:flex;gap:56px;flex-wrap:wrap;align-items:flex-end;">
+        <div class="radius-row">
+          <div class="radius-item"><div class="box" style="border-radius:8px"></div><span class="label">radius-sm · 8</span></div>
+          <div class="radius-item"><div class="box" style="border-radius:10px"></div><span class="label">radius-md · 10</span></div>
+          <div class="radius-item"><div class="box" style="border-radius:12px"></div><span class="label">radius-lg · 12</span></div>
+          <div class="radius-item"><div class="box" style="border-radius:18px"></div><span class="label">radius-xl · 18</span></div>
+          <div class="radius-item"><div class="box" style="border-radius:999px"></div><span class="label">radius-full</span></div>
+        </div>
+        <div class="radius-item">
+          <div class="shadow-demo">shadow-panel</div>
+          <span class="label">0 20px 60px rgba(0,0,0,.45)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 02 COMPONENTS ================= -->
+    <section class="section" id="components">
+      <div class="section__head">
+        <p class="eyebrow">02 — Компоненты</p>
+        <h2>Интерфейс</h2>
+        <p>Каждый компонент — рабочая HTML/CSS-копия реального узла из <code style="font-family:var(--mono)">src/ui</code>, а не иллюстрация. Карточка ниже переворачивается по клику.</p>
+      </div>
+
+      <div class="comp-block">
+        <div class="comp-block__head"><h3>Button</h3><span class="spec-note">.btn-open / .nav-btn</span></div>
+        <div class="comp-stage">
+          <div class="comp-cell"><span class="tag">Primary · default</span><button class="btn-open">Открыть книгу</button></div>
+          <div class="comp-cell"><span class="tag">Primary · hover</span><button class="btn-open hover">Открыть книгу</button></div>
+          <div class="comp-cell"><span class="tag">Primary · disabled</span><button class="btn-open" disabled>Открыть книгу</button></div>
+          <div class="comp-cell"><span class="tag">Nav · default</span><button class="nav-btn">← Назад</button></div>
+          <div class="comp-cell"><span class="tag">Nav · hover</span><button class="nav-btn hover">Далее →</button></div>
+          <div class="comp-cell"><span class="tag">Nav · disabled</span><button class="nav-btn" disabled>Далее →</button></div>
+        </div>
+      </div>
+
+      <div class="comp-block">
+        <div class="comp-block__head"><h3>Date Input</h3><span class="spec-note">input[type=date]</span></div>
+        <div class="comp-stage">
+          <div class="comp-cell field"><span class="tag">Empty</span><input class="date-input" type="text" placeholder="дд.мм.гггг" /></div>
+          <div class="comp-cell field"><span class="tag">Filled</span><input class="date-input" type="text" value="14.03.1990" readonly /></div>
+          <div class="comp-cell field"><span class="tag">Focus</span><input class="date-input focus" type="text" value="14.03.1990" readonly /></div>
+        </div>
+      </div>
+
+      <div class="comp-block">
+        <div class="comp-block__head"><h3>Panel</h3><span class="spec-note">.date-gate / .reader — glass surface</span></div>
+        <div class="comp-stage">
+          <div class="panel-swatch">panel · panel-border<br/>blur(10px) · shadow-panel</div>
+        </div>
+      </div>
+
+      <div class="comp-block">
+        <div class="comp-block__head"><h3>Number Badge</h3><span class="spec-note">.number-badge</span></div>
+        <div class="comp-stage">
+          <div class="comp-cell"><span class="tag">Жизненный путь</span><div class="number-badge live">9</div></div>
+          <div class="comp-cell"><span class="tag">Число дня</span><div class="number-badge">5</div></div>
+        </div>
+      </div>
+
+      <div class="comp-block">
+        <div class="comp-block__head"><h3>Progress Dots</h3><span class="spec-note">.reader__dots</span></div>
+        <div class="comp-stage">
+          <div class="comp-cell">
+            <span class="tag">Глава 1 из 11</span>
+            <div class="dots-row" id="dots-demo"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="comp-block">
+        <div class="comp-block__head"><h3>Flip Card</h3><span class="spec-note">.flip-card — click to flip</span></div>
+        <div class="comp-stage">
+          <div class="comp-cell">
+            <span class="tag">Формирующий цикл</span>
+            <div class="flip-card" data-flip>
+              <div class="flip-card__inner">
+                <div class="flip-card__face flip-card__back"><span>Формирующий</span></div>
+                <div class="flip-card__face flip-card__front">
+                  <span class="flip-card__value">3</span>
+                  <span class="flip-card__label">Формирующий</span>
+                  <span class="flip-card__caption">0–27 лет · Творец</span>
+                </div>
+              </div>
+            </div>
+            <span class="flip-card__hint">клик — перевернуть</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="comp-block">
+        <div class="comp-block__head"><h3>Tap Hint</h3><span class="spec-note">.tap-hint</span></div>
+        <div class="comp-stage">
+          <div class="tap-hint-demo">Коснитесь края страницы, чтобы начать читать</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 03 SCREENS ================= -->
+    <section class="section" id="screens">
+      <div class="section__head">
+        <p class="eyebrow">03 — Экраны</p>
+        <h2>Композиция</h2>
+        <p>Тёмная область за панелями — плейсхолдер для 3D‑книги на Three.js (пропорция обложки 1.28 × 1.71, как в <code style="font-family:var(--mono)">three/constants.ts</code>): это WebGL‑сцена, а не векторная иллюстрация, поэтому здесь она размечена, а не выдумана.</p>
+      </div>
+
+      <div class="screen-grid">
+        <div class="device">
+          <div class="device__label"><span>Обложка</span><b>stage: cover</b></div>
+          <div class="stage">
+            <div class="book-ph"><span class="book-ph__label">3D‑книга (Three.js)</span></div>
+            <div class="mock-panel gate">
+              <div class="k-title">Книга Чисел</div>
+              <div class="k-hint">Введите дату рождения, чтобы она проявилась на обложке</div>
+              <input class="date-input k-input" type="text" value="14.03.1990" readonly />
+              <button class="btn-open k-btn">Открыть книгу</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="device">
+          <div class="device__label"><span>Чтение · глава 1</span><b>stage: reading</b></div>
+          <div class="stage">
+            <div class="book-ph" style="opacity:.55"><span class="book-ph__label">3D‑книга (Three.js)</span></div>
+            <div class="mock-panel">
+              <div class="reader__progress">
+                <span>Глава 1 из 11</span>
+                <div class="dots-row" id="dots-demo-2"></div>
+              </div>
+              <h4 class="reader__title">Число Жизненного Пути</h4>
+              <p class="reader__subtitle">27 → 9</p>
+              <div class="reader__lead">
+                <div class="number-badge">9</div>
+                <div class="reader__lead-text">
+                  <h4>Мудрец</h4>
+                  <p>Энергия отдачи. Это число завершает циклы и раздаёт то, что накопило — через сострадание, широту взгляда и служение большему, чем один человек.</p>
+                </div>
+              </div>
+              <p class="reader__footnote">Главное число вашей даты рождения — генеральный курс всей жизни.</p>
+              <div class="reader__nav">
+                <button class="nav-btn" disabled>← Назад</button>
+                <button class="nav-btn">Далее →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="device">
+          <div class="device__label"><span>Чтение · карты</span><b>stage: reading</b></div>
+          <div class="stage">
+            <div class="book-ph" style="opacity:.55"><span class="book-ph__label">3D‑книга (Three.js)</span></div>
+            <div class="mock-panel">
+              <div class="reader__progress">
+                <span>Глава 7 из 11</span>
+                <div class="dots-row" id="dots-demo-3"></div>
+              </div>
+              <h4 class="reader__title">Три Цикла Жизни</h4>
+              <p class="reader__subtitle">Формирующий · Продуктивный · Урожайный</p>
+              <div class="reader__cards">
+                <div class="flip-card flipped"><div class="flip-card__inner">
+                  <div class="flip-card__face flip-card__back"><span>Формирующий</span></div>
+                  <div class="flip-card__face flip-card__front"><span class="flip-card__value">3</span><span class="flip-card__label">0–27</span></div>
+                </div></div>
+                <div class="flip-card flipped"><div class="flip-card__inner">
+                  <div class="flip-card__face flip-card__back"><span>Продуктивный</span></div>
+                  <div class="flip-card__face flip-card__front"><span class="flip-card__value">5</span><span class="flip-card__label">27–54</span></div>
+                </div></div>
+                <div class="flip-card flipped"><div class="flip-card__inner">
+                  <div class="flip-card__face flip-card__back"><span>Урожайный</span></div>
+                  <div class="flip-card__face flip-card__front"><span class="flip-card__value">1</span><span class="flip-card__label">54+</span></div>
+                </div></div>
+              </div>
+              <p class="reader__footnote">Каждый цикл — своя декада, свой урок, своя доминирующая энергия.</p>
+              <div class="reader__nav">
+                <button class="nav-btn">← Назад</button>
+                <button class="nav-btn">Далее →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <p class="foot">Книга Чисел — HTML-макет дизайн-системы · токены и разметка взяты из App.css, index.css и src/ui · пример расчёта — реальный вывод calculateNumerology() для даты 14.03.1990</p>
+  </main>
+</div>
+
+<script>
+  // progress dots — 11 chapters, generated from real chapter count
+  function renderDots(container, active, total){
+    if(!container) return;
+    container.innerHTML='';
+    for(let i=0;i<total;i++){
+      const d=document.createElement('span');
+      d.className='dot'+(i<active?' active':'');
+      container.appendChild(d);
+    }
+  }
+  renderDots(document.getElementById('dots-demo'), 1, 11);
+  renderDots(document.getElementById('dots-demo-2'), 1, 11);
+  renderDots(document.getElementById('dots-demo-3'), 7, 11);
+
+  // flip card interaction
+  document.querySelectorAll('[data-flip]').forEach(function(card){
+    card.addEventListener('click', function(){ card.classList.toggle('flipped'); });
+  });
+
+  // active rail link on scroll
+  const links = Array.from(document.querySelectorAll('.rail__nav a'));
+  const targets = links.map(function(a){ return document.querySelector(a.getAttribute('href')); }).filter(Boolean);
+  if('IntersectionObserver' in window){
+    const io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          const id = '#'+entry.target.id;
+          links.forEach(function(a){ a.classList.toggle('active', a.getAttribute('href')===id); });
+        }
+      });
+    }, { rootMargin:'-40% 0px -55% 0px' });
+    targets.forEach(function(t){ io.observe(t); });
+  }
+</script>
