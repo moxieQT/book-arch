@@ -24,8 +24,8 @@ export function BookStage() {
     const scene = new BookScene(canvasRef.current, stageRef.current)
     sceneRef.current = scene
     if (typeof window !== 'undefined') {
-      ;(window as any).__bookScene = scene
-      ;(window as any).__bookStore = useBookStore
+      window.__bookScene = scene
+      window.__bookStore = useBookStore
     }
 
     // Начальная книга (эталон 02.04.1994)
@@ -37,6 +37,10 @@ export function BookStage() {
     return () => {
       scene.dispose()
       sceneRef.current = null
+      if (typeof window !== 'undefined') {
+        delete window.__bookScene
+        delete window.__bookStore
+      }
     }
   }, [])
 

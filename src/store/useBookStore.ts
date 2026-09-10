@@ -31,6 +31,17 @@ function saveScores(scores: Record<string, UserScoreRecord[]>) {
   }
 }
 
+function loadSavedBirthDate(): Date | null {
+  try {
+    const raw = localStorage.getItem(DATE_STORAGE_KEY)
+    if (!raw) return null
+    const d = new Date(raw)
+    return isNaN(d.getTime()) ? null : d
+  } catch {
+    return null
+  }
+}
+
 interface BookState {
   stage: BookStage
   coverState: CoverState
@@ -61,13 +72,16 @@ interface BookState {
 
 export const useBookStore = create<BookState>((set, get) => {
   const initialScores = loadSavedScores()
+  const savedDate = loadSavedBirthDate()
+  const initialProfile = savedDate ? calculateArchetypes(savedDate) : null
+  const initialChapters = initialProfile ? buildChapters(initialProfile) : []
 
   return {
     stage: 'cover',
     coverState: 'presentation',
-    birthDate: null,
-    profile: null,
-    chapters: [],
+    birthDate: savedDate,
+    profile: initialProfile,
+    chapters: initialChapters,
     currentSpread: 0,
     isAnimating: false,
     restarting: false,
@@ -112,8 +126,13 @@ export const useBookStore = create<BookState>((set, get) => {
     requestRestart: () => {
       const { currentSpread, isAnimating } = get()
       if (isAnimating) return
+      try {
+        localStorage.removeItem(DATE_STORAGE_KEY)
+      } catch {
+        // ignore
+      }
       if (currentSpread === 0) {
-        set({ birthDate: null, profile: null, chapters: [], stage: 'cover' })
+        set({ birthDate: null, profile: null, chapters: [], stage: 'cover', coverState: 'presentation' })
         return
       }
       set({ restarting: true, currentSpread: 0 })
@@ -126,6 +145,11 @@ export const useBookStore = create<BookState>((set, get) => {
     confirmClosed: () => {
       const { restarting } = get()
       if (restarting) {
+        try {
+          localStorage.removeItem(DATE_STORAGE_KEY)
+        } catch {
+          // ignore
+        }
         set({ birthDate: null, profile: null, chapters: [], stage: 'cover', restarting: false, coverState: 'presentation' })
       } else {
         set({ stage: 'cover' })
@@ -155,6 +179,6 @@ export const useBookStore = create<BookState>((set, get) => {
 })
 
 if (typeof window !== 'undefined') {
-  ;(window as any).__bookStore = useBookStore
+  window.__bookStore = useBookStore
 }
 

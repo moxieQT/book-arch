@@ -6,9 +6,16 @@ import {
   drawPageRightOntoCanvas,
   drawEndpaperOntoCanvas,
   makeGildedEdgesTexture,
+} from './luxuryTextures'
+import {
   CANVAS_W,
   CANVAS_H,
-} from './bookTextures'
+  COVER_LAYOUT,
+  READING_TABS,
+  STAR_RATING_LAYOUT,
+  NAV_LAYOUT,
+  isInside,
+} from './bookLayout'
 import { useBookStore, type ReadingLayerTab } from '../store/useBookStore'
 
 const BOOK_W = 2.2
@@ -71,6 +78,19 @@ export class BookScene {
   private bookBlockLeft: THREE.Mesh | null = null
   private bottomCoverBoard: THREE.Mesh | null = null
   private spineMesh: THREE.Mesh | null = null
+  private ground: THREE.Mesh | null = null
+  private ribMeshes: THREE.Mesh[] = []
+
+  // Реестр постоянных ресурсов для чистого WebGL dispose
+  private staticDisposables: {
+    geometries: THREE.BufferGeometry[]
+    materials: THREE.Material[]
+    textures: THREE.Texture[]
+  } = {
+    geometries: [],
+    materials: [],
+    textures: [],
+  }
 
   private camState: CamState = 'cover'
   private readingView: ReadingView = 'spread'
@@ -155,10 +175,12 @@ export class BookScene {
     const groundGeo = new THREE.PlaneGeometry(14, 14)
     groundGeo.rotateX(-Math.PI / 2)
     const groundMat = new THREE.MeshStandardMaterial({ color: 0xe8dfd0, roughness: 0.94, metalness: 0.02 })
-    const ground = new THREE.Mesh(groundGeo, groundMat)
-    ground.position.y = -0.05
-    ground.receiveShadow = true
-    this.scene.add(ground)
+    this.ground = new THREE.Mesh(groundGeo, groundMat)
+    this.ground.position.y = -0.05
+    this.ground.receiveShadow = true
+    this.scene.add(this.ground)
+    this.staticDisposables.geometries.push(groundGeo)
+    this.staticDisposables.materials.push(groundMat)
 
     const DUST_N = 50
     const dustGeo = new THREE.BufferGeometry()
@@ -174,17 +196,13 @@ export class BookScene {
     const dustMat = new THREE.PointsMaterial({ color: 0xc6a76b, size: 0.02, transparent: true, opacity: 0.5, sizeAttenuation: true })
     this.dust = new THREE.Points(dustGeo, dustMat)
     this.scene.add(this.dust)
+    this.staticDisposables.geometries.push(dustGeo)
+    this.staticDisposables.materials.push(dustMat)
 
     this.scene.add(this.bookRoot)
 
     // Создаем трехмерный массив книги: золоченый срез страниц, корешок с ребрами и нижняя крышка
     this.createBookRigidBody()
-
-    // Задняя статичная обложка книги
-    const backCoverCv = document.createElement('canvas')
-    drawEndpaperOntoCanvas(backCoverCv)
-    const backCoverTex = new THREE.CanvasTexture(backCoverCv)
-    this.createLeafFromCanvases(backCoverCv, backCoverTex, undefined, undefined, 0)
 
     this.onResize()
     this.camera.position.copy(this.targets.cover.pos)
@@ -246,11 +264,8 @@ export class BookScene {
         }
       }
 
-      const cartX = (CANVAS_W - 920) / 2
-      const cartY = 1350
-
       // Кнопка День ‹
-      if (x >= cartX + 85 && x <= cartX + 145 && y >= cartY + 60 && y <= cartY + 115) {
+      if (isInside(x, y, COVER_LAYOUT.dayMinus.hit)) {
         return {
           cursor: 'pointer',
           action: () => {
@@ -260,7 +275,7 @@ export class BookScene {
         }
       }
       // Кнопка День ›
-      if (x >= cartX + 210 && x <= cartX + 270 && y >= cartY + 60 && y <= cartY + 115) {
+      if (isInside(x, y, COVER_LAYOUT.dayPlus.hit)) {
         return {
           cursor: 'pointer',
           action: () => {
@@ -270,7 +285,7 @@ export class BookScene {
         }
       }
       // Кнопка Месяц ‹
-      if (x >= cartX + 315 && x <= cartX + 375 && y >= cartY + 60 && y <= cartY + 115) {
+      if (isInside(x, y, COVER_LAYOUT.monthMinus.hit)) {
         return {
           cursor: 'pointer',
           action: () => {
@@ -280,7 +295,7 @@ export class BookScene {
         }
       }
       // Кнопка Месяц ›
-      if (x >= cartX + 440 && x <= cartX + 500 && y >= cartY + 60 && y <= cartY + 115) {
+      if (isInside(x, y, COVER_LAYOUT.monthPlus.hit)) {
         return {
           cursor: 'pointer',
           action: () => {
@@ -290,7 +305,7 @@ export class BookScene {
         }
       }
       // Кнопка Год ‹
-      if (x >= cartX + 545 && x <= cartX + 605 && y >= cartY + 60 && y <= cartY + 115) {
+      if (isInside(x, y, COVER_LAYOUT.yearMinus.hit)) {
         return {
           cursor: 'pointer',
           action: () => {
@@ -300,7 +315,7 @@ export class BookScene {
         }
       }
       // Кнопка Год ›
-      if (x >= cartX + 700 && x <= cartX + 760 && y >= cartY + 60 && y <= cartY + 115) {
+      if (isInside(x, y, COVER_LAYOUT.yearPlus.hit)) {
         return {
           cursor: 'pointer',
           action: () => {
@@ -310,7 +325,7 @@ export class BookScene {
         }
       }
       // Кнопка эталона 02.04.1994
-      if (x >= cartX + 110 && x <= cartX + 440 && y >= cartY + 140 && y <= cartY + 195) {
+      if (isInside(x, y, COVER_LAYOUT.presetButton.hit)) {
         return {
           cursor: 'pointer',
           action: () => {
@@ -322,7 +337,7 @@ export class BookScene {
         }
       }
       // Кнопка Открыть Врата
-      if (x >= cartX + 470 && x <= cartX + 800 && y >= cartY + 140 && y <= cartY + 195) {
+      if (isInside(x, y, COVER_LAYOUT.openButton.hit)) {
         return {
           cursor: 'pointer',
           action: () => {
@@ -332,7 +347,7 @@ export class BookScene {
         }
       }
       // Возврат к наклону обложки
-      if (x >= CANVAS_W / 2 - 220 && x <= CANVAS_W / 2 + 220 && y >= cartY + 210 && y <= cartY + 255) {
+      if (isInside(x, y, COVER_LAYOUT.returnLink.hit)) {
         return {
           cursor: 'pointer',
           action: () => {
@@ -369,7 +384,7 @@ export class BookScene {
           }
 
           // Кнопка ‹ Назад / ‹ Обложка
-          if (x >= 40 && x <= 450 && y >= 1520 && y <= 1700) {
+          if (isInside(x, y, NAV_LAYOUT.backButton.hit)) {
             return {
               cursor: 'pointer',
               action: () => this.handleBackAction(),
@@ -377,7 +392,7 @@ export class BookScene {
           }
 
           // Кнопка Далее › на левой странице (переход к правой странице разворота)
-          if (x >= CANVAS_W - 460 && x <= CANVAS_W && y >= 1520 && y <= 1700) {
+          if (isInside(x, y, NAV_LAYOUT.nextButton.hit)) {
             return {
               cursor: 'pointer',
               action: () => this.handleNextAction(),
@@ -385,7 +400,7 @@ export class BookScene {
           }
 
           // 13-я глава: Закрыть книгу и начать заново
-          if (this.turnsCount === 13 && x >= CANVAS_W / 2 - 280 && x <= CANVAS_W / 2 + 280 && y >= 1340 && y <= 1470) {
+          if (this.turnsCount === 13 && isInside(x, y, NAV_LAYOUT.restartButton.hit)) {
             return {
               cursor: 'pointer',
               action: () => store.requestRestart(),
@@ -393,12 +408,9 @@ export class BookScene {
           }
 
           // Шкала 1-5 звёзд
-          if (y >= 1270 && y <= 1470) {
-            const starStartX = CANVAS_W / 2 - 240
-            const starGap = 120
-            for (let i = 1; i <= 5; i++) {
-              const sX = starStartX + (i - 1) * starGap
-              if (x >= sX - 55 && x <= sX + 55) {
+          if (y >= STAR_RATING_LAYOUT.yZone.y1 && y <= STAR_RATING_LAYOUT.yZone.y2) {
+            for (let i = 1; i <= STAR_RATING_LAYOUT.starCount; i++) {
+              if (isInside(x, y, STAR_RATING_LAYOUT.getStarHit(i))) {
                 return {
                   cursor: 'pointer',
                   action: () => {
@@ -438,7 +450,7 @@ export class BookScene {
           }
 
           // Кнопка ‹ Назад на правой странице (возврат к левой странице)
-          if (x >= 40 && x <= 450 && y >= 1520 && y <= 1700) {
+          if (isInside(x, y, NAV_LAYOUT.backButton.hit)) {
             return {
               cursor: 'pointer',
               action: () => this.handleBackAction(),
@@ -446,7 +458,7 @@ export class BookScene {
           }
 
           // Кнопка Далее › / Карта Профиля › / Завершить чтение
-          if (x >= CANVAS_W - 460 && x <= CANVAS_W && y >= 1520 && y <= 1700) {
+          if (isInside(x, y, NAV_LAYOUT.nextButton.hit)) {
             return {
               cursor: 'pointer',
               action: () => this.handleNextAction(),
@@ -454,17 +466,9 @@ export class BookScene {
           }
 
           // Вкладки в шапке (1-10 главы)
-          if (this.turnsCount <= 10 && y >= 90 && y <= 200) {
-            const tabs: { key: ReadingLayerTab; x1: number; x2: number }[] = [
-              { key: 'essence', x1: 110, x2: 320 },
-              { key: 'shadow', x1: 320, x2: 520 },
-              { key: 'life', x1: 520, x2: 750 },
-              { key: 'archetypes', x1: 750, x2: 990 },
-              { key: 'integration', x1: 990, x2: 1240 },
-            ]
-
-            for (const t of tabs) {
-              if (x >= t.x1 && x <= t.x2) {
+          if (this.turnsCount <= 10) {
+            for (const t of READING_TABS) {
+              if (isInside(x, y, t.hit)) {
                 return {
                   cursor: 'pointer',
                   action: () => {
@@ -746,6 +750,7 @@ export class BookScene {
 
   private createBookRigidBody() {
     const gildedTex = makeGildedEdgesTexture()
+    this.staticDisposables.textures.push(gildedTex)
 
     // Материал среза страниц (золоченый срез книги с рельефными слоями)
     const gildedMat = new THREE.MeshStandardMaterial({
@@ -778,11 +783,14 @@ export class BookScene {
       depthWrite: false,
     })
 
+    this.staticDisposables.materials.push(gildedMat, innerPageMat, leatherMat, goldTrimMat, transparentMat)
+
     // 1. Нижняя жесткая крышка переплета (Bottom Cover Board)
     const boardW = BOOK_W + 0.06
     const boardD = BOOK_D + 0.08
     const boardH = 0.025
     const boardGeo = new THREE.BoxGeometry(boardW, boardH, boardD)
+    this.staticDisposables.geometries.push(boardGeo)
     this.bottomCoverBoard = new THREE.Mesh(boardGeo, leatherMat)
     this.bottomCoverBoard.position.set(boardW / 2 - 0.02, -boardH / 2, 0)
     this.bottomCoverBoard.castShadow = true
@@ -794,6 +802,7 @@ export class BookScene {
     const spineLength = BOOK_D + 0.08
     const spineGeo = new THREE.CylinderGeometry(spineRadius, spineRadius, spineLength, 24, 1, false, Math.PI / 2, Math.PI)
     spineGeo.rotateX(Math.PI / 2)
+    this.staticDisposables.geometries.push(spineGeo)
     this.spineMesh = new THREE.Mesh(spineGeo, leatherMat)
     this.spineMesh.position.set(0, spineRadius - 0.015, 0)
     this.spineMesh.castShadow = true
@@ -803,17 +812,16 @@ export class BookScene {
     const ribGeo = new THREE.TorusGeometry(spineRadius + 0.003, 0.007, 12, 24, Math.PI)
     ribGeo.rotateY(Math.PI / 2)
     ribGeo.rotateZ(Math.PI / 2)
+    this.staticDisposables.geometries.push(ribGeo)
     const ribPositions = [-1.1, -0.55, 0, 0.55, 1.1]
     ribPositions.forEach((z) => {
       const rib = new THREE.Mesh(ribGeo, goldTrimMat)
       rib.position.set(0, spineRadius - 0.015, z)
       this.bookRoot.add(rib)
+      this.ribMeshes.push(rib)
     })
 
     // 4. Правый книжный блок страниц (толщина книги)
-    // +Z: НИЖНИЙ СРЕЗ КНИГИ (прямо перед глазами пользователя)
-    // +X: передний срез, -Z: верхний срез
-    // +Y (верх): прозрачный, чтобы не перекрывать листы и обложку книги!
     const blockMaterials = [
       gildedMat,       // +X (fore-edge)
       innerPageMat,    // -X (spine side)
@@ -828,6 +836,7 @@ export class BookScene {
     const blockH = BOOK_THICKNESS
     const blockGeo = new THREE.BoxGeometry(blockW, blockH, blockD)
     blockGeo.translate(blockW / 2, blockH / 2, 0)
+    this.staticDisposables.geometries.push(blockGeo)
 
     this.bookBlockRight = new THREE.Mesh(blockGeo, blockMaterials)
     this.bookBlockRight.position.set(0.02, 0, 0)
@@ -838,6 +847,7 @@ export class BookScene {
     // 5. Левый книжный блок (растет по мере перелистывания страниц)
     const leftBlockGeo = new THREE.BoxGeometry(blockW, blockH, blockD)
     leftBlockGeo.translate(-blockW / 2, blockH / 2, 0)
+    this.staticDisposables.geometries.push(leftBlockGeo)
     const leftMaterials = [
       innerPageMat,    // +X (spine side)
       gildedMat,       // -X (left fore-edge)
@@ -927,7 +937,6 @@ export class BookScene {
       pos.setY(i, base[i * 3 + 1] + lift + ripple)
     }
     pos.needsUpdate = true
-    mesh.geometry.computeVertexNormals()
   }
 
   private startTurn(direction: TurnDirection, onDone?: (ok: boolean) => void) {
@@ -1063,6 +1072,15 @@ export class BookScene {
     this.stage.removeEventListener('pointerdown', this.onPointerDown)
     this.resizeObserver.disconnect()
     this.clearBook()
+
+    // Очистка постоянных WebGL-буферов и материалов сцены
+    this.staticDisposables.geometries.forEach((g) => g.dispose())
+    this.staticDisposables.materials.forEach((m) => m.dispose())
+    this.staticDisposables.textures.forEach((t) => t.dispose())
+    this.staticDisposables.geometries = []
+    this.staticDisposables.materials = []
+    this.staticDisposables.textures = []
+
     this.renderer.dispose()
   }
 }

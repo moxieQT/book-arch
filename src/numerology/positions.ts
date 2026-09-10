@@ -177,5 +177,3 @@ export const POSITIONS_REGISTRY: Record<string, PositionDef> = {
     meaningPrompt: 'Исцеление материнской раны, возвращение безусловного права на любовь, наслаждение и процветание.',
   },
 }
-
-export const POSITIONS_LIST = Object.values(POSITIONS_REGISTRY).sort((a, b) => a.numOrder - b.numOrder)

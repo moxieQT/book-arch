@@ -2,10 +2,17 @@ import * as THREE from 'three'
 import type { Chapter } from '../numerology/chapters'
 import type { ReadingLayerTab, UserScoreRecord } from '../store/useBookStore'
 import type { ArchetypesProfile } from '../numerology/calculate'
+import type { ArcanaPositionContent } from '../numerology/contentDatabase'
 import { LUXURY_PALETTE } from './bookPalette'
-
-export const CANVAS_W = 1400
-export const CANVAS_H = 1880
+import {
+  CANVAS_W,
+  CANVAS_H,
+  COVER_LAYOUT,
+  READING_TABS,
+  NAV_LAYOUT,
+  STAR_RATING_LAYOUT,
+} from './bookLayout'
+export { CANVAS_W, CANVAS_H }
 
 export const RATING_HINTS: Record<number, string> = {
   1: 'Пока с трудом узнаю или чувствую блок',
@@ -381,10 +388,11 @@ export function drawCoverOntoCanvas(
 
   drawSacredGeometry(ctx, CANVAS_W / 2, 920, 275)
 
-  const cartW = 960
-  const cartH = coverState === 'input' ? 280 : 200
-  const cartX = (CANVAS_W - cartW) / 2
-  const cartY = 1340
+  const cart = COVER_LAYOUT.cartouche
+  const cartW = cart.w
+  const cartH = coverState === 'input' ? cart.hInput : cart.hPres
+  const cartX = cart.x
+  const cartY = cart.y
 
   ctx.save()
   ctx.fillStyle = 'rgba(255, 253, 248, 0.92)'
@@ -419,53 +427,61 @@ export function drawCoverOntoCanvas(
     const yStr = String(draftDate.year)
 
     // День
-    drawPillButton(ctx, '‹', cartX + 90, cartY + 68, 52, 50, false, 28)
+    const dm = COVER_LAYOUT.dayMinus.draw
+    drawPillButton(ctx, '‹', dm.x, dm.y, dm.w, dm.h, false, 28)
     ctx.fillStyle = LUXURY_PALETTE.wine.primary
     ctx.font = '700 42px "Cormorant Garamond", Georgia, serif'
-    ctx.fillText(dStr, cartX + 180, cartY + 105)
-    drawPillButton(ctx, '›', cartX + 225, cartY + 68, 52, 50, false, 28)
+    ctx.fillText(dStr, COVER_LAYOUT.dayText.x, COVER_LAYOUT.dayText.y)
+    const dp = COVER_LAYOUT.dayPlus.draw
+    drawPillButton(ctx, '›', dp.x, dp.y, dp.w, dp.h, false, 28)
     ctx.font = 'italic 18px "Cormorant Garamond", Georgia, serif'
     ctx.fillStyle = LUXURY_PALETTE.ink.secondary
-    ctx.fillText('День', cartX + 180, cartY + 134)
+    ctx.fillText('День', COVER_LAYOUT.dayText.x, COVER_LAYOUT.dayText.y + 29)
 
     ctx.fillStyle = LUXURY_PALETTE.gold.primary
     ctx.font = '700 32px "Cormorant Garamond", Georgia, serif'
     ctx.fillText('·', cartX + 300, cartY + 105)
 
     // Месяц
-    drawPillButton(ctx, '‹', cartX + 330, cartY + 68, 52, 50, false, 28)
+    const mm = COVER_LAYOUT.monthMinus.draw
+    drawPillButton(ctx, '‹', mm.x, mm.y, mm.w, mm.h, false, 28)
     ctx.fillStyle = LUXURY_PALETTE.wine.primary
     ctx.font = '700 42px "Cormorant Garamond", Georgia, serif'
-    ctx.fillText(mStr, cartX + 420, cartY + 105)
-    drawPillButton(ctx, '›', cartX + 465, cartY + 68, 52, 50, false, 28)
+    ctx.fillText(mStr, COVER_LAYOUT.monthText.x, COVER_LAYOUT.monthText.y)
+    const mp = COVER_LAYOUT.monthPlus.draw
+    drawPillButton(ctx, '›', mp.x, mp.y, mp.w, mp.h, false, 28)
     ctx.font = 'italic 18px "Cormorant Garamond", Georgia, serif'
     ctx.fillStyle = LUXURY_PALETTE.ink.secondary
-    ctx.fillText('Месяц', cartX + 420, cartY + 134)
+    ctx.fillText('Месяц', COVER_LAYOUT.monthText.x, COVER_LAYOUT.monthText.y + 29)
 
     ctx.fillStyle = LUXURY_PALETTE.gold.primary
     ctx.font = '700 32px "Cormorant Garamond", Georgia, serif'
     ctx.fillText('·', cartX + 540, cartY + 105)
 
     // Год
-    drawPillButton(ctx, '‹', cartX + 570, cartY + 68, 52, 50, false, 28)
+    const ym = COVER_LAYOUT.yearMinus.draw
+    drawPillButton(ctx, '‹', ym.x, ym.y, ym.w, ym.h, false, 28)
     ctx.fillStyle = LUXURY_PALETTE.wine.primary
     ctx.font = '700 42px "Cormorant Garamond", Georgia, serif'
-    ctx.fillText(yStr, cartX + 675, cartY + 105)
-    drawPillButton(ctx, '›', cartX + 735, cartY + 68, 52, 50, false, 28)
+    ctx.fillText(yStr, COVER_LAYOUT.yearText.x, COVER_LAYOUT.yearText.y)
+    const yp = COVER_LAYOUT.yearPlus.draw
+    drawPillButton(ctx, '›', yp.x, yp.y, yp.w, yp.h, false, 28)
     ctx.font = 'italic 18px "Cormorant Garamond", Georgia, serif'
     ctx.fillStyle = LUXURY_PALETTE.ink.secondary
-    ctx.fillText('Год', cartX + 675, cartY + 134)
+    ctx.fillText('Год', COVER_LAYOUT.yearText.x, COVER_LAYOUT.yearText.y + 29)
 
     // Кнопка эталона
-    drawPillButton(ctx, '✦  02.04.1994 (Эталон v0.3)  ✦', cartX + 110, cartY + 160, 355, 54, false, 20)
+    const pb = COVER_LAYOUT.presetButton.draw
+    drawPillButton(ctx, '✦  02.04.1994 (Эталон v0.3)  ✦', pb.x, pb.y, pb.w, pb.h, false, 20)
 
     // Кнопка открытия
-    drawPillButton(ctx, '✦  ОТКРЫТЬ ВРАТА  ✦', cartX + 495, cartY + 160, 355, 54, true, 24)
+    const ob = COVER_LAYOUT.openButton.draw
+    drawPillButton(ctx, '✦  ОТКРЫТЬ ВРАТА  ✦', ob.x, ob.y, ob.w, ob.h, true, 24)
 
     // Возврат
     ctx.fillStyle = LUXURY_PALETTE.gold.deep
     ctx.font = 'italic 20px "Cormorant Garamond", Georgia, serif'
-    ctx.fillText('— ✕ вернуться к наклону обложки —', CANVAS_W / 2, cartY + 250)
+    ctx.fillText('— ✕ вернуться к наклону обложки —', COVER_LAYOUT.returnLink.draw.x, COVER_LAYOUT.returnLink.draw.y)
   }
   ctx.restore()
 
@@ -474,19 +490,6 @@ export function drawCoverOntoCanvas(
   ctx.letterSpacing = '6px'
   ctx.fillText('EDITIONIS PRIVATAE • MMXXVI', CANVAS_W / 2, 1690)
   ctx.letterSpacing = '0px'
-}
-
-export function makeLuxuryCoverTexture(
-  coverState: 'presentation' | 'input' = 'presentation',
-  draftDate = { day: 2, month: 4, year: 1994 }
-): THREE.CanvasTexture {
-  const cv = document.createElement('canvas')
-  drawCoverOntoCanvas(cv, coverState, draftDate)
-  const texture = new THREE.CanvasTexture(cv)
-  texture.colorSpace = THREE.SRGBColorSpace
-  texture.generateMipmaps = true
-  texture.minFilter = THREE.LinearMipmapLinearFilter
-  return texture
 }
 
 // ---------------------------------------------------------------------------
@@ -509,16 +512,6 @@ export function drawEndpaperOntoCanvas(cv: HTMLCanvasElement) {
   ctx.letterSpacing = '5px'
   ctx.fillText('LIBER ARCANORUM', CANVAS_W / 2, CANVAS_H / 2 + 300)
   ctx.letterSpacing = '0px'
-}
-
-export function makeLuxuryEndpaperTexture(): THREE.CanvasTexture {
-  const cv = document.createElement('canvas')
-  drawEndpaperOntoCanvas(cv)
-  const texture = new THREE.CanvasTexture(cv)
-  texture.colorSpace = THREE.SRGBColorSpace
-  texture.generateMipmaps = true
-  texture.minFilter = THREE.LinearMipmapLinearFilter
-  return texture
 }
 
 // ---------------------------------------------------------------------------
@@ -591,7 +584,8 @@ export function drawPageLeftOntoCanvas(
     drawSacredGeometry(ctx, CANVAS_W / 2, 1020, 240)
     ctx.restore()
 
-    drawPillButton(ctx, '↺  Закрыть книгу и начать заново', CANVAS_W / 2 - 260, 1370, 520, 64, false, 26)
+    const rb = NAV_LAYOUT.restartButton.draw
+    drawPillButton(ctx, '↺  Закрыть книгу и начать заново', rb.x, rb.y, rb.w, rb.h, false, 26)
   } else if (chapter.kind === 'ancestral' && chapter.ancestralLines) {
     const lines = chapter.ancestralLines
     ctx.textAlign = 'center'
@@ -681,10 +675,12 @@ export function drawPageLeftOntoCanvas(
 
   // Навигационные кнопки внизу левой страницы
   const backLabel = spreadIdx === 1 ? '‹  Обложка' : '‹  Назад'
-  drawPillButton(ctx, backLabel, margin + 40, 1580, 240, 60, false, 26)
+  const nb = NAV_LAYOUT.backButton.draw
+  const nn = NAV_LAYOUT.nextButton.draw
+  drawPillButton(ctx, backLabel, nb.x, nb.y, nb.w, nb.h, false, 26)
 
   // Кнопка Далее на левой странице: ведёт на правую страницу разворота
-  drawPillButton(ctx, 'Далее  ›', CANVAS_W - margin - 260, 1580, 240, 60, true, 26)
+  drawPillButton(ctx, 'Далее  ›', nn.x, nn.y, nn.w, nn.h, true, 26)
 
   ctx.textAlign = 'center'
   ctx.fillStyle = LUXURY_PALETTE.ink.muted
@@ -725,12 +721,10 @@ function drawRatingWidget(
   ctx.fillText(label, CANVAS_W / 2, cardY + 48)
 
   // 3. Звезды 1-5
-  const starStartX = CANVAS_W / 2 - 240
-  const starGap = 120
   const starY = cardY + 128
 
-  for (let i = 1; i <= 5; i++) {
-    const sX = starStartX + (i - 1) * starGap
+  for (let i = 1; i <= STAR_RATING_LAYOUT.starCount; i++) {
+    const sX = STAR_RATING_LAYOUT.getStarCenter(i)
     const isFilled = score !== null && score >= i
 
     ctx.save()
@@ -783,20 +777,6 @@ function drawRatingWidget(
   ctx.fillText(hint, CANVAS_W / 2, cardY + 242)
 
   ctx.restore()
-}
-
-export function makeLuxuryPageLeftTexture(
-  chapter: Chapter,
-  spreadIdx: number,
-  score: number | null
-): THREE.CanvasTexture {
-  const cv = document.createElement('canvas')
-  drawPageLeftOntoCanvas(cv, chapter, spreadIdx, score)
-  const texture = new THREE.CanvasTexture(cv)
-  texture.colorSpace = THREE.SRGBColorSpace
-  texture.generateMipmaps = true
-  texture.minFilter = THREE.LinearMipmapLinearFilter
-  return texture
 }
 
 // ---------------------------------------------------------------------------
@@ -904,9 +884,11 @@ export function drawPageRightOntoCanvas(
     ctx.font = '32px "Cormorant Garamond", Georgia, serif'
     wrapEditorialText(ctx, lines.integral.integration, margin + 65, b2Y + 328, CANVAS_W - (margin + 40) * 2 - 50, 44)
 
-    drawPillButton(ctx, '‹  Назад', margin + 40, 1580, 240, 60, false, 26)
+    const nb = NAV_LAYOUT.backButton.draw
+    const nn = NAV_LAYOUT.nextButton.draw
+    drawPillButton(ctx, '‹  Назад', nb.x, nb.y, nb.w, nb.h, false, 26)
     const nextLabel = spreadIdx === 12 ? 'Карта Профиля  ›' : 'Далее  ›'
-    drawPillButton(ctx, nextLabel, CANVAS_W - margin - 260, 1580, 250, 60, true, 26)
+    drawPillButton(ctx, nextLabel, nn.x, nn.y, nn.w, nn.h, true, 26)
   } else {
     drawLayerTabs(ctx, margin, activeTab)
 
@@ -915,8 +897,10 @@ export function drawPageRightOntoCanvas(
       drawTabContent(ctx, margin, activeTab, content)
     }
 
-    drawPillButton(ctx, '‹  Назад', margin + 40, 1580, 240, 60, false, 26)
-    drawPillButton(ctx, 'Далее  ›', CANVAS_W - margin - 260, 1580, 240, 60, true, 26)
+    const nb = NAV_LAYOUT.backButton.draw
+    const nn = NAV_LAYOUT.nextButton.draw
+    drawPillButton(ctx, '‹  Назад', nb.x, nb.y, nb.w, nb.h, false, 26)
+    drawPillButton(ctx, 'Далее  ›', nn.x, nn.y, nn.w, nn.h, true, 26)
   }
 
   ctx.textAlign = 'center'
@@ -926,17 +910,9 @@ export function drawPageRightOntoCanvas(
 }
 
 function drawLayerTabs(ctx: CanvasRenderingContext2D, margin: number, activeTab: ReadingLayerTab) {
-  const tabs: { key: ReadingLayerTab; label: string; x: number; w: number }[] = [
-    { key: 'essence', label: '✦ Свет', x: margin + 35, w: 185 },
-    { key: 'shadow', label: '☾ Тень', x: margin + 235, w: 185 },
-    { key: 'life', label: '⚖ В Жизни', x: margin + 435, w: 215 },
-    { key: 'archetypes', label: '🏛 Пантеон', x: margin + 665, w: 225 },
-    { key: 'integration', label: '☀ Вопросы', x: margin + 905, w: 225 },
-  ]
-
-  tabs.forEach((tab) => {
+  READING_TABS.forEach((tab) => {
     const isActive = tab.key === activeTab
-    drawPillButton(ctx, tab.label, tab.x, margin + 25, tab.w, 56, isActive, 24)
+    drawPillButton(ctx, tab.label, tab.draw.x, tab.draw.y, tab.draw.w, tab.draw.h, isActive, 24)
   })
 
   const goldGrad = createGoldGradient(ctx, margin + 30, margin + 102, CANVAS_W - margin - 30, margin + 102)
@@ -952,7 +928,7 @@ function drawTabContent(
   ctx: CanvasRenderingContext2D,
   margin: number,
   tab: ReadingLayerTab,
-  content: any
+  content: ArcanaPositionContent
 ) {
   const cX = margin + 45
   const cY = 240
@@ -1187,23 +1163,6 @@ function drawSummaryProfileGrid(
   ctx.fillStyle = LUXURY_PALETTE.wine.primary
   ctx.font = 'italic 24px "Cormorant Garamond", Georgia, serif'
   ctx.fillText('«Тень не уничтожается — она признается и становится высшей силой».', CANVAS_W / 2, 1500)
-}
-
-export function makeLuxuryPageRightTexture(
-  chapter: Chapter,
-  spreadIdx: number,
-  activeTab: ReadingLayerTab,
-  isLast: boolean,
-  scores: Record<string, UserScoreRecord[]> = {},
-  profile?: ArchetypesProfile | null
-): THREE.CanvasTexture {
-  const cv = document.createElement('canvas')
-  drawPageRightOntoCanvas(cv, chapter, spreadIdx, activeTab, isLast, scores, profile)
-  const texture = new THREE.CanvasTexture(cv)
-  texture.colorSpace = THREE.SRGBColorSpace
-  texture.generateMipmaps = true
-  texture.minFilter = THREE.LinearMipmapLinearFilter
-  return texture
 }
 
 export function makeGildedEdgesTexture(): THREE.CanvasTexture {

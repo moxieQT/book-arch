@@ -3,9 +3,17 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 import { useBookStore } from './store/useBookStore'
+import { ErrorBoundary } from './components/ErrorBoundary'
+
+declare global {
+  interface Window {
+    __bookStore?: typeof useBookStore
+    __bookScene?: unknown
+  }
+}
 
 if (typeof window !== 'undefined') {
-  ;(window as any).__bookStore = useBookStore
+  window.__bookStore = useBookStore
 
   if ('serviceWorker' in navigator && import.meta.env.DEV) {
     navigator.serviceWorker.getRegistrations().then((registrations) => {
@@ -18,6 +26,8 @@ if (typeof window !== 'undefined') {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
   </StrictMode>,
 )
