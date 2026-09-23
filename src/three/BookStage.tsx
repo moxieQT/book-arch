@@ -3,6 +3,7 @@ import { BookScene } from './bookScene'
 import { useBookStore } from '../store/useBookStore'
 import { calculateArchetypes } from '../numerology/calculate'
 import { buildChapters } from '../numerology/chapters'
+import { soundscape } from '../audio/soundscape'
 
 export function BookStage() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -130,6 +131,7 @@ export function BookStage() {
       const direction = target > appliedCount.current ? 'next' : 'prev'
       const turn = direction === 'next' ? scene.turnNext.bind(scene) : scene.turnPrev.bind(scene)
 
+      soundscape.playPageTurn()
       turn((ok) => {
         if (ok) {
           appliedCount.current += direction === 'next' ? 1 : -1

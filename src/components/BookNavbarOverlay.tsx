@@ -31,6 +31,9 @@ export function BookNavbarOverlay({ onBackToPortal }: BookNavbarOverlayProps) {
         <span className="book-navbar-overlay__title">
           ✦ АРХЕТИПЫ И ТЕНИ ✦
         </span>
+        <span className="book-navbar-overlay__badge">
+          Прототип 1 · Астральный Астролябий и Живой Гримуар
+        </span>
         {stage === 'reading' && currentChapter && (
           <span className="book-navbar-overlay__spread">
             Глава {currentSpread} из {chapters.length}: {currentChapter.title} ({currentChapter.bigArcanaName})

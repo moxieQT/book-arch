@@ -1,9 +1,19 @@
+import { useState } from 'react'
+import { soundscape } from '../audio/soundscape'
+
 interface PortalHeaderProps {
   onOpenBook: () => void
   onOpenLegal?: () => void
 }
 
 export function PortalHeader({ onOpenBook, onOpenLegal }: PortalHeaderProps) {
+  const [isAudioActive, setIsAudioActive] = useState(() => soundscape.getIsEnabled())
+
+  const toggleSound = () => {
+    const active = soundscape.toggle()
+    setIsAudioActive(active)
+  }
+
   const scrollTo = (id: string) => {
     const el = document.getElementById(id)
     if (el) {
@@ -41,6 +51,15 @@ export function PortalHeader({ onOpenBook, onOpenLegal }: PortalHeaderProps) {
         </nav>
 
         <div className="portal-header__actions">
+          <button
+            type="button"
+            className="portal-btn portal-btn--ghost portal-btn--sm"
+            onClick={toggleSound}
+            title={isAudioActive ? 'Выключить саундскейп (432 Гц)' : 'Включить медитативный саундскейп (432 Гц)'}
+          >
+            <span>{isAudioActive ? '🔊 432 Гц' : '🔈 432 Гц'}</span>
+          </button>
+
           {onOpenLegal && (
             <button
               type="button"

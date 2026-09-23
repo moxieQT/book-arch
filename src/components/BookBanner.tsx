@@ -13,15 +13,15 @@ export function BookBanner({ onOpenBook }: BookBannerProps) {
           <div className="book-banner__decor-corner book-banner__decor-corner--br">✦</div>
 
           <div className="book-banner__content">
-            <div className="book-banner__tag">ЦИФРОВОЙ АРТЕФАКТ · THREE.JS LUXURY FOLIO</div>
+            <div className="book-banner__tag">ПРОТОТИП 1 · АСТРАЛЬНЫЙ АСТРОЛЯБИЙ И ЖИВОЙ ГРИМУАР · THREE.JS LUXURY</div>
             <h2 className="book-banner__title">
               Интерактивная 3D-Книга <br />
               <span>«Архетипы и Тени»</span>
             </h2>
             <p className="book-banner__description">
-              Топография сознания на стыке юнгианской алхимии и французской нумерологической традиции.
-              Введите дату своего рождения прямо на обложке старинного кожаного фолианта, чтобы
-              рассчитать Священный Тетрактис, Теневой Узел и родовую формулу трансформации.
+              Топография сознания на стыке юнгианской алхимии и французской нумерологической традиции в эстетике тихой роскоши.
+              Астральный астролябий из 22k золота с кристальной дисперсией света венчает живой гримуар, реагирующий на каждое
+              движение мысли и даты рождения.
             </p>
 
             <div className="book-banner__features">

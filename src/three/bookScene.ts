@@ -17,6 +17,7 @@ import {
   isInside,
 } from './bookLayout'
 import { useBookStore, type ReadingLayerTab } from '../store/useBookStore'
+import { AstralAstrolabe } from './astralAstrolabe'
 
 const BOOK_W = 2.2
 const BOOK_D = 3.0
@@ -101,6 +102,8 @@ export class BookScene {
   private clock = new THREE.Clock()
   private raf = 0
   private warmLight: THREE.PointLight
+  private astrolabe: AstralAstrolabe
+  private keyLightPos = new THREE.Vector3(2.4, 5.0, 2.6)
   private dust: THREE.Points
   private dustSpeed: Float32Array
   private currentLook: THREE.Vector3
@@ -235,7 +238,7 @@ export class BookScene {
     this.scene.add(new THREE.HemisphereLight(0xfffbf4, 0xd8cebe, 0.78))
 
     const keyLight = new THREE.DirectionalLight(0xfff7ec, 1.45)
-    keyLight.position.set(2.4, 5.0, 2.6)
+    keyLight.position.copy(this.keyLightPos)
     keyLight.castShadow = true
     keyLight.shadow.mapSize.set(2048, 2048)
     keyLight.shadow.bias = -0.0001
@@ -253,6 +256,18 @@ export class BookScene {
     const rimLight = new THREE.PointLight(0xead8b5, 0.45, 12, 2)
     rimLight.position.set(-1.6, 1.6, -1.8)
     this.scene.add(rimLight)
+
+    // Прототип 1: Астральный Астролябий и Живой Гримуар
+    this.astrolabe = new AstralAstrolabe({
+      ringColor: 0xc6a76b,
+      dispersionIntensity: 1.25,
+      enableCaustics: true,
+    })
+    this.scene.add(this.astrolabe.group)
+    const causticPlane = this.astrolabe.getCausticPlane()
+    if (causticPlane) {
+      this.scene.add(causticPlane)
+    }
 
     const groundGeo = new THREE.PlaneGeometry(14, 14)
     groundGeo.rotateX(-Math.PI / 2)
@@ -304,6 +319,8 @@ export class BookScene {
     const r = this.stage.getBoundingClientRect()
     this.mouseVec.x = ((e.clientX - r.left) / r.width) * 2 - 1
     this.mouseVec.y = -(((e.clientY - r.top) / r.height) * 2 - 1)
+
+    this.astrolabe.setPointer(this.mouseVec)
 
     const hit = this.performRaycast()
     if (hit) {
@@ -1141,6 +1158,11 @@ export class BookScene {
       this.openTimer = null
     }
     this.camState = state
+    this.astrolabe.setStageMode(state)
+  }
+
+  getAstrolabe(): AstralAstrolabe {
+    return this.astrolabe
   }
 
   getReadingView(): ReadingView {
@@ -1153,8 +1175,13 @@ export class BookScene {
 
     const t = this.clock.getElapsedTime()
 
-    // Книга устойчиво лежит на столе без покачивания
-    this.bookRoot.position.set(0, 0, 0)
+    // Прототип 1: Живой Гримуар — деликатное дыхание книги
+    const breathe = Math.sin(t * 0.85) * 0.006
+    this.bookRoot.position.set(0, breathe, 0)
+
+    // Обновление Астрального Астролябия: кольца, хрусталь с дисперсией, каустика и частицы
+    this.astrolabe.update(t, this.camera.position, this.keyLightPos)
+
     const flicker = Math.sin(t * 3.1) * 0.045 + Math.sin(t * 7.7) * 0.028 + Math.sin(t * 19.3) * 0.015
     this.warmLight.intensity = 1.15 + flicker
     this.warmLight.position.x = 0.8 + Math.sin(t * 4.2) * 0.008
@@ -1202,6 +1229,9 @@ export class BookScene {
     this.stage.removeEventListener('pointerdown', this.onPointerDown)
     this.resizeObserver.disconnect()
     this.clearBook()
+
+    // Очистка Астрального Астролябия
+    this.astrolabe.dispose()
 
     // Очистка постоянных WebGL-буферов и материалов сцены
     this.staticDisposables.geometries.forEach((g) => g.dispose())
