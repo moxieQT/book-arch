@@ -21,10 +21,19 @@ function App() {
   })
   const [isLegalOpen, setIsLegalOpen] = useState<boolean>(false)
   const scrollPosRef = useRef<number>(0)
+  const viewModeRef = useRef<ViewMode>(viewMode)
+
+  useEffect(() => {
+    viewModeRef.current = viewMode
+  }, [viewMode])
 
   // Сохранение позиции скролла портала перед переходом в режим 3D-книги
   const saveScrollPosition = () => {
     if (typeof window !== 'undefined') {
+      const portalEl = document.querySelector<HTMLElement>('.portal-layout')
+      if (portalEl && portalEl.style.display === 'none') {
+        return
+      }
       const y = window.scrollY || document.documentElement.scrollTop || 0
       scrollPosRef.current = y
       try {
@@ -38,6 +47,7 @@ function App() {
   // Навигация между порталом и 3D-книгой
   const openBook = () => {
     saveScrollPosition()
+    viewModeRef.current = 'book'
     if (window.location.hash !== '#book') {
       window.location.hash = 'book'
     }
@@ -48,6 +58,7 @@ function App() {
     if (window.location.hash === '#book') {
       window.history.pushState(null, '', window.location.pathname)
     }
+    viewModeRef.current = 'portal'
     setViewMode('portal')
   }
 
@@ -55,9 +66,13 @@ function App() {
   useEffect(() => {
     const handleHashChange = () => {
       if (window.location.hash === '#book') {
-        saveScrollPosition()
+        if (viewModeRef.current === 'portal') {
+          saveScrollPosition()
+        }
+        viewModeRef.current = 'book'
         setViewMode('book')
       } else {
+        viewModeRef.current = 'portal'
         setViewMode('portal')
       }
     }

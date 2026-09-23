@@ -1,9 +1,9 @@
 # Orchestrator Progress Log
 
-Last visited: 2026-09-23T23:40:10+06:00 (Heartbeat Tick 2)
+Last visited: 2026-09-24T00:00:15+06:00 (Heartbeat Tick 4)
 
 ## Iteration Status
-Current iteration: 0 / 32
+Current iteration: 1 / 32
 
 ## Current Status
 - [x] Initialized DISPATCH.md and recorded user constraints
@@ -11,19 +11,22 @@ Current iteration: 0 / 32
 - [x] Started heartbeat cron schedule (task-8)
 - [x] Completed Survey Phase (explorer_survey_1, 2, 3 reports received)
 - [x] Established PROJECT.md and TEST_INFRA.md
-- [x] Dispatched Parallel Tracks:
-  - E2E Testing Track: `test_writer_e2e` (a43d68dc) building automated test suite and TEST_READY.md
-  - Implementation Milestone M1 Explorers:
-    - `explorer_m1_1` (2c50db13): Contacts & ServiceModal Fix
-    - `explorer_m1_2` (f4b02132): Pricing, Navigator & Regulations Polish
-    - `explorer_m1_3` (e7f7d748): 3D Book Transition & State Hardening
-- [x] Synthesized M1 Explorer reports & dispatched Worker M1
 - [x] Received TEST_READY.md from E2E Test Writer (115/115 tests passing, exit code 0)
-- [ ] Receive Worker M1 handoff (build and lint passed 0 errors)
-- [ ] Review, Challenge, and Audit M1
+- [x] Received Worker M1 handoff (build and lint passed 0 errors, 115/115 tests passed)
+- [x] Evaluated Gate 1:
+  - reviewer_1: APPROVE
+  - reviewer_2: APPROVE
+  - challenger_1: APPROVE
+  - challenger_2: REQUEST_CHANGES (BUG-M3-01 scroll clobber)
+  - auditor_1: CLEAN (no cheating, authentic Three.js, substantive tests)
+  - Gate 1 Result: FAIL (challenger_2 REQUEST_CHANGES on BUG-M3-01)
+- [x] Dispatched Iteration 2 Explorers (explorer_iter2_1, 2, 3) to analyze BUG-M3-01 patch
+- [ ] Synthesize Iteration 2 reports and prepare Succession / Worker dispatch
 
 ## Active Tasks & Subagents
-- worker_m1 (7c52b1bf): implementing ServiceModal booking CTA, Medical Disclaimer, online surcharge & discount badges, 3D transition scroll/history hardening
+- explorer_iter2_1 (262fde3b): Scroll Restoration & Lifecycle Fix Design
+- explorer_iter2_2 (8fbfd825): Hash State & Transition Fix Design
+- explorer_iter2_3 (3c0731c7): CDP & Regression Verification Design
 
 ## Retrospective Notes
 - Initial setup completed. Strict local git constraint and Maria booking contact requirements noted.

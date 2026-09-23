@@ -59,12 +59,20 @@ Orchestrate the complete, high-quality delivery of the Alina energy healing web 
 | explorer_m1_1 | teamwork_preview_explorer | Contact Links & ServiceModal Fix Design | completed | 2c50db13-5516-485f-a62f-684133614fcb |
 | explorer_m1_2 | teamwork_preview_explorer | Pricing, Navigator & Regulations Polish Design | completed | f4b02132-7ecd-4658-9208-ef19412eb729 |
 | explorer_m1_3 | teamwork_preview_explorer | 3D Book Transition & State Hardening Design | completed | e7f7d748-b9b6-45cb-9fac-8151d269f61c |
-| worker_m1 | teamwork_preview_worker | Implementation of Contacts, Pricing & 3D Transition | in-progress | 7c52b1bf-79ce-41a9-8eb9-7d481ca1fbd8 |
+| worker_m1 | teamwork_preview_worker | Implementation of Contacts, Pricing & 3D Transition | completed | 7c52b1bf-79ce-41a9-8eb9-7d481ca1fbd8 |
+| reviewer_1 | teamwork_preview_reviewer | Business, Contacts & Legal Review | completed (APPROVE) | 92803efb-85af-4d3b-a998-58a32667b8ee |
+| reviewer_2 | teamwork_preview_reviewer | 3D Book & Transition Review | completed (APPROVE) | fdc337fb-179e-4673-980e-0f77907f9d95 |
+| challenger_1 | teamwork_preview_challenger | Pricing, Formulas & URL Stress Testing | completed (APPROVE) | 68263ebf-45ba-4acc-98a6-8a7c6123d1b5 |
+| challenger_2 | teamwork_preview_challenger | 3D State Machine & Transition Stress Testing | completed (REQ_CHANGES) | 41b0c22e-a669-4ead-9e73-ea84b70a691b |
+| auditor_1 | teamwork_preview_auditor | Forensic Integrity Audit | completed (CLEAN) | 1239950f-eafb-482b-a85b-6e73cb4849a4 |
+| explorer_iter2_1 | teamwork_preview_explorer | Scroll Restoration & Lifecycle Fix Design | completed | 262fde3b-668f-427b-a96b-2b9f39d45012 |
+| explorer_iter2_2 | teamwork_preview_explorer | Hash State & Transition Fix Design | in-progress | 8fbfd825-68c3-4aff-8764-baef2e5556c5 |
+| explorer_iter2_3 | teamwork_preview_explorer | CDP & Regression Verification Design | in-progress | 3c0731c7-4032-4ff7-aef9-8569833159c1 |
 
 ## Succession Status
-- Succession required: no
-- Spawn count: 8 / 16
-- Pending subagents: 7c52b1bf-79ce-41a9-8eb9-7d481ca1fbd8
+- Succession required: yes (upon completion of active subagents, threshold 16/16 reached)
+- Spawn count: 16 / 16
+- Pending subagents: 8fbfd825-68c3-4aff-8764-baef2e5556c5, 3c0731c7-4032-4ff7-aef9-8569833159c1
 - Predecessor: none
 - Successor: not yet spawned
 
