@@ -28,9 +28,11 @@ export default defineConfig({
       },
     }),
   ],
-  // Порт можно задать через PORT (так его передаёт превью в Claude); иначе стандартный 5173
+  // Порт можно задать через PORT; по умолчанию 5174 (чтобы не конфликтовать с 5173)
   server: {
-    port: Number(process.env.PORT) || 5173,
+    port: Number(process.env.PORT) || 5174,
+    host: true,
+    strictPort: false,
   },
   build: {
     // Vite 8 собирает через Rolldown: rollupOptions.manualChunks им игнорируется
