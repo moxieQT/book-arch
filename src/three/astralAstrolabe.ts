@@ -52,6 +52,9 @@ const crystalFragmentShader = /* glsl */ `
   // Cauchy dispersion simulation for physical spectral splitting
   void main() {
     vec3 normal = normalize(vNormal);
+    if (!gl_FrontFacing) {
+      normal = -normal;
+    }
     vec3 viewDir = normalize(uCameraPos - vWorldPosition);
     vec3 lightDir = normalize(uLightPos - vWorldPosition);
 
@@ -530,6 +533,7 @@ export class AstralAstrolabe {
     this.disposables.textures = []
 
     this.group.clear()
+    this.group.removeFromParent()
     if (this.causticPlane) {
       this.causticPlane.removeFromParent()
     }

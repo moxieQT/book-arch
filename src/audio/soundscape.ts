@@ -9,6 +9,7 @@ const STORAGE_KEY = 'alina_soundscape_enabled'
 class SoundscapeController {
   private ctx: AudioContext | null = null
   private masterGain: GainNode | null = null
+  private sfxGain: GainNode | null = null
   private filterNode: BiquadFilterNode | null = null
   private isPlaying = false
   private isEnabled = false
@@ -31,10 +32,15 @@ class SoundscapeController {
 
     this.ctx = new AudioContextClass()
 
-    // Master Gain
+    // Master Gain for drone
     this.masterGain = this.ctx.createGain()
     this.masterGain.gain.setValueAtTime(0.0001, this.ctx.currentTime)
     this.masterGain.connect(this.ctx.destination)
+
+    // Dedicated SFX Gain for tactile sounds (page rustle)
+    this.sfxGain = this.ctx.createGain()
+    this.sfxGain.gain.setValueAtTime(0.3, this.ctx.currentTime)
+    this.sfxGain.connect(this.ctx.destination)
 
     // Gentle low-pass filter
     this.filterNode = this.ctx.createBiquadFilter()
@@ -140,10 +146,14 @@ class SoundscapeController {
   public playPageTurn() {
     if (!this.isEnabled) return
     this.initAudio()
-    if (!this.ctx || !this.masterGain) return
+    if (!this.ctx || !this.sfxGain) return
 
     if (this.ctx.state === 'suspended') {
       this.ctx.resume()
+    }
+
+    if (!this.isPlaying) {
+      this.start()
     }
 
     const now = this.ctx.currentTime
@@ -176,7 +186,7 @@ class SoundscapeController {
 
     noise.connect(filter)
     filter.connect(gain)
-    gain.connect(this.masterGain)
+    gain.connect(this.sfxGain)
 
     noise.start(now)
   }
