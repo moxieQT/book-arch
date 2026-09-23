@@ -119,6 +119,38 @@ test('P1.11: _preview.html embeds interactive 3D WebGL Three.js Astrolabe canvas
   assert.ok(content.includes('dispersionSlider'), 'Interactive dispersion slider missing')
 })
 
+test('P1.12: Crystal shader handles double-sided normal orientation with gl_FrontFacing', () => {
+  const tsContent = fs.readFileSync(path.join(ROOT_DIR, 'src', 'three', 'astralAstrolabe.ts'), 'utf8')
+  const previewContent = fs.readFileSync(path.join(ROOT_DIR, '_preview.html'), 'utf8')
+  assert.ok(tsContent.includes('!gl_FrontFacing'), 'astralAstrolabe.ts missing gl_FrontFacing check')
+  assert.ok(previewContent.includes('!gl_FrontFacing'), '_preview.html missing gl_FrontFacing check')
+})
+
+test('P1.13: _preview.html 3D canvas includes Prismatic Caustic projection plane on travertine', () => {
+  const previewContent = fs.readFileSync(path.join(ROOT_DIR, '_preview.html'), 'utf8')
+  assert.ok(previewContent.includes('causticVertexShader'), 'Caustic vertex shader missing from _preview.html')
+  assert.ok(previewContent.includes('causticFragmentShader'), 'Caustic fragment shader missing from _preview.html')
+  assert.ok(previewContent.includes('causticPlane'), 'Caustic plane mesh missing from _preview.html')
+  assert.ok(previewContent.includes('rays12'), '12-ray solar caustic pattern missing from _preview.html')
+})
+
+test('P1.14: Audio soundscape implements isolated sfxGain node for audible tactile page turn synthesis', () => {
+  const audioContent = fs.readFileSync(path.join(ROOT_DIR, 'src', 'audio', 'soundscape.ts'), 'utf8')
+  assert.ok(audioContent.includes('sfxGain'), 'Dedicated sfxGain node missing in soundscape.ts')
+  assert.ok(audioContent.includes('gain.connect(this.sfxGain)'), 'Page turn rustle not connected to sfxGain')
+})
+
+test('P1.15: AstralAstrolabe root group is detached from parent scene upon dispose()', () => {
+  const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'three', 'astralAstrolabe.ts'), 'utf8')
+  assert.ok(content.includes('this.group.removeFromParent()'), 'removeFromParent missing in AstralAstrolabe dispose()')
+})
+
+test('P1.16: index.html specifies lang="ru" and theme-color #F4EFE6', () => {
+  const htmlContent = fs.readFileSync(path.join(ROOT_DIR, 'index.html'), 'utf8')
+  assert.ok(htmlContent.includes('<html lang="ru">'), 'index.html missing lang="ru"')
+  assert.ok(htmlContent.includes('content="#F4EFE6"'), 'index.html missing theme-color #F4EFE6')
+})
+
 console.log('\n======================================================================')
 console.log(`  Tests Passed: ${passed} / ${passed + failed}`)
 console.log('======================================================================\n')

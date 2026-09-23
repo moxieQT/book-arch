@@ -872,6 +872,69 @@ vec3 refractB = refract(-viewDir, normal, etaB);</pre>
   tableMesh.receiveShadow = true;
   scene.add(tableMesh);
 
+  // Prismatic Light Dispersion Caustic Projection Plane on Travertine
+  const causticVertexShader = `
+    varying vec2 vUv;
+    varying vec3 vWorldPosition;
+
+    void main() {
+      vUv = uv;
+      vec4 worldPos = modelMatrix * vec4(position, 1.0);
+      vWorldPosition = worldPos.xyz;
+      gl_Position = projectionMatrix * viewMatrix * worldPos;
+    }
+  `;
+
+  const causticFragmentShader = `
+    precision highp float;
+    uniform float uTime;
+    uniform float uIntensity;
+
+    varying vec2 vUv;
+    varying vec3 vWorldPosition;
+
+    void main() {
+      vec2 p = vUv * 2.0 - 1.0;
+      float r = length(p);
+      if (r > 1.0) discard;
+
+      float angle = atan(p.y, p.x);
+
+      // Sacred 12-ray solar dispersion pattern
+      float rays12 = pow(0.5 + 0.5 * cos(angle * 12.0 - uTime * 0.25), 3.0);
+      float rings = sin(r * 24.0 - uTime * 0.6) * 0.5 + 0.5;
+
+      // Prismatic dispersion fringe colors (amber -> gold -> cyan -> wine)
+      vec3 colR = vec3(0.88, 0.65, 0.32) * pow(0.5 + 0.5 * cos(angle * 12.0 - uTime * 0.25 + 0.15), 4.0);
+      vec3 colG = vec3(0.78, 0.70, 0.45) * pow(0.5 + 0.5 * cos(angle * 12.0 - uTime * 0.25), 4.0);
+      vec3 colB = vec3(0.55, 0.72, 0.85) * pow(0.5 + 0.5 * cos(angle * 12.0 - uTime * 0.25 - 0.15), 4.0);
+      vec3 chromatic = colR + colG + colB;
+
+      // Radial attenuation with soft outer feather
+      float feather = smoothstep(1.0, 0.2, r) * smoothstep(0.04, 0.25, r);
+      float alpha = feather * (0.18 + 0.14 * rays12 + 0.08 * rings) * uIntensity;
+
+      gl_FragColor = vec4(chromatic, alpha);
+    }
+  `;
+
+  const causticGeo = new THREE.PlaneGeometry(3.2, 3.2);
+  causticGeo.rotateX(-Math.PI / 2);
+  const causticMat = new THREE.ShaderMaterial({
+    vertexShader: causticVertexShader,
+    fragmentShader: causticFragmentShader,
+    uniforms: {
+      uTime: { value: 0 },
+      uIntensity: { value: 1.0 },
+    },
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.NormalBlending,
+  });
+  const causticPlane = new THREE.Mesh(causticGeo, causticMat);
+  causticPlane.position.y = -0.045;
+  scene.add(causticPlane);
+
   // -------------------------------------------------------------
   // PROTOTYPE 1: THE LIVING GRIMOIRE (3D Book Model)
   // -------------------------------------------------------------
@@ -1021,6 +1084,9 @@ vec3 refractB = refract(-viewDir, normal, etaB);</pre>
 
     void main() {
       vec3 normal = normalize(vNormal);
+      if (!gl_FrontFacing) {
+        normal = -normal;
+      }
       vec3 viewDir = normalize(uCameraPos - vWorldPosition);
       vec3 lightDir = normalize(uLightPos - vWorldPosition);
 
@@ -1182,6 +1248,7 @@ vec3 refractB = refract(-viewDir, normal, etaB);</pre>
   sliderDispersion.addEventListener('input', (e) => {
     const val = parseFloat(e.target.value);
     crystalMat.uniforms.uDispersion.value = val;
+    causticMat.uniforms.uIntensity.value = Math.min(1.5, val * 0.8);
     labelDispersion.textContent = val.toFixed(2);
   });
 
@@ -1287,6 +1354,11 @@ vec3 refractB = refract(-viewDir, normal, etaB);</pre>
     // Crystal Shader Uniforms
     crystalMat.uniforms.uTime.value = t;
     crystalMat.uniforms.uCameraPos.value.copy(camera.position);
+
+    // Caustic Projection Plane update
+    causticMat.uniforms.uTime.value = t;
+    causticPlane.position.x = astrolabeGroup.position.x * 0.7;
+    causticPlane.position.z = astrolabeGroup.position.z * 0.7;
 
     // Particle dynamics
     const pArr = particleSystem.geometry.attributes.position.array;

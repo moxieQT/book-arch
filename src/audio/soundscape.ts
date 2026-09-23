@@ -131,11 +131,11 @@ class SoundscapeController {
   }
 
   /**
-   * Modulates the filter cutoff frequency based on scroll progress or velocity
+   * Modulates the filter cutoff frequency based on scroll progress or velocity (650 Hz to 2200 Hz)
    */
   public updateScrollCutoff(velocity: number) {
     if (!this.ctx || !this.filterNode || !this.isPlaying) return
-    const targetFreq = Math.min(2200, 650 + Math.abs(velocity) * 450)
+    const targetFreq = Math.min(2200, Math.max(650, 650 + Math.abs(velocity) * 500))
     const now = this.ctx.currentTime
     this.filterNode.frequency.setTargetAtTime(targetFreq, now, 0.15)
   }
@@ -193,3 +193,6 @@ class SoundscapeController {
 }
 
 export const soundscape = new SoundscapeController()
+export function updateScrollVelocity(velocity: number): void {
+  soundscape.updateScrollCutoff(velocity)
+}
