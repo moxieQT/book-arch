@@ -30,10 +30,10 @@
 ## Milestones
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
-| M1 | Manager Booking Contact Fixes | Fix `ServiceModal.tsx` booking CTA to direct to Maria (@maria_anima / +7 915 214 9560) with prefilled text and WhatsApp option, sync with `alinaPricing.ts` | none | IN_PROGRESS |
-| M2 | Pricing, Navigator, Regulations & Aesthetic Polish | Add Medical Disclaimer, online surcharge badge (+3 000 ₽), 20% Twin Flame discount badge, verify 16 sessions and 36 Tarot questions, ensure R4 styling | M1 | PLANNED |
-| M3 | 3D Book Transition & State Hardening | Enhance `App.tsx` and `BookNavbarOverlay.tsx`: scroll position preservation, history state, cover date sync, font synchronization, Esc key return | M1 | PLANNED |
-| M4 | Comprehensive E2E Testing & Acceptance Gate | End-to-end tests for all 10 inventoried features, build/lint checks, final verification | M1, M2, M3 | PLANNED |
+| M1 | Manager Booking Contact Fixes | Fix `ServiceModal.tsx` booking CTA to direct to Maria (@maria_anima / +7 915 214 9560) with prefilled text and WhatsApp option, sync with `alinaPricing.ts` | none | DONE |
+| M2 | Pricing, Navigator, Regulations & Aesthetic Polish | Add Medical Disclaimer, online surcharge badge (+3 000 ₽), 20% Twin Flame discount badge, verify 16 sessions and 36 Tarot questions, ensure R4 styling | M1 | DONE |
+| M3 | 3D Book Transition & State Hardening | Enhance `App.tsx` and `BookNavbarOverlay.tsx`: scroll position preservation, history state, cover date sync, font synchronization, Esc key return | M1 | DONE |
+| M4 | Comprehensive E2E Testing & Acceptance Gate | End-to-end tests for all 11 inventoried features, build/lint checks, final verification | M1, M2, M3 | DONE |
 
 ## Interface Contracts
 ### `src/data/alinaPricing.ts` ↔ `src/components/ServiceModal.tsx`

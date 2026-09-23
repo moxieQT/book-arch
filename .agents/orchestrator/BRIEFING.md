@@ -66,15 +66,15 @@ Orchestrate the complete, high-quality delivery of the Alina energy healing web 
 | challenger_2 | teamwork_preview_challenger | 3D State Machine & Transition Stress Testing | completed (REQ_CHANGES) | 41b0c22e-a669-4ead-9e73-ea84b70a691b |
 | auditor_1 | teamwork_preview_auditor | Forensic Integrity Audit | completed (CLEAN) | 1239950f-eafb-482b-a85b-6e73cb4849a4 |
 | explorer_iter2_1 | teamwork_preview_explorer | Scroll Restoration & Lifecycle Fix Design | completed | 262fde3b-668f-427b-a96b-2b9f39d45012 |
-| explorer_iter2_2 | teamwork_preview_explorer | Hash State & Transition Fix Design | in-progress | 8fbfd825-68c3-4aff-8764-baef2e5556c5 |
-| explorer_iter2_3 | teamwork_preview_explorer | CDP & Regression Verification Design | in-progress | 3c0731c7-4032-4ff7-aef9-8569833159c1 |
+| explorer_iter2_2 | teamwork_preview_explorer | Hash State & Transition Fix Design | completed | 8fbfd825-68c3-4aff-8764-baef2e5556c5 |
+| explorer_iter2_3 | teamwork_preview_explorer | CDP & Regression Verification Design | completed | 3c0731c7-4032-4ff7-aef9-8569833159c1 |
 
 ## Succession Status
-- Succession required: yes (upon completion of active subagents, threshold 16/16 reached)
+- Succession required: yes
 - Spawn count: 16 / 16
-- Pending subagents: 8fbfd825-68c3-4aff-8764-baef2e5556c5, 3c0731c7-4032-4ff7-aef9-8569833159c1
+- Pending subagents: none
 - Predecessor: none
-- Successor: not yet spawned
+- Successor: spawning Generation 2 successor
 
 ## Active Timers
 - Heartbeat cron: c770c026-d28f-442a-9135-04b3e7c34258/task-8
