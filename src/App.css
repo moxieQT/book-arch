@@ -1148,6 +1148,50 @@
   flex-wrap: wrap;
 }
 
+.portal-modal__booking {
+  width: 100%;
+}
+
+.portal-modal__manager-notice {
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  background: rgba(198, 167, 107, 0.08);
+  border-left: 3px solid var(--gold);
+  border-radius: 0 8px 8px 0;
+}
+
+.portal-modal__manager-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.portal-modal__manager-badge {
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(92, 25, 46, 0.1);
+  color: var(--wine);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.portal-modal__manager-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.portal-modal__manager-quote {
+  margin: 0;
+  font-size: 0.96rem;
+  line-height: 1.5;
+  color: #423522;
+  font-style: italic;
+}
+
 /* ==========================================================================
    Book 3D Mode & Overlay
    ========================================================================== */
@@ -1448,6 +1492,96 @@
   box-shadow: 0 4px 18px var(--wine-glow);
 }
 
+/* ==========================================================================
+   Pricing Medical Disclaimer Banner (R4 Luxury Art-Book)
+   ========================================================================== */
+.pricing-disclaimer-card {
+  background: linear-gradient(135deg, rgba(255, 253, 248, 0.96) 0%, rgba(246, 239, 226, 0.92) 100%);
+  border: 1px solid var(--gold);
+  border-radius: 12px;
+  padding: 24px 30px;
+  margin: 0 auto 38px;
+  max-width: 960px;
+  text-align: left;
+  box-shadow: 0 4px 20px rgba(198, 167, 107, 0.12), inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+  position: relative;
+  overflow: hidden;
+}
+
+.pricing-disclaimer-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--gold) 0%, var(--wine) 100%);
+}
+
+.pricing-disclaimer-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.pricing-disclaimer-card__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-serif);
+  font-size: 0.88rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--wine);
+  font-weight: 700;
+}
+
+.pricing-disclaimer-card__icon {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.pricing-disclaimer-card__law-note {
+  font-size: 0.82rem;
+  color: var(--gold-dark);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.pricing-disclaimer-card__main-text {
+  font-size: 1.02rem;
+  line-height: 1.6;
+  color: var(--ink);
+  margin: 0 0 16px;
+}
+
+.pricing-disclaimer-card__main-text strong {
+  color: var(--wine);
+  font-weight: 600;
+}
+
+.pricing-disclaimer-card__chips {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pricing-disclaimer-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  background: rgba(198, 167, 107, 0.12);
+  border: 1px solid rgba(198, 167, 107, 0.35);
+  border-radius: 14px;
+  font-family: var(--font-serif);
+  font-size: 0.88rem;
+  color: #48361B;
+  letter-spacing: 0.02em;
+}
+
 /* Pricing Grid */
 .pricing-grid {
   display: grid;
@@ -1609,6 +1743,165 @@
 .pricing-pill__price {
   font-weight: 700;
   color: var(--gold-dark);
+}
+
+/* ==========================================================================
+   Live Online Format Badges (+3 000 ₽)
+   ========================================================================== */
+.pricing-card__online-badge {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(198, 167, 107, 0.1);
+  border: 1px dashed var(--gold);
+  border-radius: 8px;
+  margin-bottom: 14px;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: #3E3220;
+}
+
+.pricing-card__online-badge-icon {
+  font-size: 1.15rem;
+  color: var(--gold-dark);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.pricing-card__online-badge-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pricing-card__online-badge-tag {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--wine);
+}
+
+.pricing-pill__label-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pricing-pill__online-tag {
+  font-size: 0.74rem;
+  padding: 1px 6px;
+  background: var(--wine);
+  color: #FAF6EE;
+  border-radius: 4px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+
+/* ==========================================================================
+   Twin Flame 20% Special Privilege Callout
+   ========================================================================== */
+.pricing-card__special-callout {
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  position: relative;
+  box-shadow: 0 2px 10px rgba(92, 25, 46, 0.06);
+}
+
+.pricing-card__special-callout--wine {
+  background: linear-gradient(135deg, rgba(92, 25, 46, 0.07) 0%, rgba(198, 167, 107, 0.12) 100%);
+  border: 1px solid rgba(92, 25, 46, 0.35);
+}
+
+.pricing-card__special-callout--gold {
+  background: linear-gradient(135deg, rgba(198, 167, 107, 0.14) 0%, rgba(255, 253, 248, 0.9) 100%);
+  border: 1px solid var(--gold);
+}
+
+.pricing-card__special-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.pricing-card__special-icon {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.pricing-card__special-title {
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--wine);
+  letter-spacing: 0.02em;
+  flex: 1;
+}
+
+.pricing-card__special-pill {
+  font-family: var(--font-serif);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  background: var(--wine);
+  color: #FAF6EE;
+  border-radius: 10px;
+  letter-spacing: 0.04em;
+  box-shadow: 0 2px 6px var(--wine-glow);
+}
+
+.pricing-card__special-desc {
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: var(--ink);
+  margin: 0 0 10px;
+}
+
+.pricing-card__special-prices-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.pricing-card__special-price-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.88rem;
+  background: rgba(255, 255, 255, 0.6);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.pricing-card__special-price-label {
+  color: var(--ink-secondary);
+}
+
+.pricing-card__special-price-val strong {
+  color: var(--gold-dark);
+  font-weight: 700;
+  margin-right: 4px;
+}
+
+.pricing-card__special-price-orig {
+  color: var(--ink-light);
+  text-decoration: line-through;
+  font-size: 0.85em;
+}
+
+.pricing-card__special-sub,
+.pricing-card__special-hint {
+  font-size: 0.84rem;
+  color: var(--ink-secondary);
+  font-style: italic;
+  line-height: 1.4;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(198, 167, 107, 0.35);
 }
 
 .pricing-card__footer {
@@ -1834,7 +2127,8 @@
    Legal Risk Checker Modal & Agent UI
    ========================================================================== */
 .legal-modal {
-  border-color: #2AABEE;
+  border-color: var(--gold) !important;
+  box-shadow: 0 16px 48px rgba(32, 28, 36, 0.2), 0 0 0 1px var(--gold-muted);
 }
 
 .legal-presets {

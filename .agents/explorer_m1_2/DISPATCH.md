@@ -20,3 +20,14 @@ OBJECTIVES:
 3. Write your concrete proposal and verification plan to:
    `/Users/mcv/Documents/book/.agents/explorer_m1_2/handoff.md`.
 Send message to parent when completed.
+
+## 2026-09-23T17:28:44Z
+
+From: parent (c770c026-d28f-442a-9135-04b3e7c34258)
+**Context**: Legal Compliance Integration (RF Laws)
+**Content**: User just supplied requirements on Legal Compliance (РФ) (ФЗ-38, ФЗ-323, ст. 159 УК РФ):
+1. `docs/LEGAL_COMPLIANCE_RF.md` (dictionary of stop-word replacements).
+2. Engine & UI: `src/data/legalRules.ts` and `src/components/LegalRiskChecker.tsx`.
+3. Official legal disclaimer in footer (18+, not medical care), audit button in header.
+4. Updated `alina_skills.md` and `docs/alina_skills.md` (v1.4).
+**Action**: Verify that `LegalRiskChecker.tsx` and the footer legal disclaimer are properly designed, styled with R4 luxury aesthetic, and function without errors.

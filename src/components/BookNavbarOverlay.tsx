@@ -19,7 +19,8 @@ export function BookNavbarOverlay({ onBackToPortal }: BookNavbarOverlayProps) {
           type="button"
           className="portal-btn portal-btn--gold-outline portal-btn--sm book-navbar-overlay__back-btn"
           onClick={onBackToPortal}
-          title="Вернуться на главную страницу практик Алины"
+          title="Вернуться на главную страницу практик Алины (Esc)"
+          aria-keyshortcuts="Escape"
         >
           <span className="portal-btn__arrow">←</span>
           <span>К практикам Алины</span>

@@ -24,7 +24,8 @@
 | 7 | Seamless 3D Book Transition (R3) | `#book` hash routing, top return bar «← К практикам Алины», scroll restoration, clean history, keyboard shortcuts | M3 | ORIGINAL_REQUEST §R3 |
 | 8 | 3D Book Asset & Font Hardening (R3) | Font load readiness (`document.fonts.ready`), cover date sync with localStorage birthDate | M3 | Survey 3 findings |
 | 9 | Luxury Art-Book Aesthetic (R4) | Responsive layout, gold vignettes, dividers, palette #F4EFE6, #C6A76B, #5C192E, #201C24, Cormorant Garamond | M2, M3 | ORIGINAL_REQUEST §R4 |
-| 10 | Quality Gate Verification | `npm run lint` with 0 errors, `npm run build` with 0 errors, all acceptance criteria verified | M4 | ORIGINAL_REQUEST Acceptance |
+| 10 | Legal Compliance (RF) | LegalRiskChecker, dictionary stop-words replacement, 18+ medical disclaimer in footer, audit button | M2 | Follow-up 17:28 |
+| 11 | Quality Gate Verification | `npm run lint` with 0 errors, `npm run build` with 0 errors, all acceptance criteria verified | M4 | ORIGINAL_REQUEST Acceptance |
 
 ## Milestones
 | # | Name | Scope | Dependencies | Status |

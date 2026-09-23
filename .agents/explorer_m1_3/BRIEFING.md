@@ -1,7 +1,7 @@
-# BRIEFING — 2026-09-23T17:27:19Z
+# BRIEFING — 2026-09-23T17:31:00Z
 
 ## Mission
-Analyze and design exact code changes for 3D Book transition, scroll restoration, hash navigation, Escape key handler, birthdate cover sync, and font loading texture synchronization.
+Analyze and design exact code changes for 3D Book transition, scroll restoration, clean hash navigation, Escape key handler, birthdate cover sync, and font loading texture synchronization.
 
 ## 🔒 My Identity
 - Archetype: explorer
@@ -17,15 +17,32 @@ Analyze and design exact code changes for 3D Book transition, scroll restoration
 
 ## Current Parent
 - Conversation ID: c770c026-d28f-442a-9135-04b3e7c34258
-- Updated: 2026-09-23T17:27:19Z
+- Updated: 2026-09-23T17:31:00Z
 
 ## Investigation State
-- **Explored paths**: [TBD]
-- **Key findings**: [TBD]
-- **Unexplored areas**: src/App.tsx, src/components/book3d/BookNavbarOverlay.tsx, src/components/book3d/engine/BookScene.ts, texture generation, storage/profile
+- **Explored paths**:
+  - `src/App.tsx`: ViewMode switcher, hash listener, scroll state loss, pushState history trapping.
+  - `src/components/BookNavbarOverlay.tsx`: Return button «← К практикам Алины», display badges.
+  - `src/three/BookStage.tsx`: Mount lifecycle, uncoordinated dual buildBook calls, race conditions without fonts.ready.
+  - `src/three/bookScene.ts`: Hardcoded `draftDate = {day: 2, month: 4, year: 1994}`, lack of store/localStorage sync, lack of instant `jumpToSpread`.
+  - `src/three/luxuryTextures.ts`: Procedural canvas generation with Cormorant Garamond font dependencies.
+  - `src/store/useBookStore.ts`: `DATE_STORAGE_KEY` vs `alina_matrix_birthdate` support.
+  - `index.html`: Google Fonts webfont loading link.
+- **Key findings**:
+  1. Portal unmounting destroys `window.scrollY` and component states in `PricingSection`.
+  2. `window.history.pushState` when returning from `#book` causes history ping-pong and drops query params.
+  3. No `Escape` key handler exists for returning to portal.
+  4. `BookScene.draftDate` is hardcoded to 1994-04-02 and ignores `useBookStore.getState().birthDate` and `alina_matrix_birthdate`. Clicking "Открыть Врата" overwrites user date.
+  5. Canvas textures draw before `document.fonts.ready`, baking fallback serif glyphs into 28 WebGL textures.
+  6. On mount, `BookStage` performs dual `buildBook` repainting (56 canvas draws) and slow sequential flips.
+- **Unexplored areas**: None for M1-3 scope.
 
 ## Key Decisions Made
-- Initialized investigation workflow.
+- Designed non-destructive portal layout retention (`display: 'none'` + `aria-hidden`) combined with `scrollPosRef` and `sessionStorage` fallback.
+- Designed clean history replacement (`replaceState(null, '', pathname + search)`) on return to portal.
+- Designed `Escape` key event listener in `App.tsx` and keyboard navigation.
+- Designed dual-key birthdate synchronization (`alina_matrix_birthdate` and `archetypes_birthdate_v03`) with flexible parser.
+- Designed `document.fonts.ready` synchronization with timeout fallback in `BookStage.tsx` and `BookScene.syncDraftDateFromStore()`.
 
 ## Artifact Index
 - DISPATCH.md — Recorded dispatch instructions

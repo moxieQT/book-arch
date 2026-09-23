@@ -10,6 +10,7 @@ export function BookStage() {
   const sceneRef = useRef<BookScene | null>(null)
   const appliedCount = useRef(0)
   const queueRunning = useRef(false)
+  const isFontReadyRef = useRef(false)
 
   const stage = useBookStore((s) => s.stage)
   const coverState = useBookStore((s) => s.coverState)
@@ -19,7 +20,7 @@ export function BookStage() {
   const tabPage = useBookStore((s) => s.tabPage)
   const scores = useBookStore((s) => s.scores)
 
-  // 1. Создание 3D сцены
+  // 1. Создание 3D сцены с ожиданием готовности шрифтов
   useEffect(() => {
     if (!canvasRef.current || !stageRef.current) return
     const scene = new BookScene(canvasRef.current, stageRef.current)
@@ -29,13 +30,45 @@ export function BookStage() {
       window.__bookStore = useBookStore
     }
 
-    // Начальная книга (эталон 02.04.1994)
-    const initialProfile = calculateArchetypes(new Date(1994, 3, 2))
-    const placeholder = buildChapters(initialProfile)
-    scene.buildBook(placeholder)
-    appliedCount.current = 0
+    let isMounted = true
+
+    const initBookWithFonts = async () => {
+      // Ожидание готовности шрифтов с таймаутом безопасности 2.5с
+      if (typeof document !== 'undefined' && 'fonts' in document) {
+        try {
+          const fontTimeout = new Promise((resolve) => setTimeout(resolve, 2500))
+          await Promise.race([document.fonts.ready, fontTimeout])
+        } catch (err) {
+          console.warn('Font loading check timed out or failed:', err)
+        }
+      }
+
+      if (!isMounted || !sceneRef.current) return
+      isFontReadyRef.current = true
+
+      // Если в store уже есть рассчитанные главы, используем их; иначе строим эталон
+      const storeState = useBookStore.getState()
+      const targetChapters =
+        storeState.chapters.length > 0
+          ? storeState.chapters
+          : buildChapters(calculateArchetypes(storeState.birthDate ?? new Date(1994, 3, 2)))
+
+      sceneRef.current.syncDraftDateFromStore()
+      sceneRef.current.buildBook(targetChapters)
+
+      // Если разворот уже был открыт ранее, мгновенно перемещаемся на него
+      if (storeState.currentSpread > 0) {
+        sceneRef.current.jumpToSpread(storeState.currentSpread)
+        appliedCount.current = storeState.currentSpread
+      } else {
+        appliedCount.current = 0
+      }
+    }
+
+    initBookWithFonts()
 
     return () => {
+      isMounted = false
       scene.dispose()
       sceneRef.current = null
       if (typeof window !== 'undefined') {
@@ -47,7 +80,8 @@ export function BookStage() {
 
   // 2. Обновление глав при расчёте даты рождения
   useEffect(() => {
-    if (!chapters.length || !sceneRef.current) return
+    if (!chapters.length || !sceneRef.current || !isFontReadyRef.current) return
+    sceneRef.current.syncDraftDateFromStore()
     sceneRef.current.buildBook(chapters)
     appliedCount.current = 0
   }, [chapters])

@@ -17,7 +17,8 @@
 | 7 | 3D Book Transition & Return Bar | ORIGINAL_REQUEST §R3 | 5 | 5 | ✓ | ✓ |
 | 8 | 3D Book State & Hash Handling | ORIGINAL_REQUEST §R3 | 5 | 5 | ✓ | ✓ |
 | 9 | Luxury Art-Book Aesthetics & Palette | ORIGINAL_REQUEST §R4 | 5 | 5 | ✓ | ✓ |
-| 10| Lint & Build Zero Errors | Acceptance Criteria | 5 | 5 | ✓ | ✓ |
+| 10 | Legal Compliance & Disclaimers | Follow-up 17:28 | 5 | 5 | ✓ | ✓ |
+| 11| Lint & Build Zero Errors | Acceptance Criteria | 5 | 5 | ✓ | ✓ |
 
 ## Test Architecture
 - **Test Runner**: Node.js automated test script (`node tests/e2e-portal-test.mjs` or Playwright / Vitest / custom verification runner).

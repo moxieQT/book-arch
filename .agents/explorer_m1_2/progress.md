@@ -1,12 +1,14 @@
 # Progress — Explorer M1-2
 
-Last visited: 2026-09-23T17:28:00Z
+Last visited: 2026-09-23T17:30:30Z
 
 - [x] Initialized workspace (DISPATCH.md, BRIEFING.md, progress.md)
-- [ ] Read ORIGINAL_REQUEST.md & PROJECT.md
-- [ ] Inspect `src/components/PricingSection.tsx`
-- [ ] Inspect `src/data/alinaPricing.ts`
-- [ ] Inspect `src/App.css`
-- [ ] Design exact code additions for Medical Disclaimer, Live Online format badge, 20% discount callout, and R4 styling integration
-- [ ] Write handoff.md
-- [ ] Notify parent agent
+- [x] Read ORIGINAL_REQUEST.md & PROJECT.md
+- [x] Inspect `src/components/PricingSection.tsx`
+- [x] Inspect `src/data/alinaPricing.ts`
+- [x] Inspect `src/App.css`
+- [x] Inspect Legal Compliance modules (`LegalRiskChecker.tsx`, `legalRules.ts`, `docs/LEGAL_COMPLIANCE_RF.md`, `PortalFooter.tsx`)
+- [x] Design exact code additions for Medical Disclaimer, Live Online format badge, 20% discount callout, and R4 styling integration
+- [x] Write comprehensive handoff.md
+- [x] Update BRIEFING.md
+- [x] Notify parent agent

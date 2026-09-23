@@ -13,6 +13,43 @@ export interface UserScoreRecord {
 
 const SCORES_STORAGE_KEY = 'archetypes_scores_v03'
 const DATE_STORAGE_KEY = 'archetypes_birthdate_v03'
+const MATRIX_BIRTHDATE_KEY = 'alina_matrix_birthdate'
+
+export function parseDateFlexible(raw: string | null): Date | null {
+  if (!raw) return null
+  const trimmed = raw.trim()
+  if (!trimmed) return null
+
+  // Поддержка JSON объекта { day: 15, month: 8, year: 1989 }
+  if (trimmed.startsWith('{')) {
+    try {
+      const parsed = JSON.parse(trimmed)
+      if (typeof parsed.day === 'number' && typeof parsed.month === 'number' && typeof parsed.year === 'number') {
+        const d = new Date(parsed.year, parsed.month - 1, parsed.day)
+        return isNaN(d.getTime()) ? null : d
+      }
+      if (parsed.birthdate) {
+        return parseDateFlexible(String(parsed.birthdate))
+      }
+    } catch {
+      // игнорируем ошибку парсинга JSON
+    }
+  }
+
+  // Поддержка формата DD.MM.YYYY, DD/MM/YYYY, DD-MM-YYYY
+  const ruMatch = /^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/.exec(trimmed)
+  if (ruMatch) {
+    const day = parseInt(ruMatch[1], 10)
+    const month = parseInt(ruMatch[2], 10) - 1
+    const year = parseInt(ruMatch[3], 10)
+    const d = new Date(year, month, day)
+    return isNaN(d.getTime()) ? null : d
+  }
+
+  // Стандартный ISO / YYYY-MM-DD
+  const d = new Date(trimmed)
+  return isNaN(d.getTime()) ? null : d
+}
 
 function loadSavedScores(): Record<string, UserScoreRecord[]> {
   try {
@@ -33,10 +70,9 @@ function saveScores(scores: Record<string, UserScoreRecord[]>) {
 
 function loadSavedBirthDate(): Date | null {
   try {
-    const raw = localStorage.getItem(DATE_STORAGE_KEY)
-    if (!raw) return null
-    const d = new Date(raw)
-    return isNaN(d.getTime()) ? null : d
+    const matrixRaw = localStorage.getItem(MATRIX_BIRTHDATE_KEY)
+    const legacyRaw = localStorage.getItem(DATE_STORAGE_KEY)
+    return parseDateFlexible(matrixRaw) || parseDateFlexible(legacyRaw)
   } catch {
     return null
   }
@@ -97,6 +133,7 @@ export const useBookStore = create<BookState>((set, get) => {
       const chapters = buildChapters(profile)
       try {
         localStorage.setItem(DATE_STORAGE_KEY, date.toISOString())
+        localStorage.setItem(MATRIX_BIRTHDATE_KEY, date.toISOString())
       } catch {
         // ignore
       }
@@ -132,6 +169,7 @@ export const useBookStore = create<BookState>((set, get) => {
       if (isAnimating) return
       try {
         localStorage.removeItem(DATE_STORAGE_KEY)
+        localStorage.removeItem(MATRIX_BIRTHDATE_KEY)
       } catch {
         // ignore
       }
@@ -151,6 +189,7 @@ export const useBookStore = create<BookState>((set, get) => {
       if (restarting) {
         try {
           localStorage.removeItem(DATE_STORAGE_KEY)
+          localStorage.removeItem(MATRIX_BIRTHDATE_KEY)
         } catch {
           // ignore
         }

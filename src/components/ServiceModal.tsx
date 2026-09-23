@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import type { AlinaService } from '../data/alinaServices'
+import { MANAGER_INFO } from '../data/alinaPricing'
 
 interface ServiceModalProps {
   service: AlinaService | null
@@ -96,23 +97,50 @@ export function ServiceModal({ service, onClose, onOpenBook }: ServiceModalProps
               <span>Открыть интерактивную 3D-Книгу</span>
             </button>
           ) : (
-            <div className="portal-modal__actions">
-              <a
-                href={`https://t.me/share/url?url=&text=${encodeURIComponent(`Здравствуйте, Алина! Хочу узнать подробнее и записаться на: ${service.title}`)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="portal-btn portal-btn--primary portal-btn--lg"
-              >
-                <span>Записаться / Узнать детали</span>
-                <span className="portal-btn__arrow">→</span>
-              </a>
-              <button
-                type="button"
-                className="portal-btn portal-btn--ghost"
-                onClick={onClose}
-              >
-                Вернуться к списку
-              </button>
+            <div className="portal-modal__booking">
+              <div className="portal-modal__manager-notice">
+                <div className="portal-modal__manager-header">
+                  <span className="portal-modal__manager-badge">Менеджер мастера</span>
+                  <span className="portal-modal__manager-name">
+                    {MANAGER_INFO.name} ({MANAGER_INFO.telegram}) {/* Direct booking via manager Maria (@maria_anima) */}
+                  </span>
+                </div>
+                <blockquote className="portal-modal__manager-quote">
+                  {MANAGER_INFO.quote}
+                </blockquote>
+              </div>
+
+              <div className="portal-modal__actions">
+                <a
+                  href={`${MANAGER_INFO.telegramUrl}?text=${encodeURIComponent(
+                    `Здравствуйте, Мария! Хочу узнать подробнее и записаться к Алине на направление: «${service.title}»`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="portal-btn portal-btn--primary portal-btn--lg"
+                >
+                  <span>Написать Марии в Telegram</span>
+                  <span className="portal-btn__arrow">→</span>
+                </a>
+                <a
+                  href={`${MANAGER_INFO.whatsappUrl}?text=${encodeURIComponent(
+                    `Здравствуйте, Мария! Хочу узнать подробнее и записаться к Алине на направление: «${service.title}»`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="portal-btn portal-btn--gold-outline portal-btn--lg"
+                >
+                  <span>Написать в WhatsApp</span>
+                  <span className="portal-btn__arrow">→</span>
+                </a>
+                <button
+                  type="button"
+                  className="portal-btn portal-btn--ghost"
+                  onClick={onClose}
+                >
+                  Вернуться к списку
+                </button>
+              </div>
             </div>
           )}
         </div>

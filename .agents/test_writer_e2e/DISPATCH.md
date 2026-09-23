@@ -20,3 +20,12 @@ OBJECTIVES:
 3. Publish `TEST_READY.md` at `/Users/mcv/Documents/book/TEST_READY.md` with test runner command and tier coverage table per TEST_INFRA.md template.
 4. Write handoff report to `/Users/mcv/Documents/book/.agents/test_writer_e2e/handoff.md`.
 Send message to parent when completed.
+
+## 2026-09-23T17:28:34Z
+**Context**: Legal Compliance Integration (RF Laws)
+**Content**: User just supplied requirements on Legal Compliance (РФ) (ФЗ-38, ФЗ-323, ст. 159 УК РФ):
+1. `docs/LEGAL_COMPLIANCE_RF.md` (dictionary of stop-word replacements).
+2. Engine & UI: `src/data/legalRules.ts` and `src/components/LegalRiskChecker.tsx`.
+3. Official legal disclaimer in footer (18+, not medical care), audit button in header.
+4. Updated `alina_skills.md` and `docs/alina_skills.md` (v1.4).
+**Action**: Include tests for LegalRiskChecker, legal disclaimer (18+, medical), audit button in header, and stop-word rules in your E2E test suite.

@@ -122,6 +122,28 @@ export function PricingSection() {
             </div>
           </div>
 
+          {/* Регламент безопасности и этика мастера: Медицинский дисклеймер */}
+          <div className="pricing-disclaimer-card" role="note" aria-label="Медицинский дисклеймер и правила безопасности">
+            <div className="pricing-disclaimer-card__header">
+              <div className="pricing-disclaimer-card__badge">
+                <span className="pricing-disclaimer-card__icon">🌿</span>
+                <span>Этика практик и регламент безопасности</span>
+              </div>
+              <span className="pricing-disclaimer-card__law-note">ФЗ № 323-ФЗ · 18+</span>
+            </div>
+            <div className="pricing-disclaimer-card__body">
+              <p className="pricing-disclaimer-card__main-text">
+                <strong>При выраженных физических или психосоматических симптомах мы настоятельно рекомендуем обратиться к профильному врачу.</strong>{' '}
+                Авторские энергетические сессии, медитации, ченнелинг и разборы Алины направлены на гармонизацию психоэмоционального состояния, глубокую внутреннюю сонастройку и исследование архетипов сознания. Они носят духовно-познавательный характер, не являются медицинскими услугами и не заменяют врачебную диагностику и лечение.
+              </p>
+              <div className="pricing-disclaimer-card__chips">
+                <span className="pricing-disclaimer-chip">✦ Бережное и экологичное ведение</span>
+                <span className="pricing-disclaimer-chip">✦ Без навязывания догм и зависимости</span>
+                <span className="pricing-disclaimer-chip">✦ Строго конфиденциально</span>
+              </div>
+            </div>
+          </div>
+
           {/* Переключатель 3 блоков */}
           <div className="pricing-blocks-tabs">
             {PRICING_BLOCKS.map((block) => (
@@ -166,6 +188,61 @@ export function PricingSection() {
 
                 <p className="pricing-card__desc">{session.description}</p>
 
+                {/* Бейдж живого онлайн-формата */}
+                {session.onlineUpgradeNote && (
+                  <div className="pricing-card__online-badge">
+                    <span className="pricing-card__online-badge-icon">🎙️</span>
+                    <div className="pricing-card__online-badge-text">
+                      <span className="pricing-card__online-badge-tag">Доступен живой онлайн:</span>
+                      <span>{session.onlineUpgradeNote}</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Специальная привилегия / скидка 20% */}
+                {session.specialDiscount && (
+                  <div
+                    className={`pricing-card__special-callout ${
+                      session.id === 'twin-flames-consultation'
+                        ? 'pricing-card__special-callout--wine'
+                        : 'pricing-card__special-callout--gold'
+                    }`}
+                  >
+                    <div className="pricing-card__special-header">
+                      <span className="pricing-card__special-icon">
+                        {session.id === 'twin-flames-consultation' ? '🔥' : '✨'}
+                      </span>
+                      <span className="pricing-card__special-title">{session.specialDiscount.title}</span>
+                      <span className="pricing-card__special-pill">{session.specialDiscount.badge}</span>
+                    </div>
+
+                    <p className="pricing-card__special-desc">
+                      {session.specialDiscount.description}
+                    </p>
+
+                    {session.specialDiscount.discountedOptions && (
+                      <div className="pricing-card__special-prices-grid">
+                        {session.specialDiscount.discountedOptions.map((dOpt) => (
+                          <div key={dOpt.label} className="pricing-card__special-price-item">
+                            <span className="pricing-card__special-price-label">{dOpt.label}:</span>
+                            <span className="pricing-card__special-price-val">
+                              <strong>{dOpt.discountedPrice}</strong>
+                              <span className="pricing-card__special-price-orig">({dOpt.originalPrice})</span>
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {session.specialDiscount.subtext && (
+                      <div className="pricing-card__special-sub">{session.specialDiscount.subtext}</div>
+                    )}
+                    {session.specialDiscount.actionHint && (
+                      <div className="pricing-card__special-hint">{session.specialDiscount.actionHint}</div>
+                    )}
+                  </div>
+                )}
+
                 {session.bonus && (
                   <div className="pricing-card__bonus">
                     <span className="pricing-card__bonus-icon">🎁</span>
@@ -207,7 +284,12 @@ export function PricingSection() {
                             className={`pricing-pill ${isSelected ? 'pricing-pill--selected' : ''}`}
                             onClick={() => handleSelectOption(session.id, idx)}
                           >
-                            <span>{opt.label}</span>
+                            <span className="pricing-pill__label-wrap">
+                              <span>{opt.label}</span>
+                              {opt.label.toLowerCase().includes('онлайн') && session.onlineUpgradeNote && (
+                                <span className="pricing-pill__online-tag">Живой онлайн</span>
+                              )}
+                            </span>
                             <span className="pricing-pill__price">{opt.price}</span>
                           </button>
                         )

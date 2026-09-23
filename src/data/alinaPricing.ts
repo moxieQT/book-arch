@@ -4,6 +4,15 @@ export interface PricingOption {
   priceNumber: number
 }
 
+export interface SpecialDiscount {
+  badge: string
+  title: string
+  description: string
+  discountedOptions?: { label: string; discountedPrice: string; originalPrice: string }[]
+  subtext?: string
+  actionHint?: string
+}
+
 export interface IndividualSession {
   id: string
   title: string
@@ -16,6 +25,8 @@ export interface IndividualSession {
   note?: string
   isFeatured?: boolean
   queryTags?: string[]
+  onlineUpgradeNote?: string
+  specialDiscount?: SpecialDiscount
 }
 
 export interface PricingBlock {
@@ -48,10 +59,23 @@ export const PRICING_BLOCKS: PricingBlock[] = [
 
 export const MANAGER_INFO = {
   name: 'Мария',
+  role: 'Менеджер мастера Алины',
+  telegram: '@maria_anima',
   telegramHandle: 'maria_anima',
   telegramUrl: 'https://t.me/maria_anima',
   phone: '+7 915 214 9560',
-  whatsappUrl: 'https://wa.me/79152149560'
+  whatsappNumber: '79152149560',
+  whatsappUrl: 'https://wa.me/79152149560',
+  quote:
+    '«Мария — моя правая рука во всех рабочих вопросах, поэтому смело описывайте ей свою ситуацию, задавайте вопросы и общайтесь с ней так же, как если бы вы писали напрямую мне. Мы вместе подберём для вас подходящий формат работы и идеальное время для консультации»'
+}
+
+export function createTelegramBookingUrl(message: string): string {
+  return `${MANAGER_INFO.telegramUrl}?text=${encodeURIComponent(message)}`
+}
+
+export function createWhatsappBookingUrl(message: string): string {
+  return `${MANAGER_INFO.whatsappUrl}?text=${encodeURIComponent(message)}`
 }
 
 export interface ClientQuerySuggestion {
@@ -127,6 +151,18 @@ export const CLIENT_QUERY_NAVIGATOR: ClientQuerySuggestion[] = [
     icon: '✨',
     targetSessionId: 'energy-complex',
     hint: 'Комплекс: диагностика, квантовое очищение, наполнение и выравнивание'
+  },
+  {
+    label: 'Глубинный страх и регрессия',
+    icon: '⏳',
+    targetSessionId: 'regression-session',
+    hint: 'Живое онлайн-погружение в память прошлых воплощений и возврат утраченного ресурса'
+  },
+  {
+    label: 'Подозрение на магию',
+    icon: '🛡️',
+    targetSessionId: 'magic-diagnosis-ritual',
+    hint: 'Объективное сканирование поля без предвзятости (чистку заранее не продавать)'
   },
   {
     label: 'Личное сопровождение (1 месяц)',
@@ -206,6 +242,16 @@ export const INDIVIDUAL_SESSIONS: IndividualSession[] = [
     description:
       'Глубокий анализ типа связи: Близнецовые пламена (БП), кармический партнёр, активатор или другая значимая связь. Состояние женщины, циклы сближения и дистанции, контроль, зависимость и обретение собственной устойчивой позиции.',
     bonus: 'Бесплатно: гайд + «11.11 — Код Единства». Скидка 20% на энергетическое выравнивание в течение 14 дней (запись 9 600 ₽, онлайн 12 000 ₽).',
+    specialDiscount: {
+      badge: '-20% на выравнивание',
+      title: 'Привилегия после консультации БП',
+      description: 'Скидка 20% на энергетическое выравнивание в течение 14 дней после консультации:',
+      discountedOptions: [
+        { label: 'Запись 35–40 мин', discountedPrice: '9 600 ₽', originalPrice: '12 000 ₽' },
+        { label: 'Онлайн 35–40 мин', discountedPrice: '12 000 ₽', originalPrice: '15 000 ₽' }
+      ],
+      subtext: 'Включает бесплатный авторский гайд и аудиопрактику «11.11 — Код Единства»'
+    },
     options: [
       { label: 'Онлайн 30 минут', price: '8 888 ₽', priceNumber: 8888 },
       { label: 'Онлайн 60 минут', price: '13 369 ₽', priceNumber: 13369 }
@@ -287,6 +333,7 @@ export const INDIVIDUAL_SESSIONS: IndividualSession[] = [
     blockTitle: 'Душа • Архетипы • Женская сила',
     description:
       'Соединение с образами Высшего Я, внутреннего ребёнка, Ангела-хранителя, Архангелов и кураторов Света. Акцент на наполнении и свете. Запись остаётся как персональная медитация.',
+    onlineUpgradeNote: 'Живой онлайн-формат (+3 000 ₽ к записи): 45 мин — 18 000 ₽ / 60 мин — 22 999 ₽',
     options: [
       { label: '45 мин (в записи)', price: '15 000 ₽', priceNumber: 15000 },
       { label: '45 мин (онлайн-сессия)', price: '18 000 ₽', priceNumber: 18000 },
@@ -343,7 +390,18 @@ export const INDIVIDUAL_SESSIONS: IndividualSession[] = [
     blockTitle: 'Энергетика • Ритуальная работа • Сопровождение',
     description:
       'Балансировка женского и мужского полюсов, центрирование, работа с каналами Ида/Пингала и тонкими телами. Идеально, когда очищение уже проведено, но не хватает собранности и баланса.',
+    onlineUpgradeNote: 'Живой онлайн-формат (+3 000 ₽ к записи): 35–40 мин — 15 000 ₽',
     bonus: 'После консультации по БП действует скидка 20% в течение 14 дней (запись 9 600 ₽, онлайн 12 000 ₽).',
+    specialDiscount: {
+      badge: 'Скидка 20% по коду БП',
+      title: 'Специальная цена после консультации БП',
+      description: 'Скидка 20% на энергетическое выравнивание в течение 14 дней после консультации БП:',
+      discountedOptions: [
+        { label: 'Запись 35–40 мин', discountedPrice: '9 600 ₽', originalPrice: '12 000 ₽' },
+        { label: 'Онлайн 35–40 мин', discountedPrice: '12 000 ₽', originalPrice: '15 000 ₽' }
+      ],
+      actionHint: 'Сообщите дату прохождения консультации БП менеджеру Марии при записи'
+    },
     options: [
       { label: '35–40 мин (запись)', price: '12 000 ₽', priceNumber: 12000 },
       { label: '35–40 мин (онлайн)', price: '15 000 ₽', priceNumber: 15000 }
@@ -357,6 +415,7 @@ export const INDIVIDUAL_SESSIONS: IndividualSession[] = [
     blockTitle: 'Энергетика • Ритуальная работа • Сопровождение',
     description:
       'Глубокая медитативная работа с чакральной системой, тонкими телами и деструктивными программами, фиолетовое пламя, ресурсирование Светом и практика защиты поля.',
+    onlineUpgradeNote: 'Живой онлайн-формат (+3 000 ₽ к записи): 45–60 мин — 15 000 ₽',
     options: [
       { label: '45–60 мин (запись)', price: '12 000 ₽', priceNumber: 12000 },
       { label: '45–60 мин (онлайн)', price: '15 000 ₽', priceNumber: 15000 }
@@ -371,6 +430,7 @@ export const INDIVIDUAL_SESSIONS: IndividualSession[] = [
     isFeatured: true,
     description:
       'Полная энергетическая сборка: точная диагностика текущего состояния, глубокое квантовое очищение, наполнение ресурсом и последующее выравнивание каналов и полюсов.',
+    onlineUpgradeNote: 'Живой онлайн-формат (+3 000 ₽ к записи): ≈ 1,5 часа — 25 000 ₽',
     options: [
       { label: '≈ 1,5 часа (запись)', price: '22 000 ₽', priceNumber: 22000 },
       { label: '≈ 1,5 часа (онлайн)', price: '25 000 ₽', priceNumber: 25000 }

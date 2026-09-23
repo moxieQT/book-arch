@@ -114,6 +114,84 @@ export class BookScene {
   private raycaster = new THREE.Raycaster()
   private mouseVec = new THREE.Vector2()
 
+  public syncDraftDateFromStore(): void {
+    const store = useBookStore.getState()
+    let targetDate = store.birthDate
+    if (!targetDate) {
+      try {
+        const raw =
+          localStorage.getItem('alina_matrix_birthdate') ||
+          localStorage.getItem('archetypes_birthdate_v03')
+        if (raw) {
+          const ruMatch = /^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/.exec(raw.trim())
+          if (ruMatch) {
+            targetDate = new Date(parseInt(ruMatch[3], 10), parseInt(ruMatch[2], 10) - 1, parseInt(ruMatch[1], 10))
+          } else {
+            const d = new Date(raw.trim())
+            if (!isNaN(d.getTime())) targetDate = d
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+    if (targetDate && !isNaN(targetDate.getTime())) {
+      this.draftDate = {
+        day: targetDate.getDate(),
+        month: targetDate.getMonth() + 1,
+        year: targetDate.getFullYear(),
+      }
+    }
+  }
+
+  jumpToSpread(targetSpread: number) {
+    if (this.anim) {
+      this.finishTurn()
+    }
+    const maxSpread = this.turnable.length
+    const clamped = Math.max(0, Math.min(targetSpread, maxSpread))
+
+    for (let i = 0; i < clamped; i++) {
+      const leaf = this.turnable[i]
+      leaf.pivot.rotation.z = Math.PI
+      leaf.pivot.position.y = i * STACK_STEP
+      const b = leaf.mesh.geometry.attributes.position as THREE.BufferAttribute
+      const base = leaf.mesh.userData.basePos as Float32Array
+      for (let j = 0; j < b.count; j++) {
+        b.setX(j, base[j * 3 + 0])
+        b.setY(j, base[j * 3 + 1])
+      }
+      b.needsUpdate = true
+      leaf.mesh.geometry.computeVertexNormals()
+    }
+
+    for (let i = clamped; i < maxSpread; i++) {
+      const leaf = this.turnable[i]
+      leaf.pivot.rotation.z = 0
+      leaf.pivot.position.y = leaf.restY
+      const b = leaf.mesh.geometry.attributes.position as THREE.BufferAttribute
+      const base = leaf.mesh.userData.basePos as Float32Array
+      for (let j = 0; j < b.count; j++) {
+        b.setX(j, base[j * 3 + 0])
+        b.setY(j, base[j * 3 + 1])
+      }
+      b.needsUpdate = true
+      leaf.mesh.geometry.computeVertexNormals()
+    }
+
+    this.turnsCount = clamped
+    this.leftStackCounter = clamped
+    this.updateBookBlocks()
+
+    if (clamped === 0) {
+      this.readingView = 'spread'
+      this.setCamState('cover')
+    } else {
+      this.readingView = 'spread'
+      this.setCamState('reading_spread')
+    }
+  }
+
   private targets: Record<CamState, { pos: THREE.Vector3; look: THREE.Vector3 }> = {
     cover: {
       pos: new THREE.Vector3(BOOK_W / 2, 4.4, 3.4),
@@ -204,6 +282,8 @@ export class BookScene {
     this.staticDisposables.materials.push(dustMat)
 
     this.scene.add(this.bookRoot)
+
+    this.syncDraftDateFromStore()
 
     // Создаем трехмерный массив книги: золоченый срез страниц, корешок с ребрами и нижняя крышка
     this.createBookRigidBody()
@@ -706,6 +786,7 @@ export class BookScene {
 
   buildBook(chapters: Chapter[]) {
     this.clearBook()
+    this.syncDraftDateFromStore()
     this.chapters = chapters
     const n = chapters.length
     if (n === 0) return
@@ -897,6 +978,7 @@ export class BookScene {
     if (this.turnable.length === 0) return
     const coverLeaf = this.turnable[0]
     if (!coverLeaf.textures.frontCanvas || !coverLeaf.textures.frontTexture) return
+    this.syncDraftDateFromStore()
     const store = useBookStore.getState()
     drawCoverOntoCanvas(coverLeaf.textures.frontCanvas, store.coverState, this.draftDate)
     coverLeaf.textures.frontTexture.needsUpdate = true
