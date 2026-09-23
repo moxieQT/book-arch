@@ -34,7 +34,7 @@ export function buildChapters(profile: ArchetypesProfile): Chapter[] {
     kind: 'single',
     positionId: 'soul',
     title: 'Код Души',
-    subtitle: 'Внутренняя природа, сущностный принцип и подлинное «Я»',
+    subtitle: 'Кто я внутри, если убрать социальные роли и ожидания',
     bigRoman: toRoman(pos.soul.arcanaId),
     bigArcanaName: pos.soul.arcana.name,
     primaryArcanaId: pos.soul.arcanaId,
@@ -49,7 +49,7 @@ export function buildChapters(profile: ArchetypesProfile): Chapter[] {
     kind: 'single',
     positionId: 'personality',
     title: 'Код Личности',
-    subtitle: 'Внешнее проявление, социальный интерфейс и первое впечатление',
+    subtitle: 'Как я проявляюсь во внешнем мире и взаимодействую с людьми',
     bigRoman: toRoman(pos.personality.arcanaId),
     bigArcanaName: pos.personality.arcana.name,
     primaryArcanaId: pos.personality.arcanaId,
@@ -64,7 +64,7 @@ export function buildChapters(profile: ArchetypesProfile): Chapter[] {
     kind: 'single',
     positionId: 'gift',
     title: 'Врождённый Дар',
-    subtitle: 'Врождённый ресурс и канал проведения вашей истинной силы',
+    subtitle: 'Что мне дано особенно естественно и через что я создаю ценность',
     bigRoman: toRoman(pos.gift.arcanaId),
     bigArcanaName: pos.gift.arcana.name,
     primaryArcanaId: pos.gift.arcanaId,
@@ -79,7 +79,7 @@ export function buildChapters(profile: ArchetypesProfile): Chapter[] {
     kind: 'single',
     positionId: 'destiny',
     title: 'Вектор Предназначения',
-    subtitle: 'Главная энергия эволюции, к которой вас непрерывно ведёт жизнь',
+    subtitle: 'В какую зрелость меня приглашает вырасти моя собственная жизнь',
     bigRoman: toRoman(pos.destiny.arcanaId),
     bigArcanaName: pos.destiny.arcana.name,
     primaryArcanaId: pos.destiny.arcanaId,
@@ -94,7 +94,7 @@ export function buildChapters(profile: ArchetypesProfile): Chapter[] {
     kind: 'single',
     positionId: 'shadow',
     title: 'Твоя Тень',
-    subtitle: 'Вытесненная сила, требующая признания и интеграции',
+    subtitle: 'Какую часть собственной силы я чаще всего не признаю в себе',
     bigRoman: toRoman(pos.shadow.arcanaId),
     bigArcanaName: pos.shadow.arcana.name,
     primaryArcanaId: pos.shadow.arcanaId,
@@ -109,7 +109,7 @@ export function buildChapters(profile: ArchetypesProfile): Chapter[] {
     kind: 'single',
     positionId: 'deep_shadow',
     title: 'Глубинная Тень',
-    subtitle: 'Бессознательный слой: скрытые программы, страхи и повторяющиеся сценарии',
+    subtitle: 'Бессознательный сценарий и автоматическая защита перед кризисом',
     bigRoman: toRoman(pos.deep_shadow.arcanaId),
     bigArcanaName: pos.deep_shadow.arcana.name,
     primaryArcanaId: pos.deep_shadow.arcanaId,
@@ -124,7 +124,7 @@ export function buildChapters(profile: ArchetypesProfile): Chapter[] {
     kind: 'single',
     positionId: 'shadow_guardian',
     title: 'Теневой Страж',
-    subtitle: 'Защитный механизм: что бережет ваша Тень и какова функция брони',
+    subtitle: 'Какая внутренняя система включается прямо перед большим расширением',
     bigRoman: toRoman(pos.shadow_guardian.arcanaId),
     bigArcanaName: pos.shadow_guardian.arcana.name,
     primaryArcanaId: pos.shadow_guardian.arcanaId,
@@ -139,7 +139,7 @@ export function buildChapters(profile: ArchetypesProfile): Chapter[] {
     kind: 'single',
     positionId: 'higher_vector',
     title: 'Высший Вектор Души',
-    subtitle: 'Направление расширения за пределами автоматических защит',
+    subtitle: 'Как выглядит внутренняя природа, когда она взрослеет и соединяется с путем',
     bigRoman: toRoman(pos.higher_vector.arcanaId),
     bigArcanaName: pos.higher_vector.arcana.name,
     primaryArcanaId: pos.higher_vector.arcanaId,
@@ -154,7 +154,7 @@ export function buildChapters(profile: ArchetypesProfile): Chapter[] {
     kind: 'single',
     positionId: 'divine_guide',
     title: 'Божественный Проводник',
-    subtitle: 'Союз врожденного Дара и сокровища Глубинной Тени',
+    subtitle: 'Внутренний ориентир и способ слышать себя после интеграции глубины',
     bigRoman: toRoman(pos.divine_guide.arcanaId),
     bigArcanaName: pos.divine_guide.arcana.name,
     primaryArcanaId: pos.divine_guide.arcanaId,
@@ -169,14 +169,14 @@ export function buildChapters(profile: ArchetypesProfile): Chapter[] {
     kind: 'single',
     positionId: 'integration',
     title: 'Точка Интеграции',
-    subtitle: 'Священное соединение Света и Тени: точка зрелой целостности',
+    subtitle: 'Что рождается, когда я перестаю делить себя на Свет и Тень',
     bigRoman: toRoman(pos.integration.arcanaId),
     bigArcanaName: pos.integration.arcana.name,
     primaryArcanaId: pos.integration.arcanaId,
     content: integContent,
   })
 
-  // 11. МУЖСКОЙ РОД (3 расчета в одном красивом развороте)
+  // 11. МУЖСКОЙ РОД (V0.7: Ресурс F, Тень H, Новая норма Tm)
   const maleSpiritual = getArcanaPositionContent('ancestral_male_spiritual', pos.ancestral_male_spiritual.arcanaId)
   const maleMaterial = getArcanaPositionContent('ancestral_male_material', pos.ancestral_male_material.arcanaId)
   const maleIntegral = getArcanaPositionContent('ancestral_male_integral', pos.ancestral_male_integral.arcanaId)
@@ -185,7 +185,7 @@ export function buildChapters(profile: ArchetypesProfile): Chapter[] {
     index: 10,
     kind: 'ancestral',
     title: 'Мужской Род',
-    subtitle: 'Духовная и материальная линии отцов. Сила, опора и завершение старых ран',
+    subtitle: 'Ресурс линии отцов, повторяющийся сценарий и новая норма силы',
     bigRoman: toRoman(pos.ancestral_male_integral.arcanaId),
     bigArcanaName: pos.ancestral_male_integral.arcana.name,
     primaryArcanaId: pos.ancestral_male_integral.arcanaId,
@@ -196,7 +196,7 @@ export function buildChapters(profile: ArchetypesProfile): Chapter[] {
     },
   })
 
-  // 12. ЖЕНСКИЙ РОД (3 расчета в одном красивом развороте)
+  // 12. ЖЕНСКИЙ РОД (V0.7: Ресурс I, Тень G, Новая норма Tf)
   const femaleSpiritual = getArcanaPositionContent('ancestral_female_spiritual', pos.ancestral_female_spiritual.arcanaId)
   const femaleMaterial = getArcanaPositionContent('ancestral_female_material', pos.ancestral_female_material.arcanaId)
   const femaleIntegral = getArcanaPositionContent('ancestral_female_integral', pos.ancestral_female_integral.arcanaId)
@@ -205,7 +205,7 @@ export function buildChapters(profile: ArchetypesProfile): Chapter[] {
     index: 11,
     kind: 'ancestral',
     title: 'Женский Род',
-    subtitle: 'Чувственный мир матерей. Сакральная интуиция, изобилие и новая норма любви',
+    subtitle: 'Ресурс матерей, освобождение от родового сценария и новая норма любви',
     bigRoman: toRoman(pos.ancestral_female_integral.arcanaId),
     bigArcanaName: pos.ancestral_female_integral.arcana.name,
     primaryArcanaId: pos.ancestral_female_integral.arcanaId,
@@ -222,7 +222,7 @@ export function buildChapters(profile: ArchetypesProfile): Chapter[] {
     index: 12,
     kind: 'summary',
     title: 'Карта Состояния',
-    subtitle: 'Ваш живой архетипический профиль: точки силы, зоны внимания и динамика интеграции',
+    subtitle: 'Персональная карта 16 арканических энергий и ключевых связей души',
     bigRoman: '✦',
     bigArcanaName: 'Синтез',
   })

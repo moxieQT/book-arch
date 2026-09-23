@@ -25,10 +25,12 @@ const STACK_STEP = 0.012
 const SEGX = 32
 const SEGZ = 18
 const TURN_DURATION = 820
-const CURL_LIFT = 0.26
-const CURL_EXPONENT = 1.5
+// Свободный край листа не поворачивается синхронно с корешком, а слегка
+// "забегает вперёд" по углу поворота — из-за этого лист закручивается в
+// подобие свитка вместо жёсткого поворота двери на одной оси.
+const CURL_EXTRA_ANGLE = 0.85
 const DIAGONAL_SWEEP = 0.4
-const RIPPLE_AMPLITUDE = 0.012
+const RIPPLE_AMPLITUDE = 0.01
 
 interface LeafTextures {
   frontCanvas?: HTMLCanvasElement
@@ -916,11 +918,32 @@ export class BookScene {
     leaf.textures.backTexture.needsUpdate = true
   }
 
-  private applyBend(mesh: THREE.Mesh, t: number) {
+  /**
+   * Настоящая страница не поворачивается как жёсткая дверь на одной оси —
+   * у корешка она почти не двигается, а свободный край закручивается по
+   * дуге большего радиуса и обгоняет общий угол поворота. Поэтому здесь
+   * КАЖДАЯ вершина получает собственный угол поворота вокруг корешка
+   * (в зависимости от того, как далеко она от него по x), а не общий
+   * поворот pivot.rotation.z — тогда в поперечном сечении лист в момент
+   * переворота выглядит как свиток/волна, а не как наклонённая плоская
+   * карточка. Нормали пересчитываются на каждом кадре — без этого свет
+   * не реагирует на изгиб, и даже правильно изогнутая геометрия всё равно
+   * читается как плоский картон.
+   */
+  private applyPageCurl(mesh: THREE.Mesh, t: number) {
     const pos = mesh.geometry.attributes.position as THREE.BufferAttribute
     const base = mesh.userData.basePos as Float32Array
     const seed = (mesh.userData.rippleSeed as number) ?? 0
     const clampedT = THREE.MathUtils.clamp(t, 0, 1)
+    // Изгиб живёт только в средней части поворота и полностью сходит на нет
+    // ДО того, как лист долистает последние градусы. Если curl ещё не равен
+    // нулю ровно в момент finishTurn() (который мгновенно ставит лист в
+    // идеально плоское положение), получается видимый скачок-"доразгибание"
+    // прямо в момент укладки листа на стопку. Поэтому окно [0.08, 0.88]
+    // вместо полного [0, 1] — последние ~12% движения лист уже плоский и
+    // просто докручивается по инерции, без разрыва.
+    const curlLocalT = THREE.MathUtils.clamp((clampedT - 0.08) / (0.88 - 0.08), 0, 1)
+    const bulge = Math.sin(Math.PI * curlLocalT) // 0 в начале/конце окна, 1 в середине
 
     for (let i = 0; i < pos.count; i++) {
       const bx = base[i * 3 + 0]
@@ -928,15 +951,19 @@ export class BookScene {
       const xFrac = THREE.MathUtils.clamp(bx / BOOK_W, 0, 1)
       const zFrac = THREE.MathUtils.clamp(bz / BOOK_D, -1, 1)
 
-      const localT = THREE.MathUtils.clamp(clampedT + zFrac * DIAGONAL_SWEEP * xFrac, 0, 1)
-      const curl = Math.pow(xFrac, CURL_EXPONENT)
-      const lift = CURL_LIFT * Math.sin(Math.PI * localT) * curl
+      // ближний к камере край листа сворачивается чуть охотнее дальнего —
+      // отсюда лёгкая диагональная асимметрия волны, а не идеальная симметрия
+      const diag = 1 + zFrac * DIAGONAL_SWEEP * 0.5
+      const extra = CURL_EXTRA_ANGLE * bulge * xFrac * diag
+      const angle = Math.PI * clampedT + extra
 
-      const ripple = RIPPLE_AMPLITUDE * Math.sin(xFrac * Math.PI * 4 + seed) * Math.sin(Math.PI * clampedT) * xFrac
+      const ripple = RIPPLE_AMPLITUDE * Math.sin(xFrac * Math.PI * 4 + seed) * bulge
 
-      pos.setY(i, base[i * 3 + 1] + lift + ripple)
+      pos.setX(i, bx * Math.cos(angle))
+      pos.setY(i, base[i * 3 + 1] + bx * Math.sin(angle) + ripple)
     }
     pos.needsUpdate = true
+    mesh.geometry.computeVertexNormals()
   }
 
   private startTurn(direction: TurnDirection, onDone?: (ok: boolean) => void) {
@@ -984,7 +1011,12 @@ export class BookScene {
     this.updateBookBlocks()
     const b = leaf.mesh.geometry.attributes.position as THREE.BufferAttribute
     const base = leaf.mesh.userData.basePos as Float32Array
-    for (let i = 0; i < b.count; i++) b.setY(i, base[i * 3 + 1])
+    // сбрасываем X и Y к исходной плоской форме — во время переворота
+    // applyPageCurl двигает обе координаты, не только Y
+    for (let i = 0; i < b.count; i++) {
+      b.setX(i, base[i * 3 + 0])
+      b.setY(i, base[i * 3 + 1])
+    }
     b.needsUpdate = true
     leaf.mesh.geometry.computeVertexNormals()
     this.anim = null
@@ -1044,9 +1076,11 @@ export class BookScene {
     if (this.anim) {
       const raw = Math.min(1, (performance.now() - this.anim.start) / TURN_DURATION)
       const e = easeInOutCubic(raw)
-      const angle = this.anim.direction === 'next' ? Math.PI * e : Math.PI * (1 - e)
-      this.anim.leaf.pivot.rotation.z = angle
-      this.applyBend(this.anim.leaf.mesh, this.anim.direction === 'next' ? e : 1 - e)
+      const turnProgress = this.anim.direction === 'next' ? e : 1 - e
+      // весь поворот теперь считается по-вершинно в applyPageCurl — pivot
+      // сам не крутится, иначе угол сложится с ним ещё раз
+      this.anim.leaf.pivot.rotation.z = 0
+      this.applyPageCurl(this.anim.leaf.mesh, turnProgress)
       if (raw >= 1) this.finishTurn()
     }
 

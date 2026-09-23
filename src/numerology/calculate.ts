@@ -22,6 +22,7 @@ export interface ArchetypesProfile {
   codeB: { raw: number; value: number } // Личность
   codeC: { raw: number; value: number } // Дар
   codeD: { raw: number; value: number } // Предназначение
+  codeE: { raw: number; value: number } // Сумма базовых кодов
 
   // 16 расчётных позиций
   positions: Record<string, CalculatedPosition>
@@ -47,6 +48,10 @@ export function calculateArchetypes(birthDate: Date): ArchetypesProfile {
   // D. Предназначение: A + B + C (сумма базовых кодов, нормализованная до 1-22)
   const codeDRaw = codeAVal + codeBVal + codeCVal
   const codeDVal = normalizeArcana(codeDRaw)
+
+  // E. Базовый интегральный код: A + M + C + D (V0.7)
+  const codeERaw = codeAVal + codeBVal + codeCVal + codeDVal
+  const codeEVal = normalizeArcana(codeERaw)
 
   // 10 основных расчётных позиций
   const pSoulRaw = codeAVal
@@ -80,24 +85,32 @@ export function calculateArchetypes(birthDate: Date): ArchetypesProfile {
   const pIntegrationRaw = pGuardian + pGuide
   const pIntegration = normalizeArcana(pIntegrationRaw)
 
-  // 6 позиций родовой системы
-  const pMaleSpiritualRaw = codeAVal + codeBVal
-  const pMaleSpiritual = normalizeArcana(pMaleSpiritualRaw)
+  // 6 позиций родовой системы V0.7 (F, H, Tm и I, G, Tf)
+  // Мужской род:
+  // F = reduce(A + M) — ресурс мужской линии
+  const pMaleResourceRaw = codeAVal + codeBVal
+  const pMaleResource = normalizeArcana(pMaleResourceRaw)
 
-  const pMaleMaterialRaw = codeCVal + codeDVal
-  const pMaleMaterial = normalizeArcana(pMaleMaterialRaw)
+  // H = reduce(C + D) — повторяющийся сценарий / Тень мужской линии
+  const pMaleShadowRaw = codeCVal + codeDVal
+  const pMaleShadow = normalizeArcana(pMaleShadowRaw)
 
-  const pFemaleSpiritualRaw = codeBVal + codeCVal
-  const pFemaleSpiritual = normalizeArcana(pFemaleSpiritualRaw)
+  // Tm = reduce(H + E) — трансформация / новая норма мужской линии
+  const pMaleTransformRaw = pMaleShadow + codeEVal
+  const pMaleTransform = normalizeArcana(pMaleTransformRaw)
 
-  const pFemaleMaterialRaw = codeDVal + codeAVal
-  const pFemaleMaterial = normalizeArcana(pFemaleMaterialRaw)
+  // Женский род:
+  // I = reduce(M + C) — ресурс женской линии
+  const pFemaleResourceRaw = codeBVal + codeCVal
+  const pFemaleResource = normalizeArcana(pFemaleResourceRaw)
 
-  const pMaleIntegralRaw = pMaleSpiritual + pMaleMaterial
-  const pMaleIntegral = normalizeArcana(pMaleIntegralRaw)
+  // G = reduce(A + D) — повторяющийся сценарий / Тень женской линии
+  const pFemaleShadowRaw = codeAVal + codeDVal
+  const pFemaleShadow = normalizeArcana(pFemaleShadowRaw)
 
-  const pFemaleIntegralRaw = pFemaleSpiritual + pFemaleMaterial
-  const pFemaleIntegral = normalizeArcana(pFemaleIntegralRaw)
+  // Tf = reduce(G + E) — трансформация / новая норма женской линии
+  const pFemaleTransformRaw = pFemaleShadow + codeEVal
+  const pFemaleTransform = normalizeArcana(pFemaleTransformRaw)
 
   const rawMap: Record<string, { raw: number; arcanaId: number }> = {
     soul: { raw: pSoulRaw, arcanaId: pSoul },
@@ -111,13 +124,13 @@ export function calculateArchetypes(birthDate: Date): ArchetypesProfile {
     divine_guide: { raw: pGuideRaw, arcanaId: pGuide },
     integration: { raw: pIntegrationRaw, arcanaId: pIntegration },
 
-    ancestral_male_spiritual: { raw: pMaleSpiritualRaw, arcanaId: pMaleSpiritual },
-    ancestral_male_material: { raw: pMaleMaterialRaw, arcanaId: pMaleMaterial },
-    ancestral_male_integral: { raw: pMaleIntegralRaw, arcanaId: pMaleIntegral },
+    ancestral_male_spiritual: { raw: pMaleResourceRaw, arcanaId: pMaleResource },
+    ancestral_male_material: { raw: pMaleShadowRaw, arcanaId: pMaleShadow },
+    ancestral_male_integral: { raw: pMaleTransformRaw, arcanaId: pMaleTransform },
 
-    ancestral_female_spiritual: { raw: pFemaleSpiritualRaw, arcanaId: pFemaleSpiritual },
-    ancestral_female_material: { raw: pFemaleMaterialRaw, arcanaId: pFemaleMaterial },
-    ancestral_female_integral: { raw: pFemaleIntegralRaw, arcanaId: pFemaleIntegral },
+    ancestral_female_spiritual: { raw: pFemaleResourceRaw, arcanaId: pFemaleResource },
+    ancestral_female_material: { raw: pFemaleShadowRaw, arcanaId: pFemaleShadow },
+    ancestral_female_integral: { raw: pFemaleTransformRaw, arcanaId: pFemaleTransform },
   }
 
   const positions: Record<string, CalculatedPosition> = {}
@@ -143,6 +156,7 @@ export function calculateArchetypes(birthDate: Date): ArchetypesProfile {
     codeB: { raw: codeBRaw, value: codeBVal },
     codeC: { raw: codeCRaw, value: codeCVal },
     codeD: { raw: codeDRaw, value: codeDVal },
+    codeE: { raw: codeERaw, value: codeEVal },
     positions,
   }
 }

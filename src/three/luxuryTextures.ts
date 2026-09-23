@@ -612,7 +612,7 @@ export function drawPageLeftOntoCanvas(
     ctx.fillStyle = LUXURY_PALETTE.wine.primary
     ctx.font = '700 28px "Cormorant Garamond", Georgia, serif'
     ctx.letterSpacing = '2px'
-    ctx.fillText(`ДУХОВНАЯ ЛИНИЯ РОДА (${lines.spiritual.roman})`, margin + 65, bY + 48)
+    ctx.fillText(`РЕСУРС РОДА · СИЛА ПРЕДКОВ (${lines.spiritual.roman})`, margin + 65, bY + 48)
     ctx.letterSpacing = '0px'
 
     ctx.fillStyle = LUXURY_PALETTE.ink.primary
@@ -621,19 +621,19 @@ export function drawPageLeftOntoCanvas(
 
     ctx.fillStyle = LUXURY_PALETTE.gold.deep
     ctx.font = '700 28px "Cormorant Garamond", Georgia, serif'
-    ctx.fillText('Переданный дар:', margin + 65, bY + 155)
+    ctx.fillText('Переданная сила и опора:', margin + 65, bY + 155)
     ctx.fillStyle = LUXURY_PALETTE.ink.primary
     ctx.font = '32px "Cormorant Garamond", Georgia, serif'
     wrapEditorialText(ctx, lines.spiritual.resource, margin + 65, bY + 192, CANVAS_W - (margin + 40) * 2 - 50, 44)
 
     ctx.fillStyle = LUXURY_PALETTE.wine.primary
     ctx.font = '700 28px "Cormorant Garamond", Georgia, serif'
-    ctx.fillText('Теневая ловушка:', margin + 65, bY + 280)
+    ctx.fillText('Теневая грань ресурса:', margin + 65, bY + 280)
     ctx.fillStyle = LUXURY_PALETTE.ink.primary
     ctx.font = '32px "Cormorant Garamond", Georgia, serif'
     wrapEditorialText(ctx, lines.spiritual.shadow, margin + 65, bY + 316, CANVAS_W - (margin + 40) * 2 - 50, 44)
 
-    drawRatingWidget(ctx, score, margin, 1220, 'Принятие силы этой родовой линии:')
+    drawRatingWidget(ctx, score, margin, 1220, 'Принятие ресурса этой линии рода:')
   } else {
     ctx.textAlign = 'center'
     ctx.fillStyle = LUXURY_PALETTE.wine.primary
@@ -811,7 +811,7 @@ export function drawPageRightOntoCanvas(
     ctx.fillStyle = LUXURY_PALETTE.wine.primary
     ctx.font = '700 28px "Cormorant Garamond", Georgia, serif'
     ctx.letterSpacing = '3px'
-    ctx.fillText('МАТЕРИЯ И ТРАНСФОРМАЦИЯ РОДА', margin + 40, margin + 48)
+    ctx.fillText('СЦЕНАРИЙ И НОВАЯ НОРМА РОДА', margin + 40, margin + 48)
     ctx.letterSpacing = '0px'
 
     const goldGrad = createGoldGradient(ctx, margin + 30, margin + 70, CANVAS_W - margin - 30, margin + 70)
@@ -832,7 +832,7 @@ export function drawPageRightOntoCanvas(
     ctx.fillStyle = LUXURY_PALETTE.gold.deep
     ctx.font = '700 26px "Cormorant Garamond", Georgia, serif'
     ctx.letterSpacing = '2px'
-    ctx.fillText(`МАТЕРИАЛЬНАЯ ОПОРА РОДА (${lines.material.roman})`, margin + 65, b1Y + 48)
+    ctx.fillText(`ПОВТОРЯЮЩИЙСЯ СЦЕНАРИЙ · ТЕНЬ РОДА (${lines.material.roman})`, margin + 65, b1Y + 48)
     ctx.letterSpacing = '0px'
 
     ctx.fillStyle = LUXURY_PALETTE.ink.primary
@@ -841,17 +841,17 @@ export function drawPageRightOntoCanvas(
 
     ctx.fillStyle = LUXURY_PALETTE.gold.deep
     ctx.font = '700 28px "Cormorant Garamond", Georgia, serif'
-    ctx.fillText('Опора и устойчивость:', margin + 65, b1Y + 155)
+    ctx.fillText('Родовой паттерн напряжения:', margin + 65, b1Y + 155)
     ctx.fillStyle = LUXURY_PALETTE.ink.primary
     ctx.font = '32px "Cormorant Garamond", Georgia, serif'
-    wrapEditorialText(ctx, lines.material.resource, margin + 65, b1Y + 192, CANVAS_W - (margin + 40) * 2 - 50, 44)
+    wrapEditorialText(ctx, lines.material.shadow, margin + 65, b1Y + 192, CANVAS_W - (margin + 40) * 2 - 50, 44)
 
     ctx.fillStyle = LUXURY_PALETTE.wine.primary
     ctx.font = '700 28px "Cormorant Garamond", Georgia, serif'
-    ctx.fillText('Родовое напряжение:', margin + 65, b1Y + 290)
+    ctx.fillText('Скрытый ресурс за сценарием:', margin + 65, b1Y + 290)
     ctx.fillStyle = LUXURY_PALETTE.ink.primary
     ctx.font = '32px "Cormorant Garamond", Georgia, serif'
-    wrapEditorialText(ctx, lines.material.shadow, margin + 65, b1Y + 328, CANVAS_W - (margin + 40) * 2 - 50, 44)
+    wrapEditorialText(ctx, lines.material.resource, margin + 65, b1Y + 328, CANVAS_W - (margin + 40) * 2 - 50, 44)
 
     const b2Y = 670
     ctx.fillStyle = 'rgba(92, 25, 46, 0.06)'
@@ -863,7 +863,7 @@ export function drawPageRightOntoCanvas(
     ctx.fillStyle = LUXURY_PALETTE.wine.primary
     ctx.font = '700 26px "Cormorant Garamond", Georgia, serif'
     ctx.letterSpacing = '2px'
-    ctx.fillText(`ИНТЕГРАЛЬНЫЙ УРОК РОДА (${lines.integral.roman})`, margin + 65, b2Y + 48)
+    ctx.fillText(`ТРАНСФОРМАЦИЯ · НОВАЯ НОРМА (${lines.integral.roman})`, margin + 65, b2Y + 48)
     ctx.letterSpacing = '0px'
 
     ctx.fillStyle = LUXURY_PALETTE.ink.primary
@@ -872,14 +872,14 @@ export function drawPageRightOntoCanvas(
 
     ctx.fillStyle = LUXURY_PALETTE.gold.deep
     ctx.font = '700 28px "Cormorant Garamond", Georgia, serif'
-    ctx.fillText('Ваша миссия:', margin + 65, b2Y + 155)
+    ctx.fillText('Что можно перестать повторять:', margin + 65, b2Y + 155)
     ctx.fillStyle = LUXURY_PALETTE.ink.primary
     ctx.font = '32px "Cormorant Garamond", Georgia, serif'
     wrapEditorialText(ctx, lines.integral.innerTask, margin + 65, b2Y + 192, CANVAS_W - (margin + 40) * 2 - 50, 44)
 
     ctx.fillStyle = LUXURY_PALETTE.wine.primary
     ctx.font = '700 28px "Cormorant Garamond", Georgia, serif'
-    ctx.fillText('Исцеление рода:', margin + 65, b2Y + 290)
+    ctx.fillText('Новая норма для себя и рода:', margin + 65, b2Y + 290)
     ctx.fillStyle = LUXURY_PALETTE.ink.primary
     ctx.font = '32px "Cormorant Garamond", Georgia, serif'
     wrapEditorialText(ctx, lines.integral.integration, margin + 65, b2Y + 328, CANVAS_W - (margin + 40) * 2 - 50, 44)
@@ -986,46 +986,91 @@ function drawTabContent(
       currY += 80 + lines * 48
     })
   } else if (tab === 'archetypes') {
+    const cardH = 610
     ctx.fillStyle = 'rgba(198, 167, 107, 0.08)'
-    ctx.fillRect(cX, cY, cW, 370)
+    ctx.fillRect(cX, cY, cW, cardH)
     ctx.strokeStyle = LUXURY_PALETTE.gold.primary
-    ctx.lineWidth = 2
-    ctx.strokeRect(cX, cY, cW, 370)
+    ctx.lineWidth = 1.6
+    ctx.strokeRect(cX, cY, cW, cardH)
 
+    const hTrad = content.highArchetype?.tradition ? ` · ${content.highArchetype.tradition.toUpperCase()}` : ''
     ctx.fillStyle = LUXURY_PALETTE.gold.deep
-    ctx.font = '700 24px "Cormorant Garamond", Georgia, serif'
+    ctx.font = '700 22px "Cormorant Garamond", Georgia, serif'
     ctx.letterSpacing = '2px'
-    ctx.fillText('ВЫСОКАЯ ОКТАВА · ЗРЕЛЫЙ АРХЕТИП', cX + 30, cY + 52)
+    ctx.fillText(`ВЫСОКАЯ ОКТАВА · ЗРЕЛЫЙ АРХЕТИП${hTrad}`, cX + 30, cY + 44)
     ctx.letterSpacing = '0px'
 
     ctx.fillStyle = LUXURY_PALETTE.wine.primary
-    ctx.font = '700 48px "Cormorant Garamond", Georgia, serif'
-    ctx.fillText(content.highArchetype?.name ?? '', cX + 30, cY + 115)
+    ctx.font = '700 44px "Cormorant Garamond", Georgia, serif'
+    ctx.fillText(content.highArchetype?.name ?? '', cX + 30, cY + 95)
+
+    let storyStartY = cY + 145
+    if (content.highArchetype?.keyPhrase) {
+      ctx.fillStyle = LUXURY_PALETTE.gold.deep
+      ctx.font = 'italic 26px "Cormorant Garamond", Georgia, serif'
+      ctx.fillText(`«${content.highArchetype.keyPhrase}»`, cX + 30, cY + 138)
+      storyStartY = cY + 185
+    }
 
     ctx.fillStyle = LUXURY_PALETTE.ink.primary
-    ctx.font = '34px "Cormorant Garamond", Georgia, serif'
-    wrapEditorialText(ctx, content.highArchetype?.aspect ?? '', cX + 30, cY + 175, cW - 60, 48)
+    ctx.font = '30px "Cormorant Garamond", Georgia, serif'
+    const sLines = wrapEditorialText(ctx, content.highArchetype?.story || content.highArchetype?.aspect || '', cX + 30, storyStartY, cW - 60, 42)
 
-    const sY = cY + 410
+    const aspectY = Math.max(storyStartY + sLines * 42 + 25, cY + 440)
+    if (aspectY < cY + 540 && content.highArchetype?.aspect && content.highArchetype?.story) {
+      ctx.fillStyle = LUXURY_PALETTE.wine.primary
+      ctx.font = '700 20px "Cormorant Garamond", Georgia, serif'
+      ctx.letterSpacing = '1px'
+      ctx.fillText('СВЯЗЬ С АРКАНОМ:', cX + 30, aspectY)
+      ctx.letterSpacing = '0px'
+
+      ctx.fillStyle = LUXURY_PALETTE.ink.primary
+      ctx.font = '28px "Cormorant Garamond", Georgia, serif'
+      wrapEditorialText(ctx, content.highArchetype.aspect, cX + 30, aspectY + 34, cW - 60, 38)
+    }
+
+    const sY = cY + cardH + 40
     ctx.fillStyle = 'rgba(92, 25, 46, 0.06)'
-    ctx.fillRect(cX, sY, cW, 370)
+    ctx.fillRect(cX, sY, cW, cardH)
     ctx.strokeStyle = LUXURY_PALETTE.wine.primary
-    ctx.lineWidth = 2
-    ctx.strokeRect(cX, sY, cW, 370)
+    ctx.lineWidth = 1.6
+    ctx.strokeRect(cX, sY, cW, cardH)
 
+    const sTrad = content.shadowArchetype?.tradition ? ` · ${content.shadowArchetype.tradition.toUpperCase()}` : ''
     ctx.fillStyle = LUXURY_PALETTE.wine.primary
-    ctx.font = '700 24px "Cormorant Garamond", Georgia, serif'
+    ctx.font = '700 22px "Cormorant Garamond", Georgia, serif'
     ctx.letterSpacing = '2px'
-    ctx.fillText('ТЕНЕВОЙ АРХЕТИП · ВЫТЕСНЕННАЯ ГРАНЬ', cX + 30, sY + 52)
+    ctx.fillText(`ТЕНЕВОЙ АРХЕТИП · ВЫТЕСНЕННАЯ ГРАНЬ${sTrad}`, cX + 30, sY + 44)
     ctx.letterSpacing = '0px'
 
     ctx.fillStyle = LUXURY_PALETTE.ink.primary
-    ctx.font = '700 48px "Cormorant Garamond", Georgia, serif'
-    ctx.fillText(content.shadowArchetype?.name ?? '', cX + 30, sY + 115)
+    ctx.font = '700 44px "Cormorant Garamond", Georgia, serif'
+    ctx.fillText(content.shadowArchetype?.name ?? '', cX + 30, sY + 95)
+
+    let sStoryStartY = sY + 145
+    if (content.shadowArchetype?.keyPhrase) {
+      ctx.fillStyle = LUXURY_PALETTE.wine.primary
+      ctx.font = 'italic 26px "Cormorant Garamond", Georgia, serif'
+      ctx.fillText(`«${content.shadowArchetype.keyPhrase}»`, cX + 30, sY + 138)
+      sStoryStartY = sY + 185
+    }
 
     ctx.fillStyle = LUXURY_PALETTE.ink.primary
-    ctx.font = '34px "Cormorant Garamond", Georgia, serif'
-    wrapEditorialText(ctx, content.shadowArchetype?.aspect ?? '', cX + 30, sY + 175, cW - 60, 48)
+    ctx.font = '30px "Cormorant Garamond", Georgia, serif'
+    const ssLines = wrapEditorialText(ctx, content.shadowArchetype?.story || content.shadowArchetype?.aspect || '', cX + 30, sStoryStartY, cW - 60, 42)
+
+    const sAspectY = Math.max(sStoryStartY + ssLines * 42 + 25, sY + 440)
+    if (sAspectY < sY + 540 && content.shadowArchetype?.aspect && content.shadowArchetype?.story) {
+      ctx.fillStyle = LUXURY_PALETTE.gold.deep
+      ctx.font = '700 20px "Cormorant Garamond", Georgia, serif'
+      ctx.letterSpacing = '1px'
+      ctx.fillText('ТЕНЕВОЙ ПАТТЕРН:', cX + 30, sAspectY)
+      ctx.letterSpacing = '0px'
+
+      ctx.fillStyle = LUXURY_PALETTE.ink.primary
+      ctx.font = '28px "Cormorant Garamond", Georgia, serif'
+      wrapEditorialText(ctx, content.shadowArchetype.aspect, cX + 30, sAspectY + 34, cW - 60, 38)
+    }
   } else if (tab === 'integration') {
     ctx.fillStyle = LUXURY_PALETTE.wine.primary
     ctx.font = '700 36px "Cormorant Garamond", Georgia, serif'
@@ -1093,12 +1138,12 @@ function drawSummaryProfileGrid(
     { id: 'higher_vector', label: 'Вектор Души', arcanaId: profile.positions.higher_vector.arcanaId, name: profile.positions.higher_vector.arcana.name },
     { id: 'divine_guide', label: 'Проводник', arcanaId: profile.positions.divine_guide.arcanaId, name: profile.positions.divine_guide.arcana.name },
     { id: 'integration', label: 'Интеграция', arcanaId: profile.positions.integration.arcanaId, name: profile.positions.integration.arcana.name },
-    { id: 'ancestral_male_spiritual', label: 'М-Духовный', arcanaId: profile.positions.ancestral_male_spiritual.arcanaId, name: profile.positions.ancestral_male_spiritual.arcana.name },
-    { id: 'ancestral_male_material', label: 'М-Материя', arcanaId: profile.positions.ancestral_male_material.arcanaId, name: profile.positions.ancestral_male_material.arcana.name },
-    { id: 'ancestral_male_integral', label: 'М-Интеграл', arcanaId: profile.positions.ancestral_male_integral.arcanaId, name: profile.positions.ancestral_male_integral.arcana.name },
-    { id: 'ancestral_female_spiritual', label: 'Ж-Духовный', arcanaId: profile.positions.ancestral_female_spiritual.arcanaId, name: profile.positions.ancestral_female_spiritual.arcana.name },
-    { id: 'ancestral_female_material', label: 'Ж-Материя', arcanaId: profile.positions.ancestral_female_material.arcanaId, name: profile.positions.ancestral_female_material.arcana.name },
-    { id: 'ancestral_female_integral', label: 'Ж-Интеграл', arcanaId: profile.positions.ancestral_female_integral.arcanaId, name: profile.positions.ancestral_female_integral.arcana.name },
+    { id: 'ancestral_male_spiritual', label: 'М-Ресурс', arcanaId: profile.positions.ancestral_male_spiritual.arcanaId, name: profile.positions.ancestral_male_spiritual.arcana.name },
+    { id: 'ancestral_male_material', label: 'М-Сценарий', arcanaId: profile.positions.ancestral_male_material.arcanaId, name: profile.positions.ancestral_male_material.arcana.name },
+    { id: 'ancestral_male_integral', label: 'М-Норма', arcanaId: profile.positions.ancestral_male_integral.arcanaId, name: profile.positions.ancestral_male_integral.arcana.name },
+    { id: 'ancestral_female_spiritual', label: 'Ж-Ресурс', arcanaId: profile.positions.ancestral_female_spiritual.arcanaId, name: profile.positions.ancestral_female_spiritual.arcana.name },
+    { id: 'ancestral_female_material', label: 'Ж-Сценарий', arcanaId: profile.positions.ancestral_female_material.arcanaId, name: profile.positions.ancestral_female_material.arcana.name },
+    { id: 'ancestral_female_integral', label: 'Ж-Норма', arcanaId: profile.positions.ancestral_female_integral.arcanaId, name: profile.positions.ancestral_female_integral.arcana.name },
   ]
 
   const gridCols = 4
@@ -1159,10 +1204,73 @@ function drawSummaryProfileGrid(
     ctx.restore()
   })
 
+  // --- ВЕКТОРЫ СИНТЕЗА И АРХИТЕКТУРА ТРАНСФОРМАЦИИ ---
+  const synY = 780
+  ctx.textAlign = 'left'
+  ctx.fillStyle = LUXURY_PALETTE.wine.primary
+  ctx.font = '700 24px "Cormorant Garamond", Georgia, serif'
+  ctx.letterSpacing = '2px'
+  ctx.fillText('ВЕКТОРЫ СИНТЕЗА И СМЫСЛОВАЯ АРХИТЕКТУРА', startX, synY)
+  ctx.letterSpacing = '0px'
+
+  ctx.strokeStyle = goldGrad
+  ctx.lineWidth = 1
+  ctx.beginPath()
+  ctx.moveTo(startX, synY + 16)
+  ctx.lineTo(CANVAS_W - margin - 35, synY + 16)
+  ctx.stroke()
+
+  const pathways = [
+    {
+      title: '1. ТЕНЕВОЙ УЗЕЛ · МЕХАНИЗМ ЗАЩИТЫ И БЕССОЗНАТЕЛЬНОГО',
+      flow: `${toRoman(profile.positions.shadow.arcanaId)} ${profile.positions.shadow.arcana.name} (Тень)  ➔  ${toRoman(profile.positions.deep_shadow.arcanaId)} ${profile.positions.deep_shadow.arcana.name} (Гл. Тень)  ➔  ${toRoman(profile.positions.shadow_guardian.arcanaId)} ${profile.positions.shadow_guardian.arcana.name} (Страж)`,
+      desc: 'От первичного автоматического паттерна — через ядерный вытесненный страх — к порогу уязвимости и истинной силе.',
+    },
+    {
+      title: '2. ВЕКТОР РАСКРЫТИЯ · ЭВОЛЮЦИЯ СОЗНАНИЯ',
+      flow: `${toRoman(profile.positions.soul.arcanaId)} ${profile.positions.soul.arcana.name} (Душа)  ➔  ${toRoman(profile.positions.destiny.arcanaId)} ${profile.positions.destiny.arcana.name} (Вектор)  ➔  ${toRoman(profile.positions.higher_vector.arcanaId)} ${profile.positions.higher_vector.arcana.name} (Высший Путь)`,
+      desc: 'От врождённой сути Души — через земное предназначение и мастерство — к духовному маяку высшей октавы.',
+    },
+    {
+      title: '3. ВЕРТИКАЛЬ ПРОВОДНИЧЕСТВА · РЕАЛИЗАЦИЯ И ДАР',
+      flow: `${toRoman(profile.positions.gift.arcanaId)} ${profile.positions.gift.arcana.name} (Дар)  ➔  ${toRoman(profile.positions.divine_guide.arcanaId)} ${profile.positions.divine_guide.arcana.name} (Проводник)`,
+      desc: 'От практического инструмента воплощения ценности — к чистому каналу служения и трансценденции.',
+    },
+    {
+      title: '4. РОДОВАЯ ТРАНСФОРМАЦИЯ · МУЖСКАЯ И ЖЕНСКАЯ ВЕТВИ (V0.7)',
+      flow: `М: ${toRoman(profile.positions.ancestral_male_spiritual.arcanaId)} Ресурс ➔ ${toRoman(profile.positions.ancestral_male_material.arcanaId)} Сценарий ➔ ${toRoman(profile.positions.ancestral_male_integral.arcanaId)} Новая Норма  |  Ж: ${toRoman(profile.positions.ancestral_female_spiritual.arcanaId)} Ресурс ➔ ${toRoman(profile.positions.ancestral_female_material.arcanaId)} Сценарий ➔ ${toRoman(profile.positions.ancestral_female_integral.arcanaId)} Новая Норма`,
+      desc: 'Преобразование родовой памяти: признание ресурса предков, исцеление повторяющегося сценария и рождение новой нормы.',
+    },
+    {
+      title: '5. ТОЧКА СБОРКИ · ИНТЕГРАЦИЯ ЛИЧНОСТИ',
+      flow: `Ключевой Аркан: ${toRoman(profile.positions.integration.arcanaId)} · ${profile.positions.integration.arcana.name}`,
+      desc: 'Алхимический союз Света и Тени: возвращение целостности, снятие дуальности и полное авторство своей судьбы.',
+    },
+  ]
+
+  let curPathY = synY + 52
+  pathways.forEach((p) => {
+    ctx.fillStyle = LUXURY_PALETTE.gold.deep
+    ctx.font = '700 20px "Cormorant Garamond", Georgia, serif'
+    ctx.letterSpacing = '1px'
+    ctx.fillText(p.title, startX, curPathY)
+    ctx.letterSpacing = '0px'
+
+    ctx.fillStyle = LUXURY_PALETTE.wine.primary
+    ctx.font = '700 24px "Cormorant Garamond", Georgia, serif'
+    ctx.fillText(p.flow, startX + 10, curPathY + 34)
+
+    ctx.fillStyle = LUXURY_PALETTE.ink.primary
+    ctx.font = 'italic 21px "Cormorant Garamond", Georgia, serif'
+    ctx.fillText(p.desc, startX + 10, curPathY + 66)
+
+    curPathY += 105
+  })
+
   ctx.textAlign = 'center'
   ctx.fillStyle = LUXURY_PALETTE.wine.primary
   ctx.font = 'italic 24px "Cormorant Garamond", Georgia, serif'
-  ctx.fillText('«Тень не уничтожается — она признается и становится высшей силой».', CANVAS_W / 2, 1500)
+  ctx.fillText('«Тень не уничтожается — она признается и становится высшей силой».', CANVAS_W / 2, 1490)
 }
 
 export function makeGildedEdgesTexture(): THREE.CanvasTexture {
