@@ -8,6 +8,7 @@ import { PricingSection } from './components/PricingSection'
 import { ApproachSection } from './components/ApproachSection'
 import { PortalFooter } from './components/PortalFooter'
 import { BookNavbarOverlay } from './components/BookNavbarOverlay'
+import { LegalRiskChecker } from './components/LegalRiskChecker'
 import './App.css'
 
 export type ViewMode = 'portal' | 'book'
@@ -16,6 +17,7 @@ function App() {
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
     return typeof window !== 'undefined' && window.location.hash === '#book' ? 'book' : 'portal'
   })
+  const [isLegalOpen, setIsLegalOpen] = useState<boolean>(false)
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -62,7 +64,10 @@ function App() {
 
   return (
     <div className="portal-layout">
-      <PortalHeader onOpenBook={openBook} />
+      <PortalHeader
+        onOpenBook={openBook}
+        onOpenLegal={() => setIsLegalOpen(true)}
+      />
 
       <main className="portal-main">
         <HeroSection
@@ -75,7 +80,15 @@ function App() {
         <ApproachSection />
       </main>
 
-      <PortalFooter onOpenBook={openBook} />
+      <PortalFooter
+        onOpenBook={openBook}
+        onOpenLegal={() => setIsLegalOpen(true)}
+      />
+
+      <LegalRiskChecker
+        isOpen={isLegalOpen}
+        onClose={() => setIsLegalOpen(false)}
+      />
     </div>
   )
 }

@@ -32,9 +32,12 @@ None specified in dispatch.
 
 ## Key Decisions Made
 - Starting survey with systematic file checks of ORIGINAL_REQUEST.md, alina_skills.md, docs/, src/ data files.
+- Verified that alina_skills.md and docs/alina_skills.md are identical and contain the complete v1.3 knowledge base.
+- Discovered and documented UI defect in ServiceModal.tsx line 101 (telegram link directs to Alina instead of manager Maria).
+- Compiled exhaustive handoff.md with 16 sessions across 3 blocks, 7 group programs + 3D book, Maria booking contacts & quote, pre-filled URL schemes, 36 Tarot questions, 13 Navigator mappings, and R4 light luxury design tokens.
 
 ## Artifact Index
-- DISPATCH.md — Initial dispatch assignment
+- DISPATCH.md — Initial dispatch assignment and follow-up updates
 - BRIEFING.md — Situational awareness and working memory
 - progress.md — Liveness heartbeat and step tracking
-- handoff.md — Comprehensive handoff report for parent orchestrator
+- handoff.md — Comprehensive handoff report for parent orchestrator (5 components + Features & Edge Cases tables)

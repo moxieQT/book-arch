@@ -1,8 +1,9 @@
 interface PortalHeaderProps {
   onOpenBook: () => void
+  onOpenLegal?: () => void
 }
 
-export function PortalHeader({ onOpenBook }: PortalHeaderProps) {
+export function PortalHeader({ onOpenBook, onOpenLegal }: PortalHeaderProps) {
   const scrollTo = (id: string) => {
     const el = document.getElementById(id)
     if (el) {
@@ -40,6 +41,17 @@ export function PortalHeader({ onOpenBook }: PortalHeaderProps) {
         </nav>
 
         <div className="portal-header__actions">
+          {onOpenLegal && (
+            <button
+              type="button"
+              className="portal-btn portal-btn--ghost portal-btn--sm"
+              onClick={onOpenLegal}
+              title="Проверить текст на юридические риски (РФ)"
+            >
+              <span>🛡️ Юр. агент (РФ)</span>
+            </button>
+          )}
+
           <button
             type="button"
             className="portal-btn portal-btn--gold portal-header__cta"

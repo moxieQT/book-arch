@@ -20,15 +20,23 @@ Investigate codebase architecture, dependencies, framework, components, styling,
 - Updated: not yet
 
 ## Investigation State
-- **Explored paths**: [TBD]
-- **Key findings**: [TBD]
-- **Unexplored areas**: package.json, configs, source tree, styling setup, booking CTAs, requirements R1, R2, R4
+- **Explored paths**: package.json, vite.config.ts, tsconfig.json, index.html, src/App.tsx, src/App.css, src/index.css, src/components/*, src/data/*, src/store/useBookStore.ts, src/three/*, alina_skills.md, docs/alina_skills.md
+- **Key findings**:
+  1. Vite 8 + React 19 SPA with Rolldown bundler; NOT Next.js.
+  2. Styling uses pure CSS with CSS custom variables (no Tailwind). Cormorant Garamond loaded via Google Fonts.
+  3. All 16 individual sessions (3 blocks) and 7 group programs + 3D book card are implemented in data files and rendered.
+  4. Maria's booking links are active in PricingSection and PortalFooter, but ServiceModal has an outdated generic link.
+  5. Interactive query navigator and tarot question bank exist in PricingSection. Medical disclaimer and surcharge badges need inclusion.
+  6. `npm run lint` and `npm run build` both pass with 0 errors.
+- **Unexplored areas**: None for survey scope.
 
 ## Key Decisions Made
-- Initialized investigation following 5 objectives from dispatch
+- Confirmed SPA architecture and hash routing (`#book`) for seamless 3D book integration.
+- Documented precise gap in ServiceModal booking CTA and missing medical disclaimer for the implementation phase.
 
 ## Artifact Index
 - /Users/mcv/Documents/book/.agents/explorer_survey_2/DISPATCH.md — incoming dispatch records
 - /Users/mcv/Documents/book/.agents/explorer_survey_2/BRIEFING.md — persistent working memory
 - /Users/mcv/Documents/book/.agents/explorer_survey_2/progress.md — liveness heartbeat
 - /Users/mcv/Documents/book/.agents/explorer_survey_2/handoff.md — final survey report
+
