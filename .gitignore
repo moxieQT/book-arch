@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Исходные PDF автора (не публикуются)
+from aline/

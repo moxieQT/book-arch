@@ -28,16 +28,25 @@ export default defineConfig({
       },
     }),
   ],
+  // Порт можно задать через PORT (так его передаёт превью в Claude); иначе стандартный 5173
+  server: {
+    port: Number(process.env.PORT) || 5173,
+  },
   build: {
-    rollupOptions: {
+    // Vite 8 собирает через Rolldown: rollupOptions.manualChunks им игнорируется
+    rolldownOptions: {
       output: {
-        manualChunks(id: string) {
-          if (id.includes('node_modules/three')) return 'three'
-          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) return 'react-vendor'
-          if (id.includes('node_modules/zustand')) return 'zustand'
+        codeSplitting: {
+          groups: [
+            { name: 'three', test: /node_modules[\\/]three/ },
+            { name: 'react-vendor', test: /node_modules[\\/](react|react-dom|scheduler|zustand)[\\/]/ },
+            // Авторские тексты арканов меняются независимо от кода — отдельный чанк лучше кешируется
+            { name: 'arcana-texts', test: /src[\\/]numerology[\\/]data[\\/]/ },
+          ],
         },
       },
     },
-    chunkSizeWarningLimit: 700,
+    // Самый крупный чанк — тексты арканов (~810 КБ, ~170 КБ в gzip): это данные, а не код
+    chunkSizeWarningLimit: 900,
   },
 })

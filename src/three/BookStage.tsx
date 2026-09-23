@@ -16,6 +16,7 @@ export function BookStage() {
   const chapters = useBookStore((s) => s.chapters)
   const currentSpread = useBookStore((s) => s.currentSpread)
   const activeLayerTab = useBookStore((s) => s.activeLayerTab)
+  const tabPage = useBookStore((s) => s.tabPage)
   const scores = useBookStore((s) => s.scores)
 
   // 1. Создание 3D сцены
@@ -61,11 +62,11 @@ export function BookStage() {
     }
   }, [stage, coverState])
 
-  // 4. Смена активной вкладки (Свет / Тень / Жизнь / Пантеон / Вопросы)
+  // 4. Смена активной вкладки (Свет / Тень / Жизнь / Пантеон / Вопросы) и её листа
   useEffect(() => {
     if (!sceneRef.current || currentSpread <= 0) return
     sceneRef.current.updateRightPageTab(currentSpread - 1, activeLayerTab)
-  }, [activeLayerTab, currentSpread])
+  }, [activeLayerTab, tabPage, currentSpread])
 
   // 5. Обновление оценок пользователя (шкала 1-5 звёзд)
   useEffect(() => {

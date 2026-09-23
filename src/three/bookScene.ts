@@ -108,6 +108,8 @@ export class BookScene {
   private resizeObserver: ResizeObserver
 
   private chapters: Chapter[] = []
+  // Сколько листов занимает активная вкладка правой страницы каждой главы
+  private tabPageCounts: number[] = []
   private draftDate = { day: 2, month: 4, year: 1994 }
   private raycaster = new THREE.Raycaster()
   private mouseVec = new THREE.Vector2()
@@ -527,6 +529,12 @@ export class BookScene {
    */
   handleNextAction() {
     const store = useBookStore.getState()
+    const pageCount = this.tabPageCounts[this.turnsCount - 1] ?? 1
+    if (this.camState === 'reading_right' && store.tabPage < pageCount - 1) {
+      // длинная вкладка: сначала дочитываем её следующий лист
+      store.setTabPage(store.tabPage + 1)
+      return
+    }
     if (this.camState === 'reading_left') {
       this.readingView = 'right'
       this.setCamState('reading_right')
@@ -548,6 +556,10 @@ export class BookScene {
    */
   handleBackAction() {
     const store = useBookStore.getState()
+    if (this.camState === 'reading_right' && store.tabPage > 0) {
+      store.setTabPage(store.tabPage - 1)
+      return
+    }
     if (this.camState === 'reading_right') {
       this.readingView = 'left'
       this.setCamState('reading_left')
@@ -574,9 +586,10 @@ export class BookScene {
     const halfFovRad = (42 / 2) * (Math.PI / 180)
     const tanHalf = Math.tan(halfFovRad)
 
-    // Фокус чтения страницы: страница занимает практически весь экран (100% высоты листа, 90% рамки)
+    // Фокус чтения страницы: лист целиком в кадре с небольшим полем,
+    // чтобы шапка («ГЛАВА 1 ИЗ 13») и кнопки внизу не обрезались.
     // Высота страницы BOOK_D = 3.0, ширина BOOK_W = 2.2
-    const neededH = Math.max(2.80, 2.25 / aspect)
+    const neededH = Math.max(3.1, 2.3 / aspect)
     const readDist = neededH / (2 * tanHalf)
 
     this.targets.reading_left.pos.set(-1.1, readDist, 0.02)
@@ -720,7 +733,7 @@ export class BookScene {
     // Листы 1 .. n-1
     for (let i = 0; i < n - 1; i++) {
       const frontCv = document.createElement('canvas')
-      drawPageRightOntoCanvas(frontCv, chapters[i], i + 1, activeTab, false, scores, profile)
+      this.tabPageCounts[i] = drawPageRightOntoCanvas(frontCv, chapters[i], i + 1, activeTab, false, scores, profile)
       const frontTex = new THREE.CanvasTexture(frontCv)
       frontTex.colorSpace = THREE.SRGBColorSpace
 
@@ -737,7 +750,7 @@ export class BookScene {
 
     // Лист n (staticLastPage)
     const lastFrontCv = document.createElement('canvas')
-    drawPageRightOntoCanvas(lastFrontCv, chapters[n - 1], n, activeTab, true, scores, profile)
+    this.tabPageCounts[n - 1] = drawPageRightOntoCanvas(lastFrontCv, chapters[n - 1], n, activeTab, true, scores, profile)
     const lastFrontTex = new THREE.CanvasTexture(lastFrontCv)
     lastFrontTex.colorSpace = THREE.SRGBColorSpace
 
@@ -896,14 +909,15 @@ export class BookScene {
     if (!leaf || !leaf.textures.frontCanvas || !leaf.textures.frontTexture) return
 
     const store = useBookStore.getState()
-    drawPageRightOntoCanvas(
+    this.tabPageCounts[spreadIdx] = drawPageRightOntoCanvas(
       leaf.textures.frontCanvas,
       chapter,
       spreadIdx + 1,
       activeTab,
       spreadIdx === this.chapters.length - 1,
       store.scores,
-      store.profile
+      store.profile,
+      store.tabPage
     )
     leaf.textures.frontTexture.needsUpdate = true
   }

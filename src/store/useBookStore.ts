@@ -53,6 +53,8 @@ interface BookState {
   restarting: boolean
   scores: Record<string, UserScoreRecord[]>
   activeLayerTab: ReadingLayerTab
+  // Страница внутри длинной вкладки (текст разбит на несколько листов)
+  tabPage: number
 
   setBirthDate: (date: Date) => void
   openBook: () => void
@@ -68,6 +70,7 @@ interface BookState {
   setScore: (positionId: string, score: number) => void
   getLatestScore: (positionId: string) => number | null
   setActiveLayerTab: (tab: ReadingLayerTab) => void
+  setTabPage: (page: number) => void
 }
 
 export const useBookStore = create<BookState>((set, get) => {
@@ -87,6 +90,7 @@ export const useBookStore = create<BookState>((set, get) => {
     restarting: false,
     scores: initialScores,
     activeLayerTab: 'essence',
+    tabPage: 0,
 
     setBirthDate: (date) => {
       const profile = calculateArchetypes(date)
@@ -102,25 +106,25 @@ export const useBookStore = create<BookState>((set, get) => {
     openBook: () => {
       const { birthDate, chapters, isAnimating } = get()
       if (!birthDate || isAnimating) return
-      set({ currentSpread: Math.min(1, chapters.length) })
+      set({ currentSpread: Math.min(1, chapters.length), tabPage: 0 })
     },
 
     nextSpread: () => {
       const { currentSpread, chapters, isAnimating } = get()
       if (isAnimating || currentSpread >= chapters.length) return
-      set({ currentSpread: currentSpread + 1 })
+      set({ currentSpread: currentSpread + 1, tabPage: 0 })
     },
 
     prevSpread: () => {
       const { currentSpread, isAnimating } = get()
       if (isAnimating || currentSpread <= 0) return
-      set({ currentSpread: currentSpread - 1 })
+      set({ currentSpread: currentSpread - 1, tabPage: 0 })
     },
 
     goToSpread: (idx: number) => {
       const { chapters, isAnimating } = get()
       if (isAnimating || idx < 0 || idx > chapters.length) return
-      set({ currentSpread: idx })
+      set({ currentSpread: idx, tabPage: 0 })
     },
 
     requestRestart: () => {
@@ -174,7 +178,9 @@ export const useBookStore = create<BookState>((set, get) => {
       return list[list.length - 1].score
     },
 
-    setActiveLayerTab: (tab) => set({ activeLayerTab: tab }),
+    setActiveLayerTab: (tab) => set({ activeLayerTab: tab, tabPage: 0 }),
+
+    setTabPage: (page) => set({ tabPage: Math.max(0, page) }),
   }
 })
 

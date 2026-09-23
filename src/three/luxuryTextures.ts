@@ -215,29 +215,177 @@ export function wrapEditorialText(
   x: number,
   y: number,
   maxWidth: number,
-  lineHeight: number
+  lineHeight: number,
+  maxLines = Infinity
 ): number {
   if (!text) return 0
-  const words = text.split(' ')
+  const lines = splitIntoLines(ctx, text, maxWidth)
+  if (lines.length > maxLines) {
+    lines.length = maxLines
+    lines[maxLines - 1] = lines[maxLines - 1].replace(/[\s,.;:—-]*\S*$/, '') + '…'
+  }
+  lines.forEach((l, i) => {
+    ctx.fillText(l, x, y + i * lineHeight)
+  })
+  return lines.length
+}
+
+function splitIntoLines(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
+  const words = text.split(/\s+/).filter(Boolean)
   let line = ''
   const lines: string[] = []
 
-  for (let i = 0; i < words.length; i++) {
-    const test = line + words[i] + ' '
+  for (const word of words) {
+    const test = line ? `${line} ${word}` : word
     if (ctx.measureText(test).width > maxWidth && line) {
-      lines.push(line.trim())
-      line = words[i] + ' '
+      lines.push(line)
+      line = word
     } else {
       line = test
     }
   }
-  lines.push(line.trim())
+  if (line) lines.push(line)
+  return lines
+}
 
-  lines.forEach((l, i) => {
-    ctx.fillText(l, x, y + i * lineHeight)
+// ---------------------------------------------------------------------------
+// ПОТОКОВАЯ ВЁРСТКА С РАЗБИВКОЙ НА ЛИСТЫ
+// Длинные тексты из авторских PDF не помещаются на одну страницу, поэтому
+// вкладка раскладывается на несколько листов и листается кнопкой «Далее».
+// ---------------------------------------------------------------------------
+
+/** Нижняя граница текста: ниже — кнопки навигации (y = 1580) */
+const FLOW_BOTTOM = 1530
+
+interface FlowItem {
+  text: string
+  font: string
+  color: string
+  lineH: number
+  indent?: number
+  gapBefore?: number
+  spacing?: string
+  /** Заголовок: не оставлять одиноко внизу листа */
+  heading?: boolean
+  /** Маркер перед первой строкой (номер вопроса), рисуется слева от отступа */
+  marker?: { text: string; font: string; color: string }
+}
+
+interface FlowLine {
+  text: string
+  item: FlowItem
+  first: boolean
+}
+
+// Заглавное слово: «ТЕНЬ», «ИМПЕРАТРИЦЫ», «X», «—»
+const CAPS_WORD = /^[«"(]?(?:[А-ЯЁIVX][А-ЯЁIVX-]*|—)[»")?!:,.]*$/
+
+/**
+ * Делит сплошной текст на абзацы и заголовки. В извлечённых из PDF текстах
+ * подзаголовки разделов набраны прописными прямо внутри абзаца:
+ * «…ясность + намерение. ТВОЯ СИЛА — В НАМЕРЕНИИ Для Мага очень важна…»
+ */
+function splitSections(text: string): { heading: boolean; text: string }[] {
+  const words = text.split(/\s+/).filter(Boolean)
+  const out: { heading: boolean; text: string }[] = []
+  let para: string[] = []
+  let i = 0
+
+  const flushPara = () => {
+    if (para.length) out.push({ heading: false, text: para.join(' ') })
+    para = []
+  }
+
+  while (i < words.length) {
+    let j = i
+    let longWords = 0
+    while (j < words.length && CAPS_WORD.test(words[j])) {
+      if (words[j].replace(/[^А-ЯЁ]/g, '').length >= 2) longWords++
+      j++
+    }
+    if (longWords >= 2) {
+      flushPara()
+      out.push({ heading: true, text: words.slice(i, j).join(' ') })
+      i = j
+    } else {
+      para.push(words[i])
+      i++
+    }
+  }
+  flushPara()
+  return out
+}
+
+const BODY_FONT = (size: number) => `${size}px "Cormorant Garamond", Georgia, serif`
+const HEAD_FONT = (size: number) => `700 ${size}px "Cormorant Garamond", Georgia, serif`
+
+/** Раздел вкладки: заголовок + текст, внутренние подзаголовки выделяются */
+function sectionItems(title: string, titleColor: string, text: string | undefined, bodySize: number, gapBefore = 0): FlowItem[] {
+  const bodyLineH = Math.round(bodySize * 1.4)
+  const items: FlowItem[] = [
+    { text: title, font: HEAD_FONT(34), color: titleColor, lineH: 60, spacing: '2px', heading: true, gapBefore },
+  ]
+  for (const part of splitSections(text ?? '')) {
+    items.push(
+      part.heading
+        ? { text: part.text, font: HEAD_FONT(30), color: LUXURY_PALETTE.gold.deep, lineH: 50, spacing: '1px', heading: true, gapBefore: 18 }
+        : { text: part.text, font: BODY_FONT(bodySize), color: LUXURY_PALETTE.ink.primary, lineH: bodyLineH, gapBefore: 8 }
+    )
+  }
+  return items
+}
+
+function paginateFlow(ctx: CanvasRenderingContext2D, items: FlowItem[], top: number, width: number): FlowLine[][] {
+  const lines: FlowLine[] = []
+  for (const item of items) {
+    ctx.font = item.font
+    ctx.letterSpacing = item.spacing ?? '0px'
+    splitIntoLines(ctx, item.text, width - (item.indent ?? 0)).forEach((text, idx) => {
+      lines.push({ text, item, first: idx === 0 })
+    })
+  }
+  ctx.letterSpacing = '0px'
+
+  const pages: FlowLine[][] = [[]]
+  let y = top
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    const page = pages[pages.length - 1]
+    const gap = line.first && page.length ? (line.item.gapBefore ?? 0) : 0
+    let need = gap + line.item.lineH
+    // заголовок переносим на следующий лист вместе с двумя строками текста
+    if (line.item.heading) {
+      for (let k = i + 1; k < Math.min(lines.length, i + 3); k++) need += lines[k].item.lineH
+    }
+    if (page.length && y + need > FLOW_BOTTOM) {
+      pages.push([line])
+      y = top + line.item.lineH
+    } else {
+      page.push(line)
+      y += gap + line.item.lineH
+    }
+  }
+  return pages
+}
+
+function drawFlowPage(ctx: CanvasRenderingContext2D, page: FlowLine[], x: number, top: number) {
+  ctx.textAlign = 'left'
+  let y = top
+  page.forEach((line, idx) => {
+    const { item } = line
+    if (line.first && idx > 0) y += item.gapBefore ?? 0
+    if (line.first && item.marker) {
+      ctx.font = item.marker.font
+      ctx.fillStyle = item.marker.color
+      ctx.fillText(item.marker.text, x + 10, y)
+    }
+    ctx.font = item.font
+    ctx.fillStyle = item.color
+    ctx.letterSpacing = item.spacing ?? '0px'
+    ctx.fillText(line.text, x + (item.indent ?? 0), y)
+    y += item.lineH
   })
-
-  return lines.length
+  ctx.letterSpacing = '0px'
 }
 
 function drawPageFrame(ctx: CanvasRenderingContext2D, margin: number) {
@@ -790,9 +938,11 @@ export function drawPageRightOntoCanvas(
   activeTab: ReadingLayerTab,
   _isLast: boolean,
   scores: Record<string, UserScoreRecord[]> = {},
-  profile?: ArchetypesProfile | null
-) {
+  profile?: ArchetypesProfile | null,
+  tabPage = 0
+): number {
   cv.width = CANVAS_W
+  let pageCount = 1
   cv.height = CANVAS_H
   const ctx = cv.getContext('2d')!
 
@@ -894,19 +1044,28 @@ export function drawPageRightOntoCanvas(
 
     const content = chapter.content
     if (content) {
-      drawTabContent(ctx, margin, activeTab, content)
+      pageCount = drawTabContent(ctx, margin, activeTab, content, tabPage)
     }
 
     const nb = NAV_LAYOUT.backButton.draw
     const nn = NAV_LAYOUT.nextButton.draw
+    const hasMore = tabPage < pageCount - 1
     drawPillButton(ctx, '‹  Назад', nb.x, nb.y, nb.w, nb.h, false, 26)
-    drawPillButton(ctx, 'Далее  ›', nn.x, nn.y, nn.w, nn.h, true, 26)
+    drawPillButton(ctx, hasMore ? 'Дальше  ›' : 'Далее  ›', nn.x, nn.y, nn.w, nn.h, true, 26)
+
+    if (pageCount > 1) {
+      ctx.textAlign = 'center'
+      ctx.fillStyle = LUXURY_PALETTE.gold.deep
+      ctx.font = 'italic 28px "Cormorant Garamond", Georgia, serif'
+      ctx.fillText(`лист ${Math.min(tabPage, pageCount - 1) + 1} из ${pageCount}`, CANVAS_W / 2, 1618)
+    }
   }
 
   ctx.textAlign = 'center'
   ctx.fillStyle = LUXURY_PALETTE.ink.muted
   ctx.font = 'italic 26px "Cormorant Garamond", Georgia, serif'
   ctx.fillText(`—  ${spreadIdx * 2}  —`, CANVAS_W / 2, 1680)
+  return pageCount
 }
 
 function drawLayerTabs(ctx: CanvasRenderingContext2D, margin: number, activeTab: ReadingLayerTab) {
@@ -924,68 +1083,69 @@ function drawLayerTabs(ctx: CanvasRenderingContext2D, margin: number, activeTab:
   ctx.stroke()
 }
 
+/** Вкладки со сплошным текстом раскладываются потоком; «Пантеон» — фиксированные карточки */
+function buildTabFlow(tab: ReadingLayerTab, content: ArcanaPositionContent): FlowItem[] | null {
+  const wine = LUXURY_PALETTE.wine.primary
+  const gold = LUXURY_PALETTE.gold.deep
+
+  if (tab === 'essence') {
+    return sectionItems('ВРОЖДЕННЫЙ РЕСУРС И ДАР', wine, content.resource, 38)
+  }
+  if (tab === 'shadow') {
+    return [
+      ...sectionItems('ТЕНЕВАЯ ЛОВУШКА И МЕХАНИЗМ ЗАЩИТЫ', wine, content.shadow, 36),
+      ...sectionItems('ЗАДАЧА ТРАНСФОРМАЦИИ', gold, content.innerTask, 36, 40),
+    ]
+  }
+  if (tab === 'life') {
+    const life = content.lifeManifestations
+    return [
+      ...sectionItems('🕊  ОТНОШЕНИЯ И БЛИЗОСТЬ', wine, life?.relationships, 34),
+      ...sectionItems('⚖  ДЕЛА, ДЕНЬГИ И ВОЛЯ', wine, life?.careerAndMoney, 34, 40),
+      ...sectionItems('🌿  ТЕЛО И СОСТОЯНИЕ', wine, life?.bodyAndSelf, 34, 40),
+    ]
+  }
+  if (tab === 'integration') {
+    const items: FlowItem[] = [
+      { text: 'ВОПРОСЫ ДЛЯ САМОНАБЛЮДЕНИЯ', font: HEAD_FONT(34), color: wine, lineH: 60, spacing: '2px', heading: true },
+    ]
+    ;(content.reflectionQuestions ?? []).forEach((q, i) => {
+      items.push({
+        text: q,
+        font: BODY_FONT(34),
+        color: LUXURY_PALETTE.ink.primary,
+        lineH: 48,
+        indent: 50,
+        gapBefore: 16,
+        marker: { text: `${i + 1}.`, font: HEAD_FONT(34), color: gold },
+      })
+    })
+    return [...items, ...sectionItems('ВЕКТОР ИНТЕГРАЦИИ', wine, content.integration, 36, 40)]
+  }
+  return null
+}
+
 function drawTabContent(
   ctx: CanvasRenderingContext2D,
   margin: number,
   tab: ReadingLayerTab,
-  content: ArcanaPositionContent
-) {
+  content: ArcanaPositionContent,
+  page: number
+): number {
   const cX = margin + 45
   const cY = 240
   const cW = CANVAS_W - (margin + 45) * 2
 
   ctx.textAlign = 'left'
 
-  if (tab === 'essence') {
-    ctx.fillStyle = LUXURY_PALETTE.wine.primary
-    ctx.font = '700 36px "Cormorant Garamond", Georgia, serif'
-    ctx.letterSpacing = '2px'
-    ctx.fillText('ВРОЖДЕННЫЙ РЕСУРС И ДАР:', cX, cY)
-    ctx.letterSpacing = '0px'
+  const flow = buildTabFlow(tab, content)
+  if (flow) {
+    const pages = paginateFlow(ctx, flow, cY, cW)
+    drawFlowPage(ctx, pages[Math.min(page, pages.length - 1)], cX, cY)
+    return pages.length
+  }
 
-    ctx.fillStyle = LUXURY_PALETTE.ink.primary
-    ctx.font = '40px "Cormorant Garamond", Georgia, serif'
-    wrapEditorialText(ctx, content.resource, cX, cY + 60, cW, 56)
-  } else if (tab === 'shadow') {
-    ctx.fillStyle = LUXURY_PALETTE.wine.primary
-    ctx.font = '700 36px "Cormorant Garamond", Georgia, serif'
-    ctx.letterSpacing = '2px'
-    ctx.fillText('ТЕНЕВАЯ ЛОВУШКА И МЕХАНИЗМ ЗАЩИТЫ:', cX, cY)
-    ctx.letterSpacing = '0px'
-
-    ctx.fillStyle = LUXURY_PALETTE.ink.primary
-    ctx.font = '38px "Cormorant Garamond", Georgia, serif'
-    const lines1 = wrapEditorialText(ctx, content.shadow, cX, cY + 60, cW, 54)
-
-    const nextY = cY + 90 + lines1 * 54
-    ctx.fillStyle = LUXURY_PALETTE.gold.deep
-    ctx.font = '700 36px "Cormorant Garamond", Georgia, serif'
-    ctx.letterSpacing = '2px'
-    ctx.fillText('ЗАДАЧА ТРАНСФОРМАЦИИ:', cX, nextY)
-    ctx.letterSpacing = '0px'
-
-    ctx.fillStyle = LUXURY_PALETTE.ink.primary
-    ctx.font = '38px "Cormorant Garamond", Georgia, serif'
-    wrapEditorialText(ctx, content.innerTask, cX, nextY + 60, cW, 54)
-  } else if (tab === 'life') {
-    const rows = [
-      { icon: '🕊', title: 'Отношения и Близость', text: content.lifeManifestations?.relationships },
-      { icon: '⚖', title: 'Дела, Деньги и Воля', text: content.lifeManifestations?.careerAndMoney },
-      { icon: '🌿', title: 'Тело и Состояние', text: content.lifeManifestations?.bodyAndSelf },
-    ]
-
-    let currY = cY
-    rows.forEach((r) => {
-      ctx.fillStyle = LUXURY_PALETTE.wine.primary
-      ctx.font = '700 36px "Cormorant Garamond", Georgia, serif'
-      ctx.fillText(`${r.icon}  ${r.title}`, cX, currY)
-
-      ctx.fillStyle = LUXURY_PALETTE.ink.primary
-      ctx.font = '34px "Cormorant Garamond", Georgia, serif'
-      const lines = wrapEditorialText(ctx, r.text ?? '', cX + 12, currY + 48, cW - 12, 48)
-      currY += 80 + lines * 48
-    })
-  } else if (tab === 'archetypes') {
+  if (tab === 'archetypes') {
     const cardH = 610
     ctx.fillStyle = 'rgba(198, 167, 107, 0.08)'
     ctx.fillRect(cX, cY, cW, cardH)
@@ -1014,7 +1174,7 @@ function drawTabContent(
 
     ctx.fillStyle = LUXURY_PALETTE.ink.primary
     ctx.font = '30px "Cormorant Garamond", Georgia, serif'
-    const sLines = wrapEditorialText(ctx, content.highArchetype?.story || content.highArchetype?.aspect || '', cX + 30, storyStartY, cW - 60, 42)
+    const sLines = wrapEditorialText(ctx, content.highArchetype?.story || content.highArchetype?.aspect || '', cX + 30, storyStartY, cW - 60, 42, Math.floor((cY + cardH - 30 - storyStartY) / 42))
 
     const aspectY = Math.max(storyStartY + sLines * 42 + 25, cY + 440)
     if (aspectY < cY + 540 && content.highArchetype?.aspect && content.highArchetype?.story) {
@@ -1026,7 +1186,7 @@ function drawTabContent(
 
       ctx.fillStyle = LUXURY_PALETTE.ink.primary
       ctx.font = '28px "Cormorant Garamond", Georgia, serif'
-      wrapEditorialText(ctx, content.highArchetype.aspect, cX + 30, aspectY + 34, cW - 60, 38)
+      wrapEditorialText(ctx, content.highArchetype.aspect, cX + 30, aspectY + 34, cW - 60, 38, Math.max(1, Math.floor((cY + cardH - 20 - aspectY - 34) / 38)))
     }
 
     const sY = cY + cardH + 40
@@ -1057,7 +1217,7 @@ function drawTabContent(
 
     ctx.fillStyle = LUXURY_PALETTE.ink.primary
     ctx.font = '30px "Cormorant Garamond", Georgia, serif'
-    const ssLines = wrapEditorialText(ctx, content.shadowArchetype?.story || content.shadowArchetype?.aspect || '', cX + 30, sStoryStartY, cW - 60, 42)
+    const ssLines = wrapEditorialText(ctx, content.shadowArchetype?.story || content.shadowArchetype?.aspect || '', cX + 30, sStoryStartY, cW - 60, 42, Math.floor((sY + cardH - 30 - sStoryStartY) / 42))
 
     const sAspectY = Math.max(sStoryStartY + ssLines * 42 + 25, sY + 440)
     if (sAspectY < sY + 540 && content.shadowArchetype?.aspect && content.shadowArchetype?.story) {
@@ -1069,39 +1229,10 @@ function drawTabContent(
 
       ctx.fillStyle = LUXURY_PALETTE.ink.primary
       ctx.font = '28px "Cormorant Garamond", Georgia, serif'
-      wrapEditorialText(ctx, content.shadowArchetype.aspect, cX + 30, sAspectY + 34, cW - 60, 38)
+      wrapEditorialText(ctx, content.shadowArchetype.aspect, cX + 30, sAspectY + 34, cW - 60, 38, Math.max(1, Math.floor((sY + cardH - 20 - sAspectY - 34) / 38)))
     }
-  } else if (tab === 'integration') {
-    ctx.fillStyle = LUXURY_PALETTE.wine.primary
-    ctx.font = '700 36px "Cormorant Garamond", Georgia, serif'
-    ctx.letterSpacing = '2px'
-    ctx.fillText('ВОПРОСЫ ДЛЯ САМОНАБЛЮДЕНИЯ:', cX, cY)
-    ctx.letterSpacing = '0px'
-
-    let qY = cY + 60
-    const questions: string[] = content.reflectionQuestions ?? []
-    questions.forEach((q, i) => {
-      ctx.fillStyle = LUXURY_PALETTE.gold.deep
-      ctx.font = '700 34px "Cormorant Garamond", Georgia, serif'
-      ctx.fillText(`${i + 1}.`, cX + 10, qY)
-
-      ctx.fillStyle = LUXURY_PALETTE.ink.primary
-      ctx.font = '34px "Cormorant Garamond", Georgia, serif'
-      const l = wrapEditorialText(ctx, q, cX + 50, qY, cW - 50, 48)
-      qY += 26 + l * 48
-    })
-
-    qY += 40
-    ctx.fillStyle = LUXURY_PALETTE.wine.primary
-    ctx.font = '700 36px "Cormorant Garamond", Georgia, serif'
-    ctx.letterSpacing = '2px'
-    ctx.fillText('ВЕКТОР ИНТЕГРАЦИИ:', cX, qY)
-    ctx.letterSpacing = '0px'
-
-    ctx.fillStyle = LUXURY_PALETTE.ink.primary
-    ctx.font = '38px "Cormorant Garamond", Georgia, serif'
-    wrapEditorialText(ctx, content.integration, cX, qY + 60, cW, 54)
   }
+  return 1
 }
 
 function drawSummaryProfileGrid(

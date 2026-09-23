@@ -1,32 +1,48 @@
-# React + TypeScript + Vite
+# Архетипы и Тени
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Интерактивная 3D-книга по авторской системе Алины. Пользователь вводит дату рождения,
+книга рассчитывает персональные арканы и открывает 13 глав: Код Души, Тень, Дар,
+Предназначение, Родовая формула и итоговую карту профиля. Каждая глава — разворот
+с вкладками «Свет / Тень / В Жизни / Пантеон / Вопросы» и самооценкой по пяти звёздам.
 
-Currently, two official plugins are available:
+## Стек
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- React 19 + TypeScript, сборка Vite 8 (Rolldown)
+- Three.js — сцена книги, перелистывание, страницы рисуются на canvas-текстурах
+- zustand — состояние чтения, оценки и дата хранятся в `localStorage`
+- vite-plugin-pwa — офлайн-режим; деплой как статика на Cloudflare Workers (`wrangler.jsonc`)
 
-## React Compiler
+## Запуск
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev      # http://localhost:5173 (или порт из переменной PORT)
+npm run build    # проверка типов + production-сборка в dist/
+npm run lint     # oxlint
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Структура
+
+| Путь | Что там |
+| --- | --- |
+| `src/numerology/calculate.ts` | расчёт арканов по дате рождения |
+| `src/numerology/chapters.ts`, `positions.ts` | состав глав и позиций |
+| `src/numerology/contentDatabase.ts`, `pantheon.ts` | сборка текстов глав |
+| `src/numerology/data/alineExtractedData.ts` | тексты арканов, извлечённые из PDF Алины |
+| `src/three/bookScene.ts` | 3D-сцена, камера, клики, перелистывание |
+| `src/three/luxuryTextures.ts` | отрисовка обложки и страниц на canvas |
+| `src/three/bookLayout.ts` | координаты кнопок и зон клика на страницах |
+| `src/store/useBookStore.ts` | состояние приложения |
+| `docs/` | смысловая архитектура системы и визуальный гайд |
+
+## Тексты из PDF
+
+Исходные PDF лежат в `from aline/` (в репозиторий не входят). После повторного
+извлечения прогоните чистку колонтитулов и битых маркеров списков:
+
+```bash
+node scripts/clean-aline-data.mjs
+```
+
+Длинные разделы на странице автоматически разбиваются на листы
+(«лист 1 из 3»), кнопки «Дальше / Назад» листают их внутри вкладки.
