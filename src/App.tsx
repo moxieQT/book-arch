@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useLayoutEffect } from 'react'
-import { BookStage } from './three/BookStage'
+import { ContinuousStage } from './three/ContinuousStage'
 import { PortalHeader } from './components/PortalHeader'
 import { HeroSection } from './components/HeroSection'
 import { BookBanner } from './components/BookBanner'
@@ -122,18 +122,25 @@ function App() {
 
   return (
     <>
+      {/* 1. Persistent Continuous WebGL Canvas Stage (never unmounted) */}
+      <ContinuousStage viewMode={viewMode} />
+
+      {/* 2. 3D Book Fullscreen Navigation HUD */}
       {viewMode === 'book' && (
-        <div className="app app--fullscreen">
+        <div className="app app--fullscreen" style={{ position: 'relative', zIndex: 10 }}>
           <BookNavbarOverlay onBackToPortal={backToPortal} />
-          <div className="stage-wrapper">
-            <BookStage />
-          </div>
         </div>
       )}
 
+      {/* 3. Portal DOM Layout (z-index: 10, transparent background) */}
       <div
         className="portal-layout"
-        style={viewMode === 'book' ? { display: 'none' } : undefined}
+        style={{
+          position: 'relative',
+          zIndex: 10,
+          background: 'transparent',
+          display: viewMode === 'book' ? 'none' : undefined,
+        }}
         aria-hidden={viewMode === 'book'}
       >
         <PortalHeader
