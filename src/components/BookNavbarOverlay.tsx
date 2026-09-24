@@ -32,7 +32,7 @@ export function BookNavbarOverlay({ onBackToPortal }: BookNavbarOverlayProps) {
           ✦ АРХЕТИПЫ И ТЕНИ ✦
         </span>
         <span className="book-navbar-overlay__badge">
-          Прототип 1 · Астральный Астролябий и Живой Гримуар
+          Книга персональных кодов
         </span>
         {stage === 'reading' && currentChapter && (
           <span className="book-navbar-overlay__spread">

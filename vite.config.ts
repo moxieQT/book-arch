@@ -10,11 +10,11 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg'],
       manifest: {
-        name: 'Книга Чисел — нумерология по дате рождения',
-        short_name: 'Книга Чисел',
-        description: 'Интерактивная 3D-книга нумерологии по дате рождения',
-        theme_color: '#0a0a16',
-        background_color: '#0a0a16',
+        name: 'Алина — Архетипы и Тени',
+        short_name: 'Алина',
+        description: 'Авторские практики Алины и интерактивная 3D-книга «Архетипы и Тени»',
+        theme_color: '#F4EFE6',
+        background_color: '#F4EFE6',
         display: 'standalone',
         orientation: 'portrait-primary',
         icons: [

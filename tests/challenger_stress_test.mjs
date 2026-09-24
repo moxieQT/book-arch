@@ -426,10 +426,12 @@ test('U2.8: Adversarial URL encoding test: 100 fuzzing cycles with random Cyrill
   }
 })
 
-test('U2.9: Footer contact buttons match exact manager URLs without query strings', () => {
-  const footerContent = fs.readFileSync(path.join(ROOT_DIR, 'src/components/PortalFooter.tsx'), 'utf-8')
-  assert(footerContent.includes('href="https://t.me/maria_anima"'), 'Footer missing direct t.me link')
-  assert(footerContent.includes('href="https://wa.me/79152149560"'), 'Footer missing direct wa.me link')
+test('U2.9: Footer contact links use exact manager URLs without query strings', () => {
+  const footerContent = fs.readFileSync(path.join(ROOT_DIR, 'src/landing/sections/Contact.tsx'), 'utf-8')
+  assert(footerContent.includes('href={MANAGER_INFO.telegramUrl}'), 'Footer missing direct t.me link')
+  assert(footerContent.includes('href={MANAGER_INFO.whatsappUrl}'), 'Footer missing direct wa.me link')
+  assert.equal(MANAGER_INFO.telegramUrl, 'https://t.me/maria_anima')
+  assert.equal(MANAGER_INFO.whatsappUrl, 'https://wa.me/79152149560')
 })
 
 test('U2.10: Helper functions createTelegramBookingUrl and createWhatsappBookingUrl produce consistent output', () => {
@@ -579,16 +581,16 @@ test('L3.10: Grammatical inflection: "исцелять органы" (infinitive
   }
 })
 
-test('L3.11: Production text audit: ApproachSection.tsx compliance check', () => {
-  const approachFile = fs.readFileSync(path.join(ROOT_DIR, 'src/components/ApproachSection.tsx'), 'utf-8')
-  const audit = auditTextLegalRisks(approachFile)
-  // Let's inspect matched rules in ApproachSection
+test('L3.11: Production text audit: landing copy (content.ts + chapters) compliance check', () => {
+  const files = ['content.ts', 'sections/Prologue.tsx', 'sections/Philosophy.tsx', 'sections/Folio.tsx', 'sections/Codes.tsx']
+  const copy = files.map((f) => fs.readFileSync(path.join(ROOT_DIR, 'src/landing', f), 'utf-8')).join('\n')
+  const audit = auditTextLegalRisks(copy)
   if (audit.matchedRules.length > 0) {
     for (const m of audit.matchedRules) {
-      noteFinding('HIGH', 'PROD_APPROACH_LEGAL_RISK', `ApproachSection.tsx triggered rule ${m.rule.id} ("${m.matchedText}")`)
+      noteFinding('HIGH', 'PROD_LANDING_LEGAL_RISK', `Landing copy triggered rule ${m.rule.id} ("${m.matchedText}")`)
     }
   } else {
-    console.log(`    ${c.gray}ApproachSection.tsx passed legal audit without matches${c.reset}`)
+    console.log(`    ${c.gray}Landing copy passed legal audit without matches${c.reset}`)
   }
 })
 
@@ -619,7 +621,7 @@ test('L3.13: Production text audit: INDIVIDUAL_SESSIONS compliance check', () =>
 })
 
 test('L3.14: Footer legal disclaimer contains mandatory statutory components (18+, non-medical, self-knowledge)', () => {
-  const footerFile = fs.readFileSync(path.join(ROOT_DIR, 'src/components/PortalFooter.tsx'), 'utf-8')
+  const footerFile = fs.readFileSync(path.join(ROOT_DIR, 'src/landing/content.ts'), 'utf-8').replace(/\s+/g, ' ')
   assert(footerFile.includes('18+'), 'Footer disclaimer must declare 18+')
   assert(footerFile.includes('не являются медицинскими услугами'), 'Footer disclaimer must disclaim medical services')
   assert(footerFile.includes('информационно-консультационный'), 'Footer disclaimer must declare info-consulting nature')

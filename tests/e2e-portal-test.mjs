@@ -101,6 +101,8 @@ import { LUXURY_PALETTE } from '../src/three/bookPalette.ts'
 import { soundscape } from '../src/audio/soundscape.ts'
 
 const __filename = fileURLToPath(import.meta.url)
+// Исходники лендинга (новый сайт) — для проверок, которые раньше смотрели компоненты старого портала
+const readLanding = (...p) => fs.readFileSync(path.join(path.dirname(__filename), '..', 'src', 'landing', ...p), 'utf8')
 const __dirname = path.dirname(__filename)
 const ROOT_DIR = path.resolve(__dirname, '..')
 
@@ -157,9 +159,11 @@ console.log(`${colors.bold}${colors.cyan}═════════════
 console.log(`${colors.bold}${colors.magenta}▶ TIER 1: Category-Partition Feature Coverage (F1 to F40)${colors.reset}`)
 
 // --- Feature 1: Continuous Background Canvas ---
-runTest('tier1', 'F1.1: App.tsx mounts ContinuousStage persistently across all view modes', () => {
+runTest('tier1', 'F1.1: App.tsx lazily mounts the 3D book stage (BookMode → ContinuousStage) only in book mode', () => {
   const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'App.tsx'), 'utf8')
-  assert.ok(content.includes('<ContinuousStage viewMode={viewMode} />'), 'Missing persistent ContinuousStage render')
+  assert.ok(content.includes("lazy(() => import('./book/BookMode'))"), 'Book stage must be a lazy chunk')
+  const bookMode = fs.readFileSync(path.join(ROOT_DIR, 'src', 'book', 'BookMode.tsx'), 'utf8')
+  assert.ok(bookMode.includes('<ContinuousStage viewMode="book" />'), 'BookMode must render ContinuousStage')
 })
 
 runTest('tier1', 'F1.2: ContinuousStage.tsx styles viewport with fixed inset: 0 and z-index: 0', () => {
@@ -190,24 +194,23 @@ runTest('tier1', 'F1.5: ContinuousStage.tsx unmount cleanup calls scene.dispose(
 })
 
 // --- Feature 2: Kinetic Scroll Controller ---
-runTest('tier1', 'F2.1: App.tsx tracks and stores scroll position before entering 3D book mode', () => {
+runTest('tier1', 'F2.1: App.tsx stores landing scroll position before entering 3D book mode', () => {
   const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'App.tsx'), 'utf8')
-  assert.ok(content.includes('alina_portal_scroll_y'), 'Missing scroll storage key')
-  assert.ok(content.includes('window.scrollY'), 'Missing window.scrollY tracking')
-  assert.ok(content.includes('sessionStorage.setItem'), 'Missing sessionStorage scroll save')
+  assert.ok(content.includes('savedScroll.current = window.scrollY'), 'Missing scroll position capture')
+  assert.ok(content.includes('setRestoreScroll('), 'Missing scroll restore hand-off to landing')
 })
 
-runTest('tier1', 'F2.2: App.tsx restores exact scroll position using instant window.scrollTo and RAF upon return', () => {
-  const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'App.tsx'), 'utf8')
-  assert.ok(content.includes("window.scrollTo({ top: savedY, behavior: 'instant' })"), 'Missing instant scrollTo')
-  assert.ok(content.includes('requestAnimationFrame'), 'Missing requestAnimationFrame scroll confirmation')
+runTest('tier1', 'F2.2: Landing restores exact scroll position on return (pins refreshed first, then immediate jump)', () => {
+  const content = readLanding('Landing.tsx')
+  assert.ok(content.includes('ScrollTrigger.refresh()'), 'Pins must be measured before restoring scroll')
+  assert.ok(content.includes('immediate: true'), 'Missing immediate scroll restore')
 })
 
-runTest('tier1', 'F2.3: HeroSection.tsx provides onExplorePractices for smooth kinetic scroll to #practices', () => {
-  const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'components', 'HeroSection.tsx'), 'utf8')
-  assert.ok(content.includes('onExplorePractices'), 'HeroSection missing onExplorePractices prop')
-  const appContent = fs.readFileSync(path.join(ROOT_DIR, 'src', 'App.tsx'), 'utf8')
-  assert.ok(appContent.includes("el.scrollIntoView({ behavior: 'smooth' })"), 'App.tsx missing smooth scroll execution')
+runTest('tier1', 'F2.3: Prologue CTA scrolls smoothly (Lenis) to the paths chapter', () => {
+  const content = readLanding('sections', 'Prologue.tsx')
+  assert.ok(content.includes("scrollToTarget('#paths')"), 'Prologue missing scroll to #paths')
+  const motion = readLanding('motion.ts')
+  assert.ok(motion.includes('lenis.scrollTo('), 'Smooth scroll must go through Lenis')
 })
 
 runTest('tier1', 'F2.4: Scroll progress normalization helper clamps negative and out-of-bounds scroll values to [0.0, 1.0]', () => {
@@ -473,10 +476,10 @@ runTest('tier1', 'F10.5: WebGL output color space configured with sRGB for accur
 })
 
 // --- Feature 11: Hybrid Rendering Architecture ---
-runTest('tier1', 'F11.1: App.tsx overlays DOM layer (.portal-layout) over WebGL canvas', () => {
-  const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'App.tsx'), 'utf8')
-  assert.ok(content.includes('className="portal-layout"'))
-  assert.ok(content.includes('className="portal-main"'))
+runTest('tier1', 'F11.1: Landing renders crisp DOM chapters over a fixed atmosphere layer', () => {
+  const content = readLanding('Landing.tsx')
+  assert.ok(content.includes('className="lx-atmo"'))
+  assert.ok(content.includes('<main>'))
 })
 
 runTest('tier1', 'F11.2: BookNavbarOverlay renders vector DOM top bar with title and badge in 3D book mode', () => {
@@ -668,8 +671,8 @@ runTest('tier1', 'F17.2: soundscape.toggle flips enabled state and persists new 
   soundscape.toggle()
 })
 
-runTest('tier1', 'F17.3: PortalHeader.tsx renders audio toggle button with sound icon and 432 Hz frequency label', () => {
-  const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'components', 'PortalHeader.tsx'), 'utf8')
+runTest('tier1', 'F17.3: Landing Header renders audio toggle button with sound icon and 432 Hz frequency label', () => {
+  const content = readLanding('components', 'Header.tsx')
   assert.ok(content.includes('soundscape.toggle()'))
   assert.ok(content.includes('432 Гц'))
 })
@@ -776,10 +779,10 @@ runTest('tier1', 'F19.4: Soul Journey session has 4 options: 45m rec, 45m online
   assert.equal(sj.options[3].priceNumber, 22999)
 })
 
-runTest('tier1', 'F19.5: PricingSection component tracks selectedOptions state per session card', () => {
-  const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'components', 'PricingSection.tsx'), 'utf8')
-  assert.ok(content.includes('selectedOptions'))
-  assert.ok(content.includes('setSelectedOptions'))
+runTest('tier1', 'F19.5: Sessions chapter tracks the selected tariff per session row', () => {
+  const content = readLanding('sections', 'Sessions.tsx')
+  assert.ok(content.includes('const [opt, setOpt] = useState(0)'))
+  assert.ok(content.includes('role="radiogroup"'))
 })
 
 // --- Feature 20: Online Format Surcharge (+3 000 ₽) ---
@@ -913,15 +916,16 @@ runTest('tier1', 'F24.2: archetypes-book card badge is "3D Luxury Art-Book"', ()
   assert.equal(book.badge, '3D Luxury Art-Book')
 })
 
-runTest('tier1', 'F24.3: ServicesGrid.tsx renders dedicated "Открыть 3D-Книгу" action for book card', () => {
-  const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'components', 'ServicesGrid.tsx'), 'utf8')
-  assert.ok(content.includes('service.isBook'))
-  assert.ok(content.includes('Открыть 3D-Книгу'))
+runTest('tier1', 'F24.3: The book lives in its own chapter; the seven path cards exclude the isBook entry', () => {
+  const content = readLanding('content.ts')
+  assert.ok(content.includes('ALINA_SERVICES.filter((s) => !s.isBook)'))
+  const folio = readLanding('sections', 'Folio.tsx')
+  assert.ok(folio.includes('Открыть книгу сейчас'))
 })
 
-runTest('tier1', 'F24.4: Clicking book card invokes onOpenBook callback directly', () => {
-  const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'components', 'ServicesGrid.tsx'), 'utf8')
-  assert.ok(content.includes('onOpenBook()'))
+runTest('tier1', 'F24.4: Book chapter CTA invokes onOpenBook callback directly', () => {
+  const content = readLanding('sections', 'Folio.tsx')
+  assert.ok(content.includes('onClick={onOpenBook}'))
 })
 
 runTest('tier1', 'F24.5: archetypes-book card highlights 3D book features with 16 codes and 3D engine', () => {
@@ -931,34 +935,35 @@ runTest('tier1', 'F24.5: archetypes-book card highlights 3D book features with 1
 })
 
 // --- Feature 25: Service Modal (ServiceModal) ---
-runTest('tier1', 'F25.1: ServiceModal.tsx renders service title, badge, and description paragraphs', () => {
-  const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'components', 'ServiceModal.tsx'), 'utf8')
-  assert.ok(content.includes('service.title'))
-  assert.ok(content.includes('service.badge'))
-  assert.ok(content.includes('service.fullDescription'))
+runTest('tier1', 'F25.1: Path drawer renders service title, badge, and description paragraphs', () => {
+  const content = readLanding('sections', 'Paths.tsx')
+  assert.ok(content.includes('{s.title}'))
+  assert.ok(content.includes('{s.badge}'))
+  assert.ok(content.includes('s.fullDescription.map'))
 })
 
-runTest('tier1', 'F25.2: ServiceModal.tsx renders syllabus bullets and tangible outcomes', () => {
-  const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'components', 'ServiceModal.tsx'), 'utf8')
-  assert.ok(content.includes('service.bullets.map'))
-  assert.ok(content.includes('service.outcomes.map'))
+runTest('tier1', 'F25.2: Path drawer renders syllabus bullets and tangible outcomes', () => {
+  const content = readLanding('sections', 'Paths.tsx')
+  assert.ok(content.includes('s.bullets.map'))
+  assert.ok(content.includes('s.outcomes.map'))
 })
 
-runTest('tier1', 'F25.3: ServiceModal.tsx provides Escape key listener for keyboard dismiss', () => {
-  const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'components', 'ServiceModal.tsx'), 'utf8')
+runTest('tier1', 'F25.3: Path drawer provides Escape key listener for keyboard dismiss', () => {
+  const content = readLanding('sections', 'Paths.tsx')
   assert.ok(content.includes("e.key === 'Escape'"))
   assert.ok(content.includes("window.removeEventListener('keydown'"))
 })
 
-runTest('tier1', 'F25.4: ServiceModal.tsx provides backdrop click handler to close modal', () => {
-  const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'components', 'ServiceModal.tsx'), 'utf8')
-  assert.ok(content.includes('onClose()'))
+runTest('tier1', 'F25.4: Path drawer closes on backdrop click', () => {
+  const content = readLanding('sections', 'Paths.tsx')
+  assert.ok(content.includes('className="lx-drawer__veil" onClick={onClose}'))
 })
 
-runTest('tier1', 'F25.5: ServiceModal.tsx displays manager Maria notice and booking actions', () => {
-  const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'components', 'ServiceModal.tsx'), 'utf8')
-  assert.ok(content.includes('Менеджер мастера'))
-  assert.ok(content.includes('Написать Марии в Telegram'))
+runTest('tier1', 'F25.5: Path drawer books through Maria in Telegram and WhatsApp', () => {
+  const content = readLanding('sections', 'Paths.tsx')
+  assert.ok(content.includes('Записаться через Марию'))
+  assert.ok(content.includes('telegramLink(pathBookingMessage(s))'))
+  assert.ok(content.includes('whatsappLink(pathBookingMessage(s))'))
 })
 
 // --- Feature 26: Manager Maria Booking Routing ---
@@ -980,12 +985,14 @@ runTest('tier1', 'F26.4: MANAGER_INFO includes Alina endorsement quote', () => {
   assert.ok(MANAGER_INFO.quote.includes('Мария — моя правая рука во всех рабочих вопросах'))
 })
 
-runTest('tier1', 'F26.5: PortalFooter displays Maria contacts and prefilled Telegram & WhatsApp booking links', () => {
-  const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'components', 'PortalFooter.tsx'), 'utf8')
-  assert.ok(content.includes('https://t.me/maria_anima'))
-  assert.ok(content.includes('https://wa.me/79152149560'))
-  assert.ok(content.includes('@maria_anima'))
-  assert.ok(content.includes('+7 915 214 9560'))
+runTest('tier1', 'F26.5: Contact chapter shows Maria contacts with prefilled Telegram & WhatsApp links', () => {
+  const content = readLanding('sections', 'Contact.tsx')
+  assert.ok(content.includes('telegramLink(HELLO)'))
+  assert.ok(content.includes('whatsappLink(HELLO)'))
+  assert.ok(content.includes('MANAGER_INFO.telegram'))
+  assert.ok(content.includes('MANAGER_INFO.phone'))
+  const shared = readLanding('content.ts')
+  assert.ok(shared.includes('MANAGER_INFO.telegramUrl') && shared.includes('MANAGER_INFO.whatsappUrl'))
 })
 
 // --- Feature 27: Client Query Navigator (14 Chips) ---
@@ -1049,10 +1056,11 @@ runTest('tier1', 'F28.3: All 36 questions are unique without duplicates', () => 
   assert.equal(new Set(allQs).size, 36)
 })
 
-runTest('tier1', 'F28.4: PricingSection renders Tarot Questions Bank interactive selector with category tabs', () => {
-  const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'components', 'PricingSection.tsx'), 'utf8')
-  assert.ok(content.includes('tarotCategory'))
-  assert.ok(content.includes('setTarotCategory'))
+runTest('tier1', 'F28.4: Sessions chapter renders the Tarot Questions Bank with both question groups', () => {
+  const content = readLanding('sections', 'Sessions.tsx')
+  assert.ok(content.includes('TAROT_QUESTIONS.relationships'))
+  assert.ok(content.includes('TAROT_QUESTIONS.moneyAndRealization'))
+  assert.ok(content.includes('Отправить Марии'))
 })
 
 runTest('tier1', 'F28.5: Clicking a Tarot question generates Telegram booking URL targeting Maria', () => {
@@ -1135,34 +1143,35 @@ runTest('tier1', 'F30.4: LegalRiskChecker provides one-click replacement button 
   assert.ok(content.includes('Заменить'))
 })
 
-runTest('tier1', 'F30.5: App.tsx integrates LegalRiskChecker and controls modal state via isLegalOpen', () => {
-  const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'App.tsx'), 'utf8')
+runTest('tier1', 'F30.5: Landing integrates LegalRiskChecker and controls modal state via legalOpen', () => {
+  const content = readLanding('Landing.tsx')
   assert.ok(content.includes('<LegalRiskChecker'))
-  assert.ok(content.includes('isOpen={isLegalOpen}'))
-  assert.ok(content.includes('setIsLegalOpen(false)'))
+  assert.ok(content.includes('isOpen={legalOpen}'))
+  assert.ok(content.includes('setLegalOpen(false)'))
 })
 
 // --- Feature 31: Statutory Footer Disclaimer ---
-runTest('tier1', 'F31.1: PortalFooter.tsx specifies 18+ age restriction requirement', () => {
-  const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'components', 'PortalFooter.tsx'), 'utf8')
+runTest('tier1', 'F31.1: Footer disclaimer specifies 18+ age restriction requirement', () => {
+  const content = readLanding('content.ts')
   assert.ok(content.includes('18+'))
 })
 
-runTest('tier1', 'F31.2: PortalFooter.tsx states services do not constitute medical or psychological diagnosis', () => {
-  const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'components', 'PortalFooter.tsx'), 'utf8')
+runTest('tier1', 'F31.2: Footer disclaimer states services do not constitute medical or psychological diagnosis', () => {
+  const content = readLanding('content.ts')
   const normalized = content.replace(/\s+/g, ' ')
   assert.ok(normalized.includes('не заменяют диагностику, консультацию или лечение'))
 })
 
-runTest('tier1', 'F31.3: PortalFooter.tsx designates services as informational and consultative', () => {
-  const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'components', 'PortalFooter.tsx'), 'utf8')
+runTest('tier1', 'F31.3: Footer disclaimer designates services as informational and consultative', () => {
+  const content = readLanding('content.ts')
   assert.ok(content.includes('информационно-консультационный'))
 })
 
-runTest('tier1', 'F31.4: PortalFooter.tsx provides button to trigger RF Legal Risk Checker modal', () => {
-  const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'components', 'PortalFooter.tsx'), 'utf8')
-  assert.ok(content.includes('onOpenLegal'))
-  assert.ok(content.includes('Юр. агент и аудит рисков (РФ)'))
+runTest('tier1', 'F31.4: Footer provides button to trigger RF Legal Risk Checker modal', () => {
+  const content = readLanding('sections', 'Contact.tsx')
+  assert.ok(content.includes('onClick={onOpenLegal}'))
+  assert.ok(content.includes('Проверка текстов на юр. риски (РФ)'))
+  assert.ok(content.includes('{LEGAL_DISCLAIMER}'))
 })
 
 runTest('tier1', 'F31.5: docs/LEGAL_COMPLIANCE_RF.md documents federal advertising and health legislation', () => {
@@ -1314,9 +1323,10 @@ runTest('tier1', 'F35.5: Turn animation queue in ContinuousStage.tsx guards agai
 })
 
 // --- Feature 36: Floating Navigation Bar ---
-runTest('tier1', 'F36.1: BookNavbarOverlay renders Prototype 1 badge', () => {
+runTest('tier1', 'F36.1: BookNavbarOverlay renders a reader-facing badge', () => {
   const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'components', 'BookNavbarOverlay.tsx'), 'utf8')
-  assert.ok(content.includes('Прототип 1 · Астральный Астролябий и Живой Гримуар'))
+  assert.ok(content.includes('book-navbar-overlay__badge'))
+  assert.ok(content.includes('Книга персональных кодов'))
 })
 
 runTest('tier1', 'F36.2: BookNavbarOverlay renders return button with label "К практикам Алины" and arrow "←"', () => {
@@ -1346,12 +1356,13 @@ runTest('tier1', 'F36.5: BookNavbarOverlay provides return button and chapter sp
 // --- Feature 37: Hash Navigation & Scroll Return ---
 runTest('tier1', 'F37.1: App.tsx initializes viewMode based on window.location.hash === "#book"', () => {
   const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'App.tsx'), 'utf8')
-  assert.ok(content.includes("window.location.hash === '#book' ? 'book' : 'portal'"))
+  assert.ok(content.includes("window.location.hash === '#book'"))
+  assert.ok(content.includes("isBookHash() ? 'book' : 'portal'"))
 })
 
 runTest('tier1', 'F37.2: hashchange event listener updates viewMode on forward/back navigation', () => {
   const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'App.tsx'), 'utf8')
-  assert.ok(content.includes("window.addEventListener('hashchange', handleHashChange)"))
+  assert.ok(content.includes("window.addEventListener('hashchange', onHash)"))
 })
 
 runTest('tier1', 'F37.3: openBook sets window.location.hash = "book"', () => {
@@ -1361,7 +1372,7 @@ runTest('tier1', 'F37.3: openBook sets window.location.hash = "book"', () => {
 
 runTest('tier1', 'F37.4: backToPortal clears hash via pushState without reloading page', () => {
   const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'App.tsx'), 'utf8')
-  assert.ok(content.includes("window.history.pushState(null, '', window.location.pathname)"))
+  assert.ok(content.includes("window.history.pushState(null, '', window.location.pathname + window.location.search)"))
 })
 
 runTest('tier1', 'F37.5: Escape key listener in App.tsx triggers backToPortal', () => {
@@ -1707,8 +1718,8 @@ runTest('tier2', 'B7.4: Rapid switching between portal and book cleans up event 
   assert.ok(content.includes("window.removeEventListener('hashchange'"))
 })
 
-runTest('tier2', 'B7.5: ESC key handler in modal components safely closes modals without throwing', () => {
-  const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'components', 'ServiceModal.tsx'), 'utf8')
+runTest('tier2', 'B7.5: ESC key handler in drawer components safely closes them without throwing', () => {
+  const content = readLanding('sections', 'Paths.tsx')
   assert.ok(content.includes("e.key === 'Escape'"))
   assert.ok(content.includes("window.removeEventListener('keydown'"))
 })
@@ -1728,7 +1739,7 @@ runTest('tier2', 'B8.2: Hash handling with unexpected hash "#unknown" stays on p
 
 runTest('tier2', 'B8.3: History state preservation does not modify pathname when clearing hash', () => {
   const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'App.tsx'), 'utf8')
-  assert.ok(content.includes("window.history.pushState(null, '', window.location.pathname)"))
+  assert.ok(content.includes("window.history.pushState(null, '', window.location.pathname + window.location.search)"))
 })
 
 runTest('tier2', 'B8.4: Birthdate formatting handles leap day 29.02 and Russian locale ru-RU', () => {
@@ -1890,10 +1901,10 @@ runTest('tier3', 'C5: Opening ServiceModal for group program vs 3D book service 
   assert.equal(getModalActionType(bookService), 'OPEN_3D_BOOK')
 })
 
-runTest('tier3', 'C6: ServiceModal.tsx booking CTA routes directly to Manager Maria (@maria_anima)', () => {
-  const modalPath = path.join(ROOT_DIR, 'src', 'components', 'ServiceModal.tsx')
-  const content = fs.readFileSync(modalPath, 'utf8')
-  assert.ok(content.includes('MANAGER_INFO') || content.includes('maria_anima'))
+runTest('tier3', 'C6: Path drawer booking CTA routes directly to Manager Maria (@maria_anima)', () => {
+  const content = readLanding('content.ts')
+  assert.ok(content.includes('MANAGER_INFO.telegramUrl'))
+  assert.ok(readLanding('sections', 'Paths.tsx').includes('telegramLink('))
 })
 
 runTest('tier3', 'C7: Twin Flame consultation card cross-references Energy Alignment 20% discount', () => {
@@ -1904,12 +1915,11 @@ runTest('tier3', 'C7: Twin Flame consultation card cross-references Energy Align
   assert.ok(ea.bonus?.includes('БП'))
 })
 
-runTest('tier3', 'C8: Legal Risk Checker integrates with header and footer audit buttons', () => {
-  const headerContent = fs.readFileSync(path.join(ROOT_DIR, 'src', 'components', 'PortalHeader.tsx'), 'utf8')
-  const footerContent = fs.readFileSync(path.join(ROOT_DIR, 'src', 'components', 'PortalFooter.tsx'), 'utf8')
-
-  assert.ok(headerContent.includes('onOpenLegal'))
-  assert.ok(footerContent.includes('onOpenLegal'))
+runTest('tier3', 'C8: Legal Risk Checker opens from the footer and is lazy-loaded by the landing', () => {
+  const landing = readLanding('Landing.tsx')
+  const footer = readLanding('sections', 'Contact.tsx')
+  assert.ok(landing.includes("import('../components/LegalRiskChecker')"))
+  assert.ok(footer.includes('onClick={onOpenLegal}'))
 })
 
 runTest('tier3', 'C9: Safe replacement in Legal Risk Checker fixes matched rule and increases compliance score', () => {
@@ -1930,7 +1940,7 @@ runTest('tier3', 'C9: Safe replacement in Legal Risk Checker fixes matched rule 
 })
 
 runTest('tier3', 'C10: Medical disclaimer in footer harmonizes with session-level safety guidelines', () => {
-  const footerContent = fs.readFileSync(path.join(ROOT_DIR, 'src', 'components', 'PortalFooter.tsx'), 'utf8')
+  const footerContent = readLanding('content.ts').replace(/\s+/g, ' ')
   const skillsContent = fs.readFileSync(path.join(ROOT_DIR, 'alina_skills.md'), 'utf8')
 
   assert.ok(footerContent.includes('не заменяют диагностику'))
@@ -1951,10 +1961,11 @@ runTest('tier3', 'C11: Kinetic scroll progress concurrently drives Astrolabe pha
   assert.equal(getStageByScroll(scrollProg), 'cover_input')
 })
 
-runTest('tier3', 'C12: Continuous Canvas WebGL stage maintains persistent single mount in App.tsx', () => {
+runTest('tier3', 'C12: 3D book stage is code-split and never mounted under the landing', () => {
   const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'App.tsx'), 'utf8')
-  assert.ok(content.includes('<ContinuousStage viewMode={viewMode} />'))
-  assert.ok(content.includes('className="portal-layout"'))
+  assert.ok(content.includes("lazy(() => import('./book/BookMode'))"))
+  assert.ok(!content.includes('<ContinuousStage'))
+  assert.ok(content.includes('<Landing '))
 })
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1988,7 +1999,7 @@ runTest('tier4', 'S2: Health & Somatic Query Flow with Medical Safety Disclaimer
   const session = INDIVIDUAL_SESSIONS.find((s) => s.id === exhaustionChip.targetSessionId)
   assert.ok(session.subtitle.includes('Мягкая'))
 
-  const footerContent = fs.readFileSync(path.join(ROOT_DIR, 'src', 'components', 'PortalFooter.tsx'), 'utf8')
+  const footerContent = readLanding('content.ts')
   const normalizedFooter = footerContent.replace(/\s+/g, ' ')
   assert.ok(normalizedFooter.includes('Они не являются медицинскими услугами'))
   assert.ok(normalizedFooter.includes('не заменяют диагностику, консультацию или лечение у дипломированных врачей'))

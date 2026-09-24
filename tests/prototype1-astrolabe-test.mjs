@@ -87,16 +87,18 @@ test('P1.7: BookScene integrates AstralAstrolabe and living grimoire breathing m
   assert.ok(content.includes('Math.sin(t * 0.85) * 0.006'), 'living grimoire breathing formula missing')
 })
 
-test('P1.8: BookNavbarOverlay.tsx displays Prototype 1 badge', () => {
+test('P1.8: BookNavbarOverlay.tsx displays a reader-facing badge', () => {
   const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'components', 'BookNavbarOverlay.tsx'), 'utf8')
   assert.ok(content.includes('book-navbar-overlay__badge'), 'badge element missing')
-  assert.ok(content.includes('Прототип 1 · Астральный Астролябий и Живой Гримуар'), 'Prototype 1 badge text missing')
+  assert.ok(content.includes('Книга персональных кодов'), 'badge text missing')
 })
 
-test('P1.9: BookBanner.tsx highlights Prototype 1 in quiet luxury aesthetic', () => {
-  const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'components', 'BookBanner.tsx'), 'utf8')
-  assert.ok(content.includes('ПРОТОТИП 1 · АСТРАЛЬНЫЙ АСТРОЛЯБИЙ И ЖИВОЙ ГРИМУАР'), 'Prototype 1 banner tag missing')
-  assert.ok(content.includes('кристальной дисперсией света'), 'banner description missing crystal dispersion')
+test('P1.9: Landing book chapter showcases the real 3D folio in the dark «Shadow» chapter', () => {
+  const folio = fs.readFileSync(path.join(ROOT_DIR, 'src', 'landing', 'sections', 'Folio.tsx'), 'utf8')
+  assert.ok(folio.includes('data-theme="dark"'), 'book chapter must be the dark scene')
+  assert.ok(folio.includes("import('../bookShowcase')"), 'Three.js showcase must be lazy-loaded')
+  const showcase = fs.readFileSync(path.join(ROOT_DIR, 'src', 'landing', 'bookShowcase.ts'), 'utf8')
+  assert.ok(showcase.includes('drawPageRightOntoCanvas'), 'showcase must render the real book pages')
 })
 
 test('P1.10: _preview.html (teamwork-preview) enforces strict French Light Luxury theme', () => {

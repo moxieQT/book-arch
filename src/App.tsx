@@ -1,176 +1,117 @@
-import { useState, useEffect, useRef, useLayoutEffect } from 'react'
-import { ContinuousStage } from './three/ContinuousStage'
-import { PortalHeader } from './components/PortalHeader'
-import { HeroSection } from './components/HeroSection'
-import { BookBanner } from './components/BookBanner'
-import { ServicesGrid } from './components/ServicesGrid'
-import { PricingSection } from './components/PricingSection'
-import { ApproachSection } from './components/ApproachSection'
-import { PortalFooter } from './components/PortalFooter'
-import { BookNavbarOverlay } from './components/BookNavbarOverlay'
-import { LegalRiskChecker } from './components/LegalRiskChecker'
-import './App.css'
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import { Landing } from './landing/Landing'
 
 export type ViewMode = 'portal' | 'book'
 
-const PORTAL_SCROLL_STORAGE_KEY = 'alina_portal_scroll_y'
+// 3D-книга (Three.js, тексты арканов) грузится отдельным чанком только по требованию
+const BookMode = lazy(() => import('./book/BookMode'))
+
+const isBookHash = () => typeof window !== 'undefined' && window.location.hash === '#book'
+
+// Позиция прокрутки лендинга переживает и перезагрузку страницы внутри книги
+const SCROLL_KEY = 'alina_portal_scroll_y'
+
+function rememberScroll(y: number) {
+  try {
+    sessionStorage.setItem(SCROLL_KEY, String(Math.round(y)))
+  } catch {
+    // приватный режим — обойдёмся памятью
+  }
+}
+
+function recallScroll(): number {
+  try {
+    return Number(sessionStorage.getItem(SCROLL_KEY) || '0')
+  } catch {
+    return 0
+  }
+}
+
+function BookLoader() {
+  return (
+    <div className="lx-book-loader" role="status" aria-label="Книга открывается">
+      <span />
+    </div>
+  )
+}
 
 function App() {
-  const [viewMode, setViewMode] = useState<ViewMode>(() => {
-    return typeof window !== 'undefined' && window.location.hash === '#book' ? 'book' : 'portal'
-  })
-  const [isLegalOpen, setIsLegalOpen] = useState<boolean>(false)
-  const scrollPosRef = useRef<number>(0)
-  const viewModeRef = useRef<ViewMode>(viewMode)
+  const [viewMode, setViewMode] = useState<ViewMode>(() => (isBookHash() ? 'book' : 'portal'))
+  // Позиция прокрутки лендинга перед уходом в книгу — восстанавливаем при возврате
+  const savedScroll = useRef<number | null>(null)
+  const [restoreScroll, setRestoreScroll] = useState<number | null>(null)
 
-  useEffect(() => {
-    viewModeRef.current = viewMode
-  }, [viewMode])
-
-  // Сохранение позиции скролла портала перед переходом в режим 3D-книги
-  const saveScrollPosition = () => {
-    if (typeof window !== 'undefined') {
-      const portalEl = document.querySelector<HTMLElement>('.portal-layout')
-      if (portalEl && portalEl.style.display === 'none') {
-        return
-      }
-      const y = window.scrollY || document.documentElement.scrollTop || 0
-      scrollPosRef.current = y
-      try {
-        sessionStorage.setItem(PORTAL_SCROLL_STORAGE_KEY, String(y))
-      } catch {
-        // ignore storage errors
-      }
-    }
-  }
-
-  // Навигация между порталом и 3D-книгой
-  const openBook = () => {
-    saveScrollPosition()
-    viewModeRef.current = 'book'
-    if (window.location.hash !== '#book') {
-      window.location.hash = 'book'
-    }
+  const enterBook = useCallback(() => {
+    savedScroll.current = window.scrollY
+    rememberScroll(window.scrollY)
+    if (!isBookHash()) window.location.hash = 'book'
     setViewMode('book')
-  }
+  }, [])
 
-  const backToPortal = () => {
-    if (window.location.hash === '#book') {
-      window.history.pushState(null, '', window.location.pathname)
-    }
-    viewModeRef.current = 'portal'
+  const openBookWithDate = useCallback(
+    async (date: Date) => {
+      // Стор книги тянет тексты арканов (~800 КБ) — грузим его только по требованию
+      const { useBookStore } = await import('./store/useBookStore')
+      useBookStore.getState().setBirthDate(date)
+      enterBook()
+      // Книга сама перелистнёт обложку, когда сцена будет готова
+      window.setTimeout(() => useBookStore.getState().openBook(), 900)
+    },
+    [enterBook]
+  )
+
+  const backToPortal = useCallback(() => {
+    if (isBookHash()) window.history.pushState(null, '', window.location.pathname + window.location.search)
+    setRestoreScroll(savedScroll.current ?? recallScroll())
     setViewMode('portal')
-  }
+  }, [])
 
-  // Слушатель хэша в URL (навигация назад/вперед в браузере и прямые ссылки)
+  // Навигация браузера «назад/вперёд» и прямые ссылки на #book
   useEffect(() => {
-    const handleHashChange = () => {
-      if (window.location.hash === '#book') {
-        if (viewModeRef.current === 'portal') {
-          saveScrollPosition()
-        }
-        viewModeRef.current = 'book'
-        setViewMode('book')
+    const onHash = () => {
+      if (isBookHash()) {
+        setViewMode((m) => {
+          if (m === 'portal') {
+            savedScroll.current = window.scrollY
+            rememberScroll(window.scrollY)
+          }
+          return 'book'
+        })
       } else {
-        viewModeRef.current = 'portal'
+        setRestoreScroll(savedScroll.current ?? recallScroll())
         setViewMode('portal')
       }
     }
-
-    window.addEventListener('hashchange', handleHashChange)
-    return () => window.removeEventListener('hashchange', handleHashChange)
+    window.addEventListener('hashchange', onHash)
+    window.addEventListener('popstate', onHash)
+    return () => {
+      window.removeEventListener('hashchange', onHash)
+      window.removeEventListener('popstate', onHash)
+    }
   }, [])
 
-  // Обработчик клавиши Escape для быстрого возврата на портал
+  // Esc в книге — возврат на сайт
   useEffect(() => {
     if (viewMode !== 'book') return
-
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault()
         backToPortal()
       }
     }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [viewMode, backToPortal])
 
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [viewMode])
-
-  // Восстановление позиции скролла при возврате в портал
-  useLayoutEffect(() => {
-    if (viewMode === 'portal') {
-      const savedY =
-        scrollPosRef.current ||
-        Number(sessionStorage.getItem(PORTAL_SCROLL_STORAGE_KEY) || '0')
-
-      if (savedY > 0) {
-        window.scrollTo({ top: savedY, behavior: 'instant' })
-        const rafId = requestAnimationFrame(() => {
-          window.scrollTo({ top: savedY, behavior: 'instant' })
-        })
-        return () => cancelAnimationFrame(rafId)
-      }
-    }
-  }, [viewMode])
-
-  const scrollToPractices = () => {
-    const el = document.getElementById('practices')
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' })
-    }
+  if (viewMode === 'book') {
+    return (
+      <Suspense fallback={<BookLoader />}>
+        <BookMode onBack={backToPortal} />
+      </Suspense>
+    )
   }
 
-  return (
-    <>
-      {/* 1. Persistent Continuous WebGL Canvas Stage (never unmounted) */}
-      <ContinuousStage viewMode={viewMode} />
-
-      {/* 2. 3D Book Fullscreen Navigation HUD */}
-      {viewMode === 'book' && (
-        <div className="app app--fullscreen" style={{ position: 'relative', zIndex: 10 }}>
-          <BookNavbarOverlay onBackToPortal={backToPortal} />
-        </div>
-      )}
-
-      {/* 3. Portal DOM Layout (z-index: 10, transparent background) */}
-      <div
-        className="portal-layout"
-        style={{
-          position: 'relative',
-          zIndex: 10,
-          background: 'transparent',
-          display: viewMode === 'book' ? 'none' : undefined,
-        }}
-        aria-hidden={viewMode === 'book'}
-      >
-        <PortalHeader
-          onOpenBook={openBook}
-          onOpenLegal={() => setIsLegalOpen(true)}
-        />
-
-        <main className="portal-main">
-          <HeroSection
-            onOpenBook={openBook}
-            onExplorePractices={scrollToPractices}
-          />
-          <BookBanner onOpenBook={openBook} />
-          <ServicesGrid onOpenBook={openBook} />
-          <PricingSection />
-          <ApproachSection />
-        </main>
-
-        <PortalFooter
-          onOpenBook={openBook}
-          onOpenLegal={() => setIsLegalOpen(true)}
-        />
-
-        <LegalRiskChecker
-          isOpen={isLegalOpen}
-          onClose={() => setIsLegalOpen(false)}
-        />
-      </div>
-    </>
-  )
+  return <Landing onOpenBook={enterBook} onOpenBookWithDate={openBookWithDate} restoreScroll={restoreScroll} />
 }
 
 export default App

@@ -307,9 +307,9 @@ async function main() {
     await new Promise((r) => setTimeout(r, 150))
 
     const hash = await cdp.evaluate('window.location.hash')
-    const hasPortal = await cdp.evaluate("document.querySelector('.portal-layout') !== null")
+    const hasPortal = await cdp.evaluate("document.querySelector('.lx') !== null")
     const isPortalVisible = await cdp.evaluate(
-      "document.querySelector('.portal-layout').style.display !== 'none'"
+      "!!document.querySelector('.lx-hero')"
     )
     const hasBookCanvas = await cdp.evaluate("document.querySelector('.stage canvas') !== null")
 
@@ -328,7 +328,7 @@ async function main() {
     await new Promise((r) => setTimeout(r, 150))
 
     const isPortalVisible = await cdp.evaluate(
-      "document.querySelector('.portal-layout').style.display !== 'none'"
+      "!!document.querySelector('.lx-hero')"
     )
     const hasBookCanvas = await cdp.evaluate("document.querySelector('.stage canvas') !== null")
 
@@ -346,12 +346,11 @@ async function main() {
     for (let i = 0; i < 15; i++) {
       // Click open book button (in header or banner)
       const openSuccess = await cdp.evaluate(`(() => {
-        const btn = document.querySelector('.portal-header__cta') ||
-                    document.querySelector('.book-banner__btn');
+        const btn = document.querySelector('.lx-hero__cta .lx-link');
         if (btn) { btn.click(); return true; }
         return false;
       })()`)
-      assert.ok(openSuccess, 'Should find open book button (.portal-header__cta or .book-banner__btn)')
+      assert.ok(openSuccess, 'Should find open book link in the prologue (.lx-hero__cta .lx-link)')
       await new Promise((r) => setTimeout(r, 80))
 
       // Verify book view active
@@ -369,7 +368,7 @@ async function main() {
 
       // Verify portal view active
       const inPortal = await cdp.evaluate(
-        "document.querySelector('.portal-layout').style.display !== 'none'"
+        "!!document.querySelector('.lx-hero')"
       )
       assert.ok(inPortal, `Iteration ${i}: Portal should be visible after return`)
     }
@@ -400,7 +399,7 @@ async function main() {
     await new Promise((r) => setTimeout(r, 200))
     const hashAfterBack = await cdp.evaluate('window.location.hash')
     const inPortalAfterBack = await cdp.evaluate(
-      "document.querySelector('.portal-layout').style.display !== 'none'"
+      "!!document.querySelector('.lx-hero')"
     )
     assert.ok(hashAfterBack === '' || hashAfterBack === '#', `Hash should be cleared, got: ${hashAfterBack}`)
     assert.ok(inPortalAfterBack, 'Portal layout should be active after history.back()')
@@ -439,7 +438,7 @@ async function main() {
 
     const hash = await cdp.evaluate('window.location.hash')
     const isPortalVisible = await cdp.evaluate(
-      "document.querySelector('.portal-layout').style.display !== 'none'"
+      "!!document.querySelector('.lx-hero')"
     )
     const hasCanvas = await cdp.evaluate("document.querySelector('.stage canvas') !== null")
 
@@ -478,6 +477,16 @@ async function main() {
   // ─────────────────────────────────────────────────────────────────────────
   // SUITE 3: SCROLL RESTORATION ACCURACY
   // ─────────────────────────────────────────────────────────────────────────
+  // Книга — отдельный лениво загружаемый чанк: ждём появления элементов, а не фиксированные 200 мс
+  const waitFor = async (expr, timeout = 8000) => {
+    const start = Date.now()
+    while (Date.now() - start < timeout) {
+      if (await cdp.evaluate(`!!(${expr})`)) return true
+      await new Promise((r) => setTimeout(r, 50))
+    }
+    return false
+  }
+
   logSection('SUITE 3: Scroll Restoration Accuracy')
 
   await recordTest('SUITE 3', '3.1: Scroll to 2500px -> transition to #book -> click return -> verify scroll restored to 2500px', async () => {
@@ -496,12 +505,12 @@ async function main() {
 
     // Click header button to transition to #book
     const openClicked = await cdp.evaluate(`(() => {
-      const btn = document.querySelector('.portal-header__cta');
+      const btn = document.querySelector('.lx-hero__cta .lx-link');
       if (btn) { btn.click(); return true; }
       return false;
     })()`)
-    assert.ok(openClicked, 'Found open book CTA button (.portal-header__cta)')
-    await new Promise((r) => setTimeout(r, 200))
+    assert.ok(openClicked, 'Found open book link (.lx-hero__cta .lx-link)')
+    await waitFor("document.querySelector('.book-navbar-overlay__back-btn')")
 
     // Verify in book mode
     const hashInBook = await cdp.evaluate('window.location.hash')
@@ -515,13 +524,14 @@ async function main() {
     })()`)
     assert.ok(backBtnClicked, 'Found return button «← К практикам Алины»')
 
-    // Allow requestAnimationFrame and layout restoration
-    await new Promise((r) => setTimeout(r, 200))
+    // Лендинг монтируется заново и восстанавливает позицию
+    await waitFor("document.querySelector('.lx-hero')")
+    await new Promise((r) => setTimeout(r, 300))
 
     const finalHash = await cdp.evaluate('window.location.hash')
     const finalScrollY = await cdp.evaluate('window.scrollY')
     const isPortalVisible = await cdp.evaluate(
-      "document.querySelector('.portal-layout').style.display !== 'none'"
+      "!!document.querySelector('.lx-hero')"
     )
 
     assert.equal(finalHash, '', 'Hash should be cleared on return to portal')
@@ -540,12 +550,13 @@ async function main() {
     assert.ok(Math.abs(scrollY4200 - 4200) <= 5, `Expected ~4200, got ${scrollY4200}`)
 
     // Open book
-    await cdp.evaluate("document.querySelector('.portal-header__cta').click()")
-    await new Promise((r) => setTimeout(r, 200))
+    await cdp.evaluate("document.querySelector('.lx-hero__cta .lx-link').click()")
+    await waitFor("document.querySelector('.book-navbar-overlay__back-btn')")
 
     // Return to portal
     await cdp.evaluate("document.querySelector('.book-navbar-overlay__back-btn').click()")
-    await new Promise((r) => setTimeout(r, 200))
+    await waitFor("document.querySelector('.lx-hero')")
+    await new Promise((r) => setTimeout(r, 300))
 
     const restoredY = await cdp.evaluate('window.scrollY')
     assert.ok(
@@ -597,7 +608,7 @@ async function main() {
 
     const hash = await cdp.evaluate('window.location.hash')
     const inPortal = await cdp.evaluate(
-      "document.querySelector('.portal-layout').style.display !== 'none'"
+      "!!document.querySelector('.lx-hero')"
     )
     const hasCanvas = await cdp.evaluate("document.querySelector('.stage canvas') !== null")
 
@@ -617,25 +628,25 @@ async function main() {
     await new Promise((r) => setTimeout(r, 100))
     const afterHash = await cdp.evaluate('window.location.hash')
     const isPortalVisible = await cdp.evaluate(
-      "document.querySelector('.portal-layout').style.display !== 'none'"
+      "!!document.querySelector('.lx-hero')"
     )
 
     assert.equal(beforeHash, afterHash)
     assert.ok(isPortalVisible)
   })
 
-  await recordTest('SUITE 4', '4.3: Pressing Escape inside open ServiceModal closes modal and keeps portal active', async () => {
+  await recordTest('SUITE 4', '4.3: Pressing Escape inside an open path drawer closes it and keeps the landing active', async () => {
     // Open ServiceModal by clicking on the first service card
     const opened = await cdp.evaluate(`(() => {
-      const card = document.querySelector('.service-card');
+      const card = document.querySelector('.lx-card');
       if (card) { card.click(); return true; }
       return false;
     })()`)
-    assert.ok(opened, 'Should click service card to open ServiceModal')
-    await new Promise((r) => setTimeout(r, 200))
+    assert.ok(opened, 'Should click a path card to open the drawer')
+    await new Promise((r) => setTimeout(r, 400))
 
-    const modalVisible = await cdp.evaluate("document.querySelector('.portal-modal-overlay') !== null")
-    assert.ok(modalVisible, 'ServiceModal overlay should be visible')
+    const modalVisible = await cdp.evaluate("getComputedStyle(document.querySelector('.lx-drawer')).visibility === 'visible'")
+    assert.ok(modalVisible, 'Path drawer should be visible')
 
     // Press Escape
     await cdp.send('Input.dispatchKeyEvent', {
@@ -644,14 +655,15 @@ async function main() {
       code: 'Escape',
       windowsVirtualKeyCode: 27
     })
-    await new Promise((r) => setTimeout(r, 200))
+    // панель уезжает за 0,7 с
+    await new Promise((r) => setTimeout(r, 1100))
 
-    const modalAfter = await cdp.evaluate("document.querySelector('.portal-modal-overlay') !== null")
+    const modalAfter = await cdp.evaluate("getComputedStyle(document.querySelector('.lx-drawer')).visibility === 'visible'")
     const portalVisible = await cdp.evaluate(
-      "document.querySelector('.portal-layout').style.display !== 'none'"
+      "!!document.querySelector('.lx-hero')"
     )
 
-    assert.equal(modalAfter, false, 'ServiceModal should be closed by Escape')
+    assert.equal(modalAfter, false, 'Path drawer should be closed by Escape')
     assert.ok(portalVisible, 'Portal should remain active')
   })
 

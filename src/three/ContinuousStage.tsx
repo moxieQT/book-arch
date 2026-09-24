@@ -1,11 +1,9 @@
 import { useEffect, useRef } from 'react'
-import * as THREE from 'three'
 import { BookScene } from './bookScene'
 import { useBookStore } from '../store/useBookStore'
 import { calculateArchetypes } from '../numerology/calculate'
 import { buildChapters } from '../numerology/chapters'
 import { soundscape } from '../audio/soundscape'
-import { kineticScroll } from './kineticScroll'
 
 export interface ContinuousStageProps {
   viewMode: 'portal' | 'book'
@@ -37,6 +35,12 @@ export function ContinuousStage({ viewMode }: ContinuousStageProps) {
     if (!canvasRef.current || !stageRef.current) return
     const scene = new BookScene(canvasRef.current, stageRef.current)
     sceneRef.current = scene
+
+    // Астролябия — декорация старого портала: в режиме чтения она заслоняет страницы
+    const astrolabe = scene.getAstrolabe()
+    astrolabe.group.visible = false
+    const caustic = astrolabe.getCausticPlane()
+    if (caustic) caustic.visible = false
 
     let isMounted = true
 
@@ -73,31 +77,8 @@ export function ContinuousStage({ viewMode }: ContinuousStageProps) {
 
     initBookWithFonts()
 
-    // 2. Kinetic Scroll Subscription: Drive 4-Phase Transformation smoothly
-    const unsubscribeScroll = kineticScroll.subscribe((scrollState) => {
-      if (sceneRef.current) {
-        sceneRef.current
-          .getAstrolabe()
-          .setScrollProgress(scrollState.progress, scrollState.velocity)
-      }
-    })
-
-    // 3. Window Pointer Move: Drive Astrolabe microparallax across viewport
-    const handlePointerMove = (e: PointerEvent) => {
-      if (!sceneRef.current) return
-      const ndc = new THREE.Vector2(
-        (e.clientX / window.innerWidth) * 2 - 1,
-        -((e.clientY / window.innerHeight) * 2 - 1)
-      )
-      sceneRef.current.getAstrolabe().setPointer(ndc)
-    }
-
-    window.addEventListener('pointermove', handlePointerMove, { passive: true })
-
     return () => {
       isMounted = false
-      unsubscribeScroll()
-      window.removeEventListener('pointermove', handlePointerMove)
       scene.dispose()
       sceneRef.current = null
       if (typeof window !== 'undefined') {
@@ -122,13 +103,6 @@ export function ContinuousStage({ viewMode }: ContinuousStageProps) {
       } else {
         delete (window as unknown as { __bookScene?: unknown }).__bookScene
         delete (window as unknown as { __bookStore?: unknown }).__bookStore
-        // Restore kinetic scroll progress position
-        if (sceneRef.current) {
-          const scrollState = kineticScroll.getState()
-          sceneRef.current
-            .getAstrolabe()
-            .setScrollProgress(scrollState.progress, scrollState.velocity)
-        }
       }
     }
   }, [viewMode])
