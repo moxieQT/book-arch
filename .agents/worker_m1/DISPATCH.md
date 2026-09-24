@@ -1,49 +1,56 @@
-## 2026-09-23T17:31:44Z
-You are Worker M1 (Portal Polish & Transition Implementer).
-Your Working Directory: /Users/mcv/Documents/book/.agents/worker_m1
-Workspace Root: /Users/mcv/Documents/book
+# Dispatch: Worker M1 & M2 (Continuous Canvas, Kinetic Scroll & 3D Astrolabe Engine)
 
-MANDATORY INTEGRITY WARNING:
+## Mandatory Integrity Warning
 DO NOT CHEAT. All implementations must be genuine. DO NOT hardcode test results, create dummy/facade implementations, or circumvent the intended task. A teamwork_preview_auditor will independently verify your work. Integrity violations WILL be detected and your work WILL be rejected.
 
-CRITICAL USER RULES & CONSTRAINTS:
-1. STRICT LOCAL GIT ONLY: Ни при каких обстоятельствах не отправлять изменения в удалённый репозиторий (`remote`). Запрещено: выполнение `git push`, публикация веток, тегов или коммитов на remote. Все коммиты, ветки, слияния и история ведутся исключительно локально.
-2. Manager Maria: Все записи на индивидуальную работу проходят через менеджера мастера — Марию (@maria_anima, https://t.me/maria_anima, +7 915 214 9560, https://wa.me/79152149560) со связкой цитаты Алины («Мария — моя правая рука во всех рабочих вопросах...») и предзаполненными текстами.
+## Mission
+Implement Milestone 1 (Continuous Canvas Architecture & Kinetic Scroll Controller) and Milestone 2 (3D Astrolabe PBR Upgrade & 4-Phase Kinetic Scroll Transformation) in strict accordance with Prototype 1 specifications.
 
-INPUTS TO READ FIRST:
-- /Users/mcv/Documents/book/ORIGINAL_REQUEST.md
-- /Users/mcv/Documents/book/.agents/orchestrator/PROJECT.md
-- /Users/mcv/Documents/book/.agents/explorer_m1_1/handoff.md (ServiceModal & Contacts diffs)
-- /Users/mcv/Documents/book/.agents/explorer_m1_2/handoff.md (Pricing, Navigator, Medical Disclaimer, Badges diffs)
-- /Users/mcv/Documents/book/.agents/explorer_m1_3/handoff.md (3D Book transition, scroll restoration, font readiness, cover date sync diffs)
+## Inputs
+- Authoritative User Request: `/Users/mcv/Documents/book/.agents/ORIGINAL_REQUEST.md` (read this first!)
+- Project Plan & Contracts: `/Users/mcv/Documents/book/PROJECT.md`
+- 3D Graphics Explorer Blueprint: `/Users/mcv/Documents/book/.agents/explorer_survey_1/handoff.md`
+- Portal UI Explorer Report: `/Users/mcv/Documents/book/.agents/explorer_survey_2/handoff.md`
 
-EXCLUSIVE FILE OWNERSHIP:
-- src/components/ServiceModal.tsx
-- src/data/alinaPricing.ts
-- src/components/PricingSection.tsx
-- src/App.css
-- src/App.tsx
-- src/components/BookNavbarOverlay.tsx / src/components/book3d/BookNavbarOverlay.tsx
-- src/store/useBookStore.ts / src/store/bookStore.ts
-- src/three/BookStage.tsx / src/three/bookScene.ts / src/components/book3d/engine/BookScene.ts
+## Exclusively Owned Files
+- `/Users/mcv/Documents/book/src/three/kineticScroll.ts` (create)
+- `/Users/mcv/Documents/book/src/three/ContinuousStage.tsx` (create or refactor from `BookStage.tsx`)
+- `/Users/mcv/Documents/book/src/three/astralAstrolabe.ts`
+- `/Users/mcv/Documents/book/src/App.tsx`
+- `/Users/mcv/Documents/book/src/audio/soundscape.ts`
+DO NOT modify test files under `tests/` or files owned by other agents!
 
-OBJECTIVES:
-1. Implement the contact fix in `src/components/ServiceModal.tsx` replacing obsolete generic t.me/share link with direct Telegram and WhatsApp booking actions to Maria (@maria_anima, +7 915 214 9560) with URI-encoded text and Alina's endorsement quote per explorer_m1_1 report.
-2. Implement in `src/data/alinaPricing.ts` and `src/components/PricingSection.tsx`:
-   - Medical Disclaimer card per ФЗ-323 («При выраженных физических или психосоматических симптомах мы настоятельно рекомендуем обратиться к профильному врачу...») with R4 luxury styling.
-   - Live online format (+3 000 ₽ к записи) badge & tags for dual-format sessions.
-   - Twin Flame 20% discount callout banner for energy alignment (9 600 ₽ rec / 12 000 ₽ online).
-   - Complete 14-state navigator mapping per explorer_m1_2 report.
-3. Implement 3D book transition improvements per explorer_m1_3 report:
-   - Scroll position saving & smooth restoration between portal and #book.
-   - Clean URL hash navigation when returning via «← К практикам Алины».
-   - Keyboard listener for Escape key to return to portal.
-   - Cover date synchronization with localStorage or active state.
-   - Ensure document.fonts.ready check before rendering initial textures.
-4. Run verification commands:
-   - `npm run lint` -> must exit 0 with 0 errors.
-   - `npm run build` -> must exit 0 with 0 errors.
-   Fix any issues found.
-5. Write your handoff report to:
-   `/Users/mcv/Documents/book/.agents/worker_m1/handoff.md`.
-Send message to parent when completed.
+## Implementation Scope
+1. **Continuous Canvas Architecture (`src/three/ContinuousStage.tsx`, `src/App.tsx`)**:
+   - Mount persistent WebGL canvas element at `position: fixed; inset: 0; z-index: 0; pointer-events: none`.
+   - Never unmount or recreate WebGL context during navigation between Portal and Book.
+   - Portal DOM layout sits at `z-index: 10` with transparent background so the 3D astrolabe/folio is visible underneath.
+   - Maintain `#book` hash routing and smooth scroll restoration.
+2. **Kinetic Scroll Progress Controller (`src/three/kineticScroll.ts`)**:
+   - Calculate normalized `scrollProgress ∈ [0.0, 1.0]` with smooth spring/damping interpolation (`lerpFactor ≈ 0.08`).
+   - Calculate scroll velocity and pass it to `src/audio/soundscape.ts` (`updateScrollVelocity`) to modulate the 432 Hz biquad filter cutoff frequency between 650 Hz and 2200 Hz.
+   - Export hook / singleton for reactive consumption in React and Three.js animation loops.
+3. **3D Astrolabe PBR Upgrade (`src/three/astralAstrolabe.ts`)**:
+   - 3 Concentric Gold Gimbal Rings in Cardan Suspension (`meridianRing`, `zodiacRing`, `colureRing`):
+     Upgrade material to `MeshPhysicalMaterial`: `color: 0xC6A76B`, `metalness: 0.96`, `roughness: 0.12`, `anisotropy: 0.85`, `clearcoat: 0.75`.
+   - Central Optical Crystal Icosahedron:
+     `transmission: 0.98`, `ior: 1.54`, `dispersion: 0.06`, `roughness: 0.04`, `transparent: true`.
+     Retain Cauchy GLSL dispersion shader pass / tokens (`uDispersion`, `uRefractionRatio`, `etaR`, `etaG`, `etaB`, `refractR`, `refractG`, `refractB`, `fresnel`) to ensure 100% test compatibility with `prototype1-astrolabe-test.mjs`.
+   - 15,000 Gold Ether Particles with GPU Curl Noise:
+     Simulate particles entirely in the vertex shader using 3D analytical Curl Noise.
+     GPU buffer memory: ~480 KB. CPU overhead: 0.00 ms.
+     Implement mobile LOD adaptation: automatically scale to 5,000 particles when screen width < 768px.
+   - 4-Phase Transformation Interpolator:
+     Implement `setScrollProgress(progress, velocity)` mapping smoothly across:
+     - Phase 1 (0.00–0.25): celestial levitation, rainbow spectral dispersion flares, mouse microparallax.
+     - Phase 2 (0.25–0.60): 7-lens orbital expansion around the 7 master directions with caustic illumination.
+     - Phase 3 (0.60–0.85): kinetic ring closing into gold book cover clasps and folio frame.
+     - Phase 4 (0.85–1.00): 3D book foregrounding, tactile date input, and opening to arcana spread.
+4. **Build & Quality Verification**:
+   - Run `npm run lint` (`oxlint` must report 0 warnings and 0 errors).
+   - Run `npm run build` (`tsc -b && vite build` must compile with 0 errors).
+   - Run `node tests/prototype1-astrolabe-test.mjs` (must pass 100%).
+   - Document all changes and test outputs in `/Users/mcv/Documents/book/.agents/worker_m1/handoff.md`.
+
+## 2026-09-23T19:22:36Z
+Resume implementation task for Milestone 1 & Milestone 2 (Continuous Canvas, Kinetic Scroll, 3D Astrolabe PBR, GPU Curl particles, 4-phase scroll transformation). Proceed with modifying files according to your dispatch.

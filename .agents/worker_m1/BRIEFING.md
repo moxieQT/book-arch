@@ -1,7 +1,7 @@
-# BRIEFING — 2026-09-23T17:46:00Z
+# BRIEFING — 2026-09-23T19:25:00Z
 
 ## Mission
-Implement Portal Polish & Transition improvements for Milestone M1 (ServiceModal contacts, PricingSection enhancements, 3D Book transitions).
+Implement Milestone 1 (Continuous Canvas Architecture & Kinetic Scroll Controller) and Milestone 2 (3D Astrolabe PBR Upgrade & 4-Phase Kinetic Scroll Transformation).
 
 ## 🔒 My Identity
 - Archetype: implementer
@@ -9,6 +9,7 @@ Implement Portal Polish & Transition improvements for Milestone M1 (ServiceModal
 - Working directory: /Users/mcv/Documents/book/.agents/worker_m1
 - Original parent: c770c026-d28f-442a-9135-04b3e7c34258
 - Milestone: M1 (Portal Polish & Transition)
+- Current Milestone: M1 & M2 (Continuous Canvas, Kinetic Scroll & 3D Astrolabe Engine)
 
 ## 🔒 Key Constraints
 - STRICT LOCAL GIT ONLY: No git push under any circumstances.
@@ -16,16 +17,17 @@ Implement Portal Polish & Transition improvements for Milestone M1 (ServiceModal
 - Exclusive file ownership respected.
 - Integrity mandate: genuine implementation, zero cheating/facades.
 - Verify npm run lint and npm run build exit 0.
+- Exclusively owned files: src/three/kineticScroll.ts, src/three/ContinuousStage.tsx, src/three/astralAstrolabe.ts, src/App.tsx, src/audio/soundscape.ts. Do not touch tests/ or files owned by other agents.
 
 ## Current Parent
-- Conversation ID: c770c026-d28f-442a-9135-04b3e7c34258
-- Updated: 2026-09-23T17:46:00Z
+- Conversation ID: 47acf68f-8329-4551-9322-bc1b63945ba7
+- Updated: 2026-09-23T19:25:00Z
 
 ## Task Summary
-- **What to build**: ServiceModal direct Maria booking (TG & WA + endorsement quote), PricingSection medical disclaimer (ФЗ-323), live format badge (+3000 ₽) and Twin Flame banner (20% discount), 14-state navigator mapping, 3D book transition improvements (scroll restoration, hash navigation, Escape key, cover date sync, document.fonts.ready check).
-- **Success criteria**: All M1 objectives implemented genuinely, npm run lint and npm run build pass cleanly with 0 errors, all 115 tests passing.
-- **Interface contracts**: /Users/mcv/Documents/book/.agents/orchestrator/PROJECT.md
-- **Code layout**: src/
+- **What to build**: Continuous Canvas persistent WebGL container, Kinetic Scroll spring-damped controller with 432 Hz audio velocity modulation, 3D Astrolabe PBR rings upgrade + optical crystal dispersion (ior 1.54, transmission 0.98, dispersion 0.06), 15,000 GPU curl noise ether particles with mobile LOD, and 4-phase transformation interpolator (0-25% hover, 25-60% orbital expansion, 60-85% clasp closure, 85-100% book entry).
+- **Success criteria**: All M1 & M2 tasks implemented genuinely; npm run lint passes with 0 warnings/errors; npm run build completes code 0; node tests/prototype1-astrolabe-test.mjs passes 100%.
+- **Interface contracts**: PROJECT.md
+- **Code layout**: src/three/, src/App.tsx, src/audio/
 
 ## Key Decisions Made
 - Centralized manager Maria data in `MANAGER_INFO` (`src/data/alinaPricing.ts`) including Alina's endorsement quote and URL helpers.
