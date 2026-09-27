@@ -632,7 +632,7 @@ export class Cosmos {
     const color = this.color.copy(DAY_GOLD).lerp(NIGHT_GOLD, n)
     this.dustMat.uniforms.uPhase.value = phase
     this.dustMat.uniforms.uColor.value.copy(color)
-    this.dustMat.uniforms.uOpacity.value = lerp(0.32, 0.8, n) * Math.max(dim, 0.5)
+    this.dustMat.uniforms.uOpacity.value = lerp(0.18, 0.5, n) * Math.max(dim, 0.5)
     this.updateStreaks(this.camVelocity.length(), color, dim)
 
     // I / VII. Меркаба: в прологе — у начала пути, в финале — Метатрон перетекает в неё
@@ -644,13 +644,13 @@ export class Cosmos {
       g.position.copy(C_FINALE)
       g.rotation.set(0, 0, 0)
       g.scale.setScalar(heroR)
-      this.field.apply({ from: 'metatron', to: 'merkaba', t: seg(u, 7.0, 8.5), phase, opacity: dim * 0.7 })
+      this.field.apply({ from: 'metatron', to: 'merkaba', t: seg(u, 7.0, 8.5), phase, opacity: dim * 0.4 })
     } else {
       g.position.set(0, 0, 0)
       g.rotation.set(0, 0, -clamp01(u) * 0.9)
       g.scale.setScalar(heroR)
       // пролетев сквозь меркабу, не тащим её за собой
-      const heroO = (light ? 0.55 : 0.5) * (this.isMobile ? 0.75 : 1) * (1 - smooth(0.62, 0.95, u))
+      const heroO = (light ? 0.32 : 0.3) * (this.isMobile ? 0.75 : 1) * (1 - smooth(0.62, 0.95, u))
       const introFade = this.introP > 0 ? 0.3 + 0.7 * Math.min(1, intro * 1.5) : 0
       this.field.apply({
         from: intro < 1 ? 'cloud' : 'merkaba',
@@ -670,7 +670,7 @@ export class Cosmos {
       const ahead = camZ - GATE_Z(i)
       const depth = smooth(-0.5, 2.5, ahead) * (1 - smooth(9, 16, ahead))
       const draw = gatesVisible ? clamp01((u - 0.3 - i * 0.07) / 0.35) : 0
-      this.setLines(gate, draw, dim * depth * (light ? 0.42 : 0.5))
+      this.setLines(gate, draw, dim * depth * (light ? 0.22 : 0.26))
       gate.mesh.rotation.z = i * 0.37 + (u - 1) * (i % 2 ? 0.6 : -0.6)
     })
 
@@ -678,13 +678,13 @@ export class Cosmos {
     const mandalaVisible = u > 1.2 && u < 3.6
     this.mandala.visible = mandalaVisible
     if (mandalaVisible) {
-      this.setLines(this.mandalaFloor, seg(u, 1.3, 2.15), dim * 0.55)
+      this.setLines(this.mandalaFloor, seg(u, 1.3, 2.15), dim * 0.3)
       this.mandala.rotation.y = u * 0.12
       const orbit = clamp01((u - 2 - 0.12) / 0.88)
       const active = orbit * 6
       this.nodes.forEach((node, i) => {
         const k = Math.max(0, 1 - Math.abs(active - i))
-        this.setLines(node.lines, seg(u, 1.7 + i * 0.03, 2.2), dim * (0.35 + 0.5 * k))
+        this.setLines(node.lines, seg(u, 1.7 + i * 0.03, 2.2), dim * (0.2 + 0.3 * k))
         node.lines.mesh.scale.setScalar(0.8 + k * 0.45)
         // символ всегда смотрит на камеру
         this.mandala.updateMatrixWorld()
@@ -698,7 +698,7 @@ export class Cosmos {
     this.bookRoot.visible = bookZone && this.book.ready
     const haloDim = lerp(1, 0.35, seg(u, 4.1, 4.3)) + seg(u, 4.9, 5.2) * 0.65
     if (bookZone) {
-      this.setLines(this.halo, seg(u, 2.7, 3.9), dim * haloDim * 0.5)
+      this.setLines(this.halo, seg(u, 2.7, 3.9), dim * haloDim * 0.3)
       this.halo.mesh.rotation.z = -u * 0.08
       if (this.book.ready) this.book.update(clamp01(u - 4), phase, this.pointerSmooth)
     } else {
@@ -709,7 +709,7 @@ export class Cosmos {
     // V. Древо Жизни: прорисовывается на подъёме и медленно разворачивается
     const dialVisible = u > 4.5 && u < 8
     if (dialVisible) {
-      this.setLines(this.dial, seg(u, 4.6, 5.6), dim * 0.55)
+      this.setLines(this.dial, seg(u, 4.6, 5.6), dim * 0.3)
       this.dial.mesh.rotation.set(0, (u - 6) * 0.35, 0)
     } else {
       this.dial.mesh.visible = false
