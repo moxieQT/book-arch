@@ -15,11 +15,9 @@ function go(id: string) {
 }
 
 export function Header({ onOpenBook, theme, onToggleTheme }: HeaderProps) {
-  const [hidden, setHidden] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [soundOn, setSoundOn] = useState(() => soundscape.getIsEnabled())
   const bar = useRef<HTMLSpanElement>(null)
-  const hiddenRef = useRef(false)
 
   useEffect(() => {
     // Шапка прячется при прокрутке вниз и возвращается при движении вверх
@@ -27,12 +25,8 @@ export function Header({ onOpenBook, theme, onToggleTheme }: HeaderProps) {
       start: 0,
       end: 'max',
       onUpdate: (self) => {
-        const next = self.direction === 1 && self.scroll() > 240
+        // шапка всегда на месте; после начала прокрутки получает фон
         document.documentElement.classList.toggle('lx-scrolled', self.scroll() > 40)
-        if (next !== hiddenRef.current) {
-          hiddenRef.current = next
-          setHidden(next)
-        }
         if (bar.current) gsap.set(bar.current, { scaleX: self.progress })
       },
     })
@@ -57,7 +51,7 @@ export function Header({ onOpenBook, theme, onToggleTheme }: HeaderProps) {
 
   return (
     <>
-      <header className={`lx-header ${hidden && !menuOpen ? 'is-hidden' : ''}`}>
+      <header className="lx-header">
         <button type="button" className="lx-brand" onClick={() => navTo('prologue')} aria-label="Alina Tarot Energy — в начало">
           <MerkabaMark size={24} />
           <span className="lx-brand__name">Alina</span>
