@@ -1,18 +1,23 @@
 import { ALINA_SERVICES, type AlinaService } from '../data/alinaServices'
 import { MANAGER_INFO, type IndividualSession } from '../data/alinaPricing'
+import type { FigureId } from './cosmos/sacredShapes'
 
-/** Главы лендинга: страница читается как книга, у каждой секции свой римский номер */
-export const CHAPTERS = [
-  { id: 'prologue', roman: 'I', label: 'Пролог' },
-  { id: 'philosophy', roman: 'II', label: 'Философия' },
-  { id: 'paths', roman: 'III', label: 'Пути' },
-  { id: 'folio', roman: 'IV', label: 'Книга' },
-  { id: 'codes', roman: 'V', label: 'Коды' },
-  { id: 'sessions', roman: 'VI', label: 'Сессии' },
-  { id: 'contact', roman: 'VII', label: 'Запись' },
-] as const
+/**
+ * Главы лендинга. Вместо номеров у каждой главы — свой символ священной
+ * геометрии: он же собирается в 3D-поле, когда глава в центре экрана.
+ */
+export const CHAPTERS: readonly { id: ChapterId; symbol: FigureId; label: string; icon?: FigureId }[] = [
+  { id: 'prologue', symbol: 'merkaba', label: 'Пролог' },
+  { id: 'philosophy', symbol: 'vesica', label: 'Философия' },
+  { id: 'paths', symbol: 'seed', label: 'Пути' },
+  // Цветок Жизни в мелком значке сливается в пятно — для иконки берём Яйцо Жизни
+  { id: 'folio', symbol: 'flower', label: 'Книга', icon: 'egg' },
+  { id: 'codes', symbol: 'tree', label: 'Коды' },
+  { id: 'sessions', symbol: 'metatron', label: 'Сессии' },
+  { id: 'contact', symbol: 'equilibrium', label: 'Запись' },
+]
 
-export type ChapterId = (typeof CHAPTERS)[number]['id']
+export type ChapterId = 'prologue' | 'philosophy' | 'paths' | 'folio' | 'codes' | 'sessions' | 'contact'
 
 export const NAV_LINKS: { id: ChapterId; label: string }[] = [
   { id: 'philosophy', label: 'Подход' },
@@ -24,22 +29,22 @@ export const NAV_LINKS: { id: ChapterId; label: string }[] = [
 
 export const PILLARS = [
   {
-    roman: 'I',
+    symbol: 'germ' as FigureId,
     title: 'Живой поток',
-    text: 'У каждой программы есть ясная методология, но каждую группу Алина ведёт вживую — подстраиваясь под процессы конкретных людей.',
+    text: 'У каждой программы есть ясная методология, но каждую группу Alina Tarot Energy ведёт вживую — подстраиваясь под процессы конкретных людей.',
   },
   {
-    roman: 'II',
+    symbol: 'egg' as FigureId,
     title: 'Без костылей',
     text: 'Задача не в том, чтобы привязать к себе. А в том, чтобы вы научились слышать своё сердце и доверять себе без внешних мастеров.',
   },
   {
-    roman: 'III',
+    symbol: 'vesica' as FigureId,
     title: 'Союз Света и Тени',
     text: 'Тень — не враг и не ошибка, а спящая сила. Её не уничтожают: её признают, и она возвращается ресурсом.',
   },
   {
-    roman: 'IV',
+    symbol: 'fruit' as FigureId,
     title: 'Голос и тело',
     text: 'Звучание голоса и бережная телесная работа проходят мимо фильтров ума и возвращают ощущение опоры и покоя.',
   },
@@ -61,7 +66,19 @@ export const MARQUEE_ROWS = [
 /** Семь авторских направлений (восьмая «услуга» — сама книга — живёт в своей главе) */
 export const PATHS: AlinaService[] = ALINA_SERVICES.filter((s) => !s.isBook)
 
-export const ROMANS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI']
+/** Символ каждого пути — из того же набора священной геометрии */
+export const PATH_SYMBOLS: Record<string, FigureId> = {
+  'vocal-sound-therapy': 'germ',
+  'taro-5d': 'metatron',
+  'feminine-body-practices': 'egg',
+  'channeling-mastery': 'tetra64',
+  'master-evolution': 'tree',
+  'relationships-and-self': 'vesica',
+  'feminine-tantra': 'flower',
+}
+
+/** Символы трёх разделов личных сессий */
+export const BLOCK_SYMBOLS: FigureId[] = ['metatron', 'seed', 'egg']
 
 export const FOLIO_STEPS = [
   {
@@ -96,12 +113,12 @@ export function whatsappLink(message: string) {
 }
 
 export function pathBookingMessage(service: AlinaService) {
-  return `${BOOKING_GREETING} Хочу узнать подробнее и записаться к Алине на направление: «${service.title}»`
+  return `${BOOKING_GREETING} Хочу узнать подробнее и записаться на направление Alina Tarot Energy: «${service.title}»`
 }
 
 export function sessionBookingMessage(s: IndividualSession, optionIdx: number) {
   const o = s.options[optionIdx] ?? s.options[0]
-  return `${BOOKING_GREETING} Хочу записаться к Алине на сессию: «${s.title}» (тариф: ${o.label} — ${o.price})`
+  return `${BOOKING_GREETING} Хочу записаться на сессию Alina Tarot Energy: «${s.title}» (тариф: ${o.label} — ${o.price})`
 }
 
 export const LEGAL_DISCLAIMER = `Все услуги, материалы, онлайн-сессии, энергетические практики и консультации, представленные на данном сайте,

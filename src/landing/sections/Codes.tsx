@@ -1,7 +1,7 @@
 import { useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 import { calculateArchetypes, type ArchetypesProfile } from '../../numerology/calculate'
 import { CODE_POSITIONS } from '../content'
-import { ArcanaWheel, StarMark } from '../components/Ornaments'
+import { MerkabaMark, SacredIcon } from '../components/Ornaments'
 import { gsap, scrollToTarget } from '../motion'
 import { useGsap } from '../useGsap'
 
@@ -54,7 +54,6 @@ export function Codes({ onOpenBookWithDate }: CodesProps) {
       duration: 1.5,
       scrollTrigger: { trigger: '.lx-codes__spread', start: 'top 85%', toggleActions: 'play none none reverse' },
     })
-    gsap.to('.lx-codes__wheel', { rotation: 360, duration: 200, repeat: -1, ease: 'none' })
   })
 
   const setField = (key: FieldKey, raw: string) => {
@@ -135,11 +134,10 @@ export function Codes({ onOpenBookWithDate }: CodesProps) {
 
   return (
     <section id="codes" className="lx-codes" ref={root}>
-      <ArcanaWheel className="lx-codes__wheel" />
       <div className="lx-container">
         <div className="lx-codes__head">
           <p className="lx-eyebrow lx-chapter-mark">
-            <span className="lx-chapter-mark__roman">V</span> Ваши коды
+            <SacredIcon id="tree" className="lx-chapter-mark__icon" draw /> Ваши коды
           </p>
           <h2 className="lx-h2">
             Дата рождения —
@@ -152,7 +150,7 @@ export function Codes({ onOpenBookWithDate }: CodesProps) {
           </p>
         </div>
 
-        <form className="lx-date" onSubmit={submit} noValidate>
+        <form className="lx-date lx-glass" onSubmit={submit} noValidate>
           <div className="lx-date__fields">
             {FIELDS.map((f, i) => (
               <label key={f.key} className={`lx-date__field lx-date__field--${f.key}`}>
@@ -177,8 +175,8 @@ export function Codes({ onOpenBookWithDate }: CodesProps) {
               </label>
             ))}
           </div>
-          <button type="submit" className="lx-btn lx-btn--wine" data-cursor="Рассчитать">
-            Рассчитать
+          <button type="submit" className="lx-btn lx-btn--gold" data-cursor="Рассчитать">
+            <span>Рассчитать</span>
           </button>
           <p className="lx-date__error" role="alert">
             {error}
@@ -192,14 +190,17 @@ export function Codes({ onOpenBookWithDate }: CodesProps) {
               <article key={pid} className="lx-arcard">
                 <div className="lx-arcard__inner">
                   <div className="lx-arcard__back" aria-hidden={!!pos}>
-                    <ArcanaWheel className="lx-arcard__back-wheel" />
+                    <SacredIcon id="metatron" className="lx-arcard__back-sigil" />
                     <span className="lx-arcard__back-label">{pos?.positionDef.name ?? positionName(pid)}</span>
                   </div>
                   <div className="lx-arcard__face" aria-hidden={!pos}>
                     {pos && (
                       <>
                         <span className="lx-arcard__position">{pos.positionDef.name}</span>
-                        <span className="lx-arcard__roman">{pos.roman}</span>
+                        <span className="lx-arcard__num">
+                          <SacredIcon id="seed" className="lx-arcard__num-ring" />
+                          <span>{pos.arcanaId}</span>
+                        </span>
                         <span className="lx-arcard__name">{pos.arcana.name}</span>
                         <span className="lx-arcard__title">{pos.arcana.archetypeTitle}</span>
                         <span className="lx-arcard__key">{pos.arcana.lightKey}</span>
@@ -215,15 +216,15 @@ export function Codes({ onOpenBookWithDate }: CodesProps) {
         {profile && (
           <div className="lx-codes__cta">
             <p>
-              <StarMark size={12} /> Расклад на {dateLabel}. В книге вас ждут ещё десять позиций — Глубинная Тень, Высший
+              <MerkabaMark size={13} /> Расклад на {dateLabel}. В книге вас ждут ещё десять позиций — Глубинная Тень, Высший
               Вектор, Родовая формула.
             </p>
             <div className="lx-codes__actions">
-              <button type="button" className="lx-btn lx-btn--wine" onClick={() => onOpenBookWithDate(profile.birthDate)} data-cursor="Книга">
-                Открыть мою книгу · 13 глав
+              <button type="button" className="lx-btn lx-btn--gold" onClick={() => onOpenBookWithDate(profile.birthDate)} data-cursor="Книга">
+                <span>Открыть мою книгу · 13 глав</span>
               </button>
               <button type="button" className="lx-link" onClick={() => scrollToTarget('#sessions')}>
-                Разбор с Алиной <span aria-hidden="true">→</span>
+                Личный разбор в Alina Tarot Energy <span aria-hidden="true">→</span>
               </button>
             </div>
           </div>

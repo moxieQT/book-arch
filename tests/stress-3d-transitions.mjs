@@ -5,7 +5,7 @@
  * Verifies in real headless Google Chrome via CDP:
  * 1. Rapid hash toggling between '#' and '#book' (both programmatic and UI clicks)
  * 2. Browser history: forward, back, reload on '#book', reload on '#'
- * 3. Scroll restoration: scroll to 2500px, transition to '#book', click '← К практикам Алины', verify scroll restored to 2500px
+ * 3. Scroll restoration: scroll to 2500px, transition to '#book', click '← На сайт Alina Tarot Energy', verify scroll restored to 2500px
  * 4. Keyboard events: press Escape key while in '#book', verify returns to portal; test ServiceModal escape handling
  * 5. 3D canvas lifecycle, WebGL context stability & memory leak verification over 25 repeated transitions
  *
@@ -357,7 +357,7 @@ async function main() {
       const inBook = await cdp.evaluate("document.querySelector('.book-navbar-overlay') !== null")
       assert.ok(inBook, `Iteration ${i}: Book overlay should be mounted`)
 
-      // Click return button «← К практикам Алины»
+      // Click return button «← На сайт Alina Tarot Energy»
       const backSuccess = await cdp.evaluate(`(() => {
         const backBtn = document.querySelector('.book-navbar-overlay__back-btn');
         if (backBtn) { backBtn.click(); return true; }
@@ -516,13 +516,13 @@ async function main() {
     const hashInBook = await cdp.evaluate('window.location.hash')
     assert.equal(hashInBook, '#book')
 
-    // Click «← К практикам Алины»
+    // Click «← На сайт Alina Tarot Energy»
     const backBtnClicked = await cdp.evaluate(`(() => {
       const btn = document.querySelector('.book-navbar-overlay__back-btn');
       if (btn) { btn.click(); return true; }
       return false;
     })()`)
-    assert.ok(backBtnClicked, 'Found return button «← К практикам Алины»')
+    assert.ok(backBtnClicked, 'Found return button «← На сайт Alina Tarot Energy»')
 
     // Лендинг монтируется заново и восстанавливает позицию
     await waitFor("document.querySelector('.lx-hero')")

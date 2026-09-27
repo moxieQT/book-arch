@@ -241,7 +241,7 @@ test('P1.18: Magic Diagnosis & Ritual session strictly separates diagnosis (8 00
   assert.equal(magic.options[0].priceNumber, 8000)
   assert.equal(magic.options[1].priceNumber, 28000)
   assert(magic.options[1].price.startsWith('от 28 000'), 'Ritual cleaning price must start with "от 28 000 ₽"')
-  assert(magic.note.includes('Большая чистка назначается только лично Алиной'), 'Note must enforce no advance sale of cleaning')
+  assert(magic.note.includes('Большая чистка назначается только лично мастером'), 'Note must enforce no advance sale of cleaning')
 })
 
 test('P1.19: Client Query Navigator contains 14 mappings targeting valid sessions', () => {
@@ -278,7 +278,7 @@ test('U2.1: Manager contact info integrity', () => {
 test('U2.2: Telegram booking URLs for ALL 16 sessions across ALL 27 options are strictly valid & roundtrip-decodable', () => {
   for (const session of INDIVIDUAL_SESSIONS) {
     for (const opt of session.options) {
-      const rawMessage = `Здравствуйте, Мария! Хочу записаться к Алине на сессию: «${session.title}» (тариф: ${opt.label} — ${opt.price})`
+      const rawMessage = `Здравствуйте, Мария! Хочу записаться на сессию Alina Tarot Energy: «${session.title}» (тариф: ${opt.label} — ${opt.price})`
       const urlString = `https://t.me/${MANAGER_INFO.telegramHandle}?text=${encodeURIComponent(rawMessage)}`
 
       // 1. Must parse as valid URL
@@ -307,7 +307,7 @@ test('U2.3: Telegram booking URLs for ALL 7 group programs from ServiceModal are
   assert.equal(groupServices.length, 7, 'Expected 7 group programs')
 
   for (const s of groupServices) {
-    const rawMessage = `Здравствуйте, Мария! Хочу узнать подробнее и записаться к Алине на направление: «${s.title}»`
+    const rawMessage = `Здравствуйте, Мария! Хочу узнать подробнее и записаться на направление Alina Tarot Energy: «${s.title}»`
     const urlString = `${MANAGER_INFO.telegramUrl}?text=${encodeURIComponent(rawMessage)}`
 
     const url = new URL(urlString)
@@ -326,7 +326,7 @@ test('U2.4: WhatsApp booking URLs for ALL 7 group programs from ServiceModal are
   const groupServices = ALINA_SERVICES.filter(s => !s.isBook)
 
   for (const s of groupServices) {
-    const rawMessage = `Здравствуйте, Мария! Хочу узнать подробнее и записаться к Алине на направление: «${s.title}»`
+    const rawMessage = `Здравствуйте, Мария! Хочу узнать подробнее и записаться на направление Alina Tarot Energy: «${s.title}»`
     const urlString = `${MANAGER_INFO.whatsappUrl}?text=${encodeURIComponent(rawMessage)}`
 
     const url = new URL(urlString)

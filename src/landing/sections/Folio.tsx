@@ -1,29 +1,30 @@
 import { useEffect, useRef, useState } from 'react'
 import type { BookShowcase } from '../bookShowcase'
 import { FOLIO_STEPS } from '../content'
-import { gsap, ScrollTrigger, scrollToTarget } from '../motion'
+import { SacredIcon } from '../components/Ornaments'
+import { gsap, scrollToTarget } from '../motion'
 import { useGsap } from '../useGsap'
 
 interface FolioProps {
   onOpenBook: () => void
+  /** Книгу рисует общая сцена «Космос»; иначе — своя запасная витрина */
+  cosmos: boolean
 }
 
 /**
- * Глава IV: тёмная сцена «Тени», в которой парит настоящая книга.
- * Секция закреплена на ~5 экранов; прогресс прокрутки ведёт 3D-сцену
- * и по очереди проявляет подписи шагов.
+ * Глава «Книга» под знаком Цветка Жизни. Секция закреплена на ~5 экранов:
+ * пока она стоит, фолиант в 3D-сцене вылетает, раскрывается и листается.
+ * Здесь — только подписи шагов и кнопки.
  */
-export function Folio({ onOpenBook }: FolioProps) {
+export function Folio({ onOpenBook, cosmos }: FolioProps) {
   const root = useRef<HTMLElement>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
-  const showcase = useRef<BookShowcase | null>(null)
-  const progress = useRef(0)
-  const inView = useRef(false)
   const [ready, setReady] = useState(false)
   const [step, setStep] = useState(-1)
 
-  // Three.js и тексты книги подгружаются, только когда глава приближается к экрану
+  // Запасная витрина (нет WebGL2 или «уменьшить движение»): статичный разворот
   useEffect(() => {
+    if (cosmos) return
     const el = root.current
     if (!el || !canvas.current) return
     let cancelled = false
@@ -36,47 +37,22 @@ export function Folio({ onOpenBook }: FolioProps) {
         const { BookShowcase } = await import('../bookShowcase')
         if (cancelled || !canvas.current) return
         instance = new BookShowcase(canvas.current)
-        showcase.current = instance
-        instance.setProgress(progress.current)
+        instance.setProgress(0.5)
         await instance.init()
-        if (cancelled) return
-        instance.setActive(inView.current)
-        setReady(true)
-        ScrollTrigger.refresh()
+        if (!cancelled) setReady(true)
       },
-      { rootMargin: '150% 0px' }
+      { rootMargin: '100% 0px' }
     )
     io.observe(el)
-
-    const onMove = (e: PointerEvent) => {
-      showcase.current?.setPointer((e.clientX / window.innerWidth) * 2 - 1, (e.clientY / window.innerHeight) * 2 - 1)
-    }
-    window.addEventListener('pointermove', onMove, { passive: true })
-
     return () => {
       cancelled = true
       io.disconnect()
-      window.removeEventListener('pointermove', onMove)
       instance?.dispose()
-      showcase.current = null
     }
-  }, [])
+  }, [cosmos])
 
   useGsap(root, ({ motion }, el) => {
-    // Рендер-цикл работает только пока глава на экране
-    ScrollTrigger.create({
-      trigger: el,
-      start: 'top bottom',
-      end: 'bottom top',
-      onToggle: (self) => {
-        inView.current = self.isActive
-        showcase.current?.setActive(self.isActive)
-      },
-    })
-
     if (!motion) {
-      progress.current = 0.5
-      showcase.current?.setProgress(0.5)
       setStep(FOLIO_STEPS.length)
       return
     }
@@ -84,6 +60,7 @@ export function Folio({ onOpenBook }: FolioProps) {
     const tl = gsap.timeline({
       defaults: { ease: 'none' },
       scrollTrigger: {
+        id: 'lx-folio-pin',
         trigger: el,
         start: 'top top',
         end: '+=460%',
@@ -97,14 +74,7 @@ export function Folio({ onOpenBook }: FolioProps) {
         },
       },
     })
-    tl.eventCallback('onUpdate', () => {
-      progress.current = tl.progress()
-      showcase.current?.setProgress(tl.progress())
-    })
-
-    tl.to('.lx-folio__intro', { opacity: 0, x: -40, duration: 0.08 }, 0.12)
-      .fromTo('.lx-folio__halo', { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3 }, 0)
-      .to({}, { duration: 1 }, 0)
+    tl.to('.lx-folio__intro', { opacity: 0, x: -40, duration: 0.08 }, 0.12).to({}, { duration: 1 }, 0)
 
     // Появление названия главы при входе в тень
     gsap.from('.lx-folio__intro > *', {
@@ -119,13 +89,16 @@ export function Folio({ onOpenBook }: FolioProps) {
   return (
     <section id="folio" className="lx-folio" ref={root} data-theme="dark">
       <div className="lx-folio__stage">
-        <div className="lx-folio__halo" aria-hidden="true" />
-        <canvas className={`lx-folio__canvas ${ready ? 'is-ready' : ''}`} ref={canvas} aria-label="Трёхмерная книга «Архетипы и Тени»" role="img" />
-        {!ready && <span className="lx-folio__loading" aria-hidden="true" />}
+        {!cosmos && (
+          <>
+            <div className="lx-folio__halo" aria-hidden="true" />
+            <canvas className={`lx-folio__canvas ${ready ? 'is-ready' : ''}`} ref={canvas} aria-label="Трёхмерная книга «Архетипы и Тени»" role="img" />
+          </>
+        )}
 
         <div className="lx-folio__intro">
           <p className="lx-eyebrow lx-chapter-mark">
-            <span className="lx-chapter-mark__roman">IV</span> Книга
+            <SacredIcon id="flower" className="lx-chapter-mark__icon" draw /> Книга
           </p>
           <h2 className="lx-h2">
             Книга, которая
@@ -133,8 +106,8 @@ export function Folio({ onOpenBook }: FolioProps) {
             <em>написана о вас</em>
           </h2>
           <p className="lx-lead">
-            «Архетипы и Тени» — живой фолиант по авторской системе Алины. По дате рождения он раскрывает шестнадцать
-            ваших кодов: Душу, Дар, Предназначение, Тень и Родовую формулу.
+            «Архетипы и Тени» — живой фолиант по авторской системе Alina Tarot Energy. По дате рождения он раскрывает
+            шестнадцать ваших кодов: Душу, Дар, Предназначение, Тень и Родовую формулу.
           </p>
         </div>
 
@@ -153,9 +126,9 @@ export function Folio({ onOpenBook }: FolioProps) {
 
         <div className={`lx-folio__final ${step >= FOLIO_STEPS.length ? 'is-active' : ''}`}>
           <button type="button" className="lx-btn lx-btn--gold" onClick={() => scrollToTarget('#codes')} data-cursor="Рассчитать">
-            Рассчитать мои коды
+            <span>Рассчитать мои коды</span>
           </button>
-          <button type="button" className="lx-link lx-link--light" onClick={onOpenBook} data-cursor="Книга">
+          <button type="button" className="lx-link" onClick={onOpenBook} data-cursor="Книга">
             Открыть книгу сейчас <span aria-hidden="true">→</span>
           </button>
         </div>

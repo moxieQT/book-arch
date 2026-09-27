@@ -10,9 +10,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg'],
       manifest: {
-        name: 'Алина — Архетипы и Тени',
-        short_name: 'Алина',
-        description: 'Авторские практики Алины и интерактивная 3D-книга «Архетипы и Тени»',
+        name: 'Alina Tarot Energy — Архетипы и Тени',
+        short_name: 'Alina Tarot',
+        description: 'Авторские практики Alina Tarot Energy и интерактивная 3D-книга «Архетипы и Тени»',
         theme_color: '#F4EFE6',
         background_color: '#F4EFE6',
         display: 'standalone',

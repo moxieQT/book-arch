@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { AlinaService } from '../../data/alinaServices'
-import { PATHS, ROMANS, pathBookingMessage, telegramLink, whatsappLink } from '../content'
-import { Sigil, StarMark } from '../components/Ornaments'
+import { PATH_SYMBOLS, PATHS, pathBookingMessage, telegramLink, whatsappLink } from '../content'
+import { SacredIcon } from '../components/Ornaments'
+import { FIGURE_NAMES } from '../cosmos/sacredShapes'
 import { gsap, lockScroll, scrollToTarget } from '../motion'
 import { useGsap } from '../useGsap'
 
@@ -46,12 +47,11 @@ export function Paths() {
       },
     })
 
-    // Внутри каждой карты — свой параллакс: номер и сигил плывут медленнее рамки
+    // Внутри каждой карты — свой параллакс: символ плывёт медленнее рамки
     cards.forEach((card) => {
-      const numeral = card.querySelector('.lx-card__numeral')
       const sigil = card.querySelector('.lx-card__sigil')
       gsap.fromTo(
-        [numeral, sigil],
+        sigil,
         { xPercent: 26 },
         {
           xPercent: -26,
@@ -74,7 +74,7 @@ export function Paths() {
       <div className="lx-paths__track">
         <div className="lx-paths__intro">
           <p className="lx-eyebrow lx-chapter-mark">
-            <span className="lx-chapter-mark__roman">III</span> Направления
+            <SacredIcon id="seed" className="lx-chapter-mark__icon" draw /> Направления
           </p>
           <h2 className="lx-h2">
             Семь путей
@@ -82,7 +82,7 @@ export function Paths() {
             <em>к себе</em>
           </h2>
           <p className="lx-lead">
-            Групповые программы и курсы Алины: от голоса и тела до ченнелинга и мастерства. Выберите карту — она расскажет
+            Групповые программы и курсы Alina Tarot Energy: от голоса и тела до ченнелинга и мастерства. Выберите карту — она расскажет
             больше.
           </p>
           <div className="lx-paths__meta" aria-hidden="true">
@@ -95,7 +95,7 @@ export function Paths() {
           </div>
         </div>
 
-        {PATHS.map((p, i) => (
+        {PATHS.map((p) => (
           <button
             key={p.id}
             type="button"
@@ -105,14 +105,15 @@ export function Paths() {
             aria-label={`${p.title} — подробнее`}
           >
             <span className="lx-card__frame" aria-hidden="true" />
+            <span className="lx-card__aura" aria-hidden="true" />
             <span className="lx-card__top">
               <span>{p.number}</span>
               <span>{p.categoryLabel}</span>
             </span>
-            <span className="lx-card__numeral" aria-hidden="true">
-              {ROMANS[i]}
+            <span className="lx-card__sigil" aria-hidden="true">
+              <SacredIcon id={PATH_SYMBOLS[p.id] ?? 'seed'} draw />
             </span>
-            <Sigil id={p.id} className="lx-card__sigil" />
+            <span className="lx-card__symbol">{FIGURE_NAMES[PATH_SYMBOLS[p.id] ?? 'seed']}</span>
             <span className="lx-card__body">
               <span className="lx-card__title">{p.title}</span>
               <span className="lx-card__subtitle">{p.subtitle}</span>
@@ -127,15 +128,15 @@ export function Paths() {
         ))}
 
         <div className="lx-paths__outro">
-          <StarMark size={22} />
+          <SacredIcon id="egg" className="lx-paths__outro-icon" draw />
           <p className="lx-paths__outro-title">
             Не знаете,
             <br />
             <em>с чего начать?</em>
           </p>
           <p className="lx-lead">Начните с личной сессии — Мария поможет подобрать формат под ваш запрос.</p>
-          <button type="button" className="lx-btn lx-btn--line" onClick={() => scrollToTarget('#sessions')}>
-            К личным сессиям
+          <button type="button" className="lx-btn lx-btn--ghost" onClick={() => scrollToTarget('#sessions')}>
+            <span>К личным сессиям</span>
           </button>
         </div>
       </div>
@@ -185,7 +186,7 @@ function PathDrawer({ service, onClose }: { service: AlinaService | null; onClos
   }, [service, shown, onClose])
 
   const s = shown
-  const idx = s ? PATHS.findIndex((p) => p.id === s.id) : 0
+  const symbol = s ? PATH_SYMBOLS[s.id] ?? 'seed' : 'seed'
 
   // Портал в body: внутри закреплённой (pin) секции position: fixed ведёт себя непредсказуемо
   return createPortal(
@@ -196,13 +197,13 @@ function PathDrawer({ service, onClose }: { service: AlinaService | null; onClos
           <>
             <div className="lx-drawer__head">
               <span className="lx-eyebrow">
-                {ROMANS[idx]} · {s.categoryLabel}
+                {FIGURE_NAMES[symbol]} · {s.categoryLabel}
               </span>
               <button type="button" className="lx-close" onClick={onClose} ref={closeBtn} aria-label="Закрыть">
                 <i /><i />
               </button>
             </div>
-            <Sigil id={s.id} className="lx-drawer__sigil lx-drawer__reveal" />
+            <SacredIcon id={symbol} className="lx-drawer__sigil lx-drawer__reveal" draw />
             <h3 className="lx-drawer__title lx-drawer__reveal">{s.title}</h3>
             <p className="lx-drawer__subtitle lx-drawer__reveal">{s.subtitle}</p>
             <span className="lx-badge lx-drawer__reveal">{s.badge}</span>
@@ -235,8 +236,8 @@ function PathDrawer({ service, onClose }: { service: AlinaService | null; onClos
             {s.quote && <blockquote className="lx-drawer__quote lx-drawer__reveal">{s.quote}</blockquote>}
 
             <div className="lx-drawer__cta lx-drawer__reveal">
-              <a className="lx-btn lx-btn--wine" href={telegramLink(pathBookingMessage(s))} target="_blank" rel="noopener noreferrer">
-                Записаться через Марию · Telegram
+              <a className="lx-btn lx-btn--gold" href={telegramLink(pathBookingMessage(s))} target="_blank" rel="noopener noreferrer">
+                <span>Записаться через Марию · Telegram</span>
               </a>
               <a className="lx-link" href={whatsappLink(pathBookingMessage(s))} target="_blank" rel="noopener noreferrer">
                 или WhatsApp <span aria-hidden="true">→</span>

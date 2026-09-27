@@ -200,10 +200,11 @@ runTest('tier1', 'F2.1: App.tsx stores landing scroll position before entering 3
   assert.ok(content.includes('setRestoreScroll('), 'Missing scroll restore hand-off to landing')
 })
 
-runTest('tier1', 'F2.2: Landing restores exact scroll position on return (pins refreshed first, then immediate jump)', () => {
+runTest('tier1', 'F2.2: Landing restores exact scroll position on return and keeps it through later pin refreshes', () => {
   const content = readLanding('Landing.tsx')
   assert.ok(content.includes('ScrollTrigger.refresh()'), 'Pins must be measured before restoring scroll')
-  assert.ok(content.includes('immediate: true'), 'Missing immediate scroll restore')
+  assert.ok(content.includes('window.scrollTo(0, restoreScroll)'), 'Missing native scroll restore')
+  assert.ok(content.includes("ScrollTrigger.addEventListener('refresh', onRefresh)"), 'Restore must survive later pin refreshes')
 })
 
 runTest('tier1', 'F2.3: Prologue CTA scrolls smoothly (Lenis) to the paths chapter', () => {
@@ -860,7 +861,7 @@ runTest('tier1', 'F22.3: Session description states big cleaning cannot be purch
 
 runTest('tier1', 'F22.4: Session note specifies that big cleaning is assigned exclusively personally by Alina', () => {
   const magic = INDIVIDUAL_SESSIONS.find((s) => s.id === 'magic-diagnosis-ritual')
-  assert.ok(magic.note?.includes('назначается только лично Алиной'))
+  assert.ok(magic.note?.includes('назначается только лично мастером'))
 })
 
 runTest('tier1', 'F22.5: alina_skills.md documents the commercial ethics rule for manager booking', () => {
@@ -1329,9 +1330,9 @@ runTest('tier1', 'F36.1: BookNavbarOverlay renders a reader-facing badge', () =>
   assert.ok(content.includes('Книга персональных кодов'))
 })
 
-runTest('tier1', 'F36.2: BookNavbarOverlay renders return button with label "К практикам Алины" and arrow "←"', () => {
+runTest('tier1', 'F36.2: BookNavbarOverlay renders return button with label "На сайт Alina Tarot Energy" and arrow "←"', () => {
   const content = fs.readFileSync(path.join(ROOT_DIR, 'src', 'components', 'BookNavbarOverlay.tsx'), 'utf8')
-  assert.ok(content.includes('К практикам Алины'))
+  assert.ok(content.includes('На сайт Alina Tarot Energy'))
   assert.ok(content.includes('←'))
   assert.ok(content.includes('onBackToPortal'))
 })
@@ -1849,7 +1850,7 @@ runTest('tier3', 'C2: Selecting individual session option dynamically updates Te
   const session = INDIVIDUAL_SESSIONS.find((s) => s.id === 'soul-journey')
   for (let idx = 0; idx < session.options.length; idx++) {
     const opt = session.options[idx]
-    const expectedMessage = `Здравствуйте, Мария! Хочу записаться к Алине на сессию: «${session.title}» (тариф: ${opt.label} — ${opt.price})`
+    const expectedMessage = `Здравствуйте, Мария! Хочу записаться на сессию Alina Tarot Energy: «${session.title}» (тариф: ${opt.label} — ${opt.price})`
     const tgUrl = `https://t.me/${MANAGER_INFO.telegramHandle}?text=${encodeURIComponent(expectedMessage)}`
     assert.ok(tgUrl.startsWith('https://t.me/maria_anima?text='))
     assert.ok(tgUrl.includes(encodeURIComponent(opt.price)))

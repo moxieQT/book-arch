@@ -7,8 +7,8 @@ import {
   TAROT_QUESTIONS,
   type IndividualSession,
 } from '../../data/alinaPricing'
-import { BOOKING_GREETING, ROMANS, sessionBookingMessage, telegramLink, whatsappLink } from '../content'
-import { StarMark } from '../components/Ornaments'
+import { BLOCK_SYMBOLS, BOOKING_GREETING, sessionBookingMessage, telegramLink, whatsappLink } from '../content'
+import { MerkabaMark, SacredIcon } from '../components/Ornaments'
 import { gsap, lockScroll, refreshScroll, scrollToTarget } from '../motion'
 import { useGsap } from '../useGsap'
 
@@ -84,20 +84,20 @@ export function Sessions() {
       <div className="lx-container">
         <div className="lx-sessions__head">
           <p className="lx-eyebrow lx-chapter-mark">
-            <span className="lx-chapter-mark__roman">VI</span> Личная работа
+            <SacredIcon id="metatron" className="lx-chapter-mark__icon" draw /> Личная работа
           </p>
           <h2 className="lx-h2">
             Сессии
             <br />
-            <em>с Алиной</em>
+            <em>Alina Tarot Energy</em>
           </h2>
           <p className="lx-lead">
-            Шестнадцать форматов в трёх разделах. Выберите тариф — и сообщение для Марии, менеджера Алины, уже будет
+            Шестнадцать форматов в трёх разделах. Выберите тариф — и сообщение для Марии, менеджера Alina Tarot Energy, уже будет
             готово.
           </p>
         </div>
 
-        <div className="lx-navigator">
+        <div className="lx-navigator lx-glass">
           <p className="lx-navigator__title">С чем вы пришли?</p>
           <div className="lx-navigator__chips">
             {CLIENT_QUERY_NAVIGATOR.map((q) => (
@@ -114,7 +114,7 @@ export function Sessions() {
           <p className={`lx-navigator__hint ${hint ? 'is-visible' : ''}`} aria-live="polite">
             {hint && (
               <>
-                <StarMark size={10} /> {hint.hint} — <strong>{hint.target}</strong>
+                <MerkabaMark size={12} /> {hint.hint} — <strong>{hint.target}</strong>
               </>
             )}
           </p>
@@ -123,7 +123,7 @@ export function Sessions() {
         {byBlock.map(({ block, sessions }, bi) => (
           <div key={block.id} className="lx-menu-block">
             <aside className="lx-menu-block__aside">
-              <span className="lx-menu-block__roman">{ROMANS[bi]}</span>
+              <SacredIcon id={BLOCK_SYMBOLS[bi] ?? 'seed'} className="lx-menu-block__icon" draw />
               <h3 className="lx-menu-block__title">
                 {block.title.split('•').map((part, i) => (
                   <span key={i}>{part.trim()}</span>
@@ -224,7 +224,11 @@ function SessionRow({
                 {s.specialDiscount.subtext && <p className="lx-session__note">{s.specialDiscount.subtext}</p>}
               </div>
             )}
-            {!s.specialDiscount && s.bonus && <p className="lx-session__note">✦ {s.bonus}</p>}
+            {!s.specialDiscount && s.bonus && (
+              <p className="lx-session__note">
+                <MerkabaMark size={11} /> {s.bonus}
+              </p>
+            )}
             {s.id === 'taro-session' && (
               <button type="button" className="lx-link" onClick={onOpenBank}>
                 Подобрать вопросы из банка <span aria-hidden="true">→</span>
@@ -255,13 +259,13 @@ function SessionRow({
             </p>
             <div className="lx-session__cta">
               <a
-                className="lx-btn lx-btn--wine"
+                className="lx-btn lx-btn--gold"
                 href={telegramLink(sessionBookingMessage(s, opt))}
                 target="_blank"
                 rel="noopener noreferrer"
                 tabIndex={open ? 0 : -1}
               >
-                Записаться · Telegram
+                <span>Записаться · Telegram</span>
               </a>
               <a
                 className="lx-link"
@@ -361,10 +365,10 @@ function TarotBank({ open, onClose }: { open: boolean; onClose: () => void }) {
             Выбрано: <strong>{picked.length}</strong>
           </span>
           <button type="button" className="lx-link" onClick={copy} disabled={!picked.length}>
-            {copied ? 'Скопировано ✦' : 'Скопировать'}
+            {copied ? 'Скопировано' : 'Скопировать'}
           </button>
           <a
-            className="lx-btn lx-btn--wine lx-btn--small"
+            className="lx-btn lx-btn--gold lx-btn--small"
             href={picked.length ? telegramLink(message) : undefined}
             target="_blank"
             rel="noopener noreferrer"

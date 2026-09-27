@@ -96,9 +96,11 @@ test('P1.8: BookNavbarOverlay.tsx displays a reader-facing badge', () => {
 test('P1.9: Landing book chapter showcases the real 3D folio in the dark «Shadow» chapter', () => {
   const folio = fs.readFileSync(path.join(ROOT_DIR, 'src', 'landing', 'sections', 'Folio.tsx'), 'utf8')
   assert.ok(folio.includes('data-theme="dark"'), 'book chapter must be the dark scene')
-  assert.ok(folio.includes("import('../bookShowcase')"), 'Three.js showcase must be lazy-loaded')
-  const showcase = fs.readFileSync(path.join(ROOT_DIR, 'src', 'landing', 'bookShowcase.ts'), 'utf8')
-  assert.ok(showcase.includes('drawPageRightOntoCanvas'), 'showcase must render the real book pages')
+  assert.ok(folio.includes("import('../bookShowcase')"), 'fallback showcase must be lazy-loaded')
+  const model = fs.readFileSync(path.join(ROOT_DIR, 'src', 'landing', 'cosmos', 'bookModel.ts'), 'utf8')
+  assert.ok(model.includes('drawPageRightOntoCanvas'), 'book model must render the real book pages')
+  const cosmos = fs.readFileSync(path.join(ROOT_DIR, 'src', 'landing', 'cosmos', 'Cosmos.ts'), 'utf8')
+  assert.ok(cosmos.includes('new BookModel('), 'the continuous scene must host the real book')
 })
 
 test('P1.10: _preview.html (teamwork-preview) enforces strict French Light Luxury theme', () => {

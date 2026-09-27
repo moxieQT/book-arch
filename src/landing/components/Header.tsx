@@ -2,17 +2,19 @@ import { useEffect, useRef, useState } from 'react'
 import { soundscape } from '../../audio/soundscape'
 import { CHAPTERS, NAV_LINKS, type ChapterId } from '../content'
 import { gsap, lockScroll, ScrollTrigger, scrollToTarget } from '../motion'
-import { StarMark } from './Ornaments'
+import { MerkabaMark, SacredIcon } from './Ornaments'
 
 interface HeaderProps {
   onOpenBook: () => void
+  theme: 'light' | 'dark'
+  onToggleTheme: () => void
 }
 
 function go(id: string) {
   scrollToTarget(`#${id}`, id === 'prologue' ? 0 : -10)
 }
 
-export function Header({ onOpenBook }: HeaderProps) {
+export function Header({ onOpenBook, theme, onToggleTheme }: HeaderProps) {
   const [hidden, setHidden] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [soundOn, setSoundOn] = useState(() => soundscape.getIsEnabled())
@@ -26,6 +28,7 @@ export function Header({ onOpenBook }: HeaderProps) {
       end: 'max',
       onUpdate: (self) => {
         const next = self.direction === 1 && self.scroll() > 240
+        document.documentElement.classList.toggle('lx-scrolled', self.scroll() > 40)
         if (next !== hiddenRef.current) {
           hiddenRef.current = next
           setHidden(next)
@@ -55,10 +58,10 @@ export function Header({ onOpenBook }: HeaderProps) {
   return (
     <>
       <header className={`lx-header ${hidden && !menuOpen ? 'is-hidden' : ''}`}>
-        <button type="button" className="lx-brand" onClick={() => navTo('prologue')} aria-label="Алина — в начало">
-          <StarMark size={16} />
-          <span className="lx-brand__name">Алина</span>
-          <span className="lx-brand__role">Таро · ченнелинг · звук</span>
+        <button type="button" className="lx-brand" onClick={() => navTo('prologue')} aria-label="Alina Tarot Energy — в начало">
+          <MerkabaMark size={24} />
+          <span className="lx-brand__name">Alina</span>
+          <span className="lx-brand__sub">Tarot Energy</span>
         </button>
 
         <nav className="lx-nav" aria-label="Разделы">
@@ -70,6 +73,15 @@ export function Header({ onOpenBook }: HeaderProps) {
         </nav>
 
         <div className="lx-header__actions">
+          <button
+            type="button"
+            className="lx-theme"
+            onClick={onToggleTheme}
+            aria-label={theme === 'light' ? 'Включить тёмную тему' : 'Включить светлую тему'}
+            title={theme === 'light' ? 'Ночь' : 'День'}
+          >
+            <span className={`lx-theme__orb ${theme === 'dark' ? 'is-night' : ''}`} aria-hidden="true" />
+          </button>
           <button
             type="button"
             className={`lx-sound ${soundOn ? 'is-on' : ''}`}
@@ -103,7 +115,7 @@ export function Header({ onOpenBook }: HeaderProps) {
           {CHAPTERS.map((c) => (
             <li key={c.id}>
               <button type="button" onClick={() => navTo(c.id)} tabIndex={menuOpen ? 0 : -1}>
-                <span className="lx-menu__roman">{c.roman}</span>
+                <SacredIcon id={c.icon ?? c.symbol} className="lx-menu__icon" />
                 <span className="lx-menu__label">{c.label}</span>
               </button>
             </li>
@@ -125,7 +137,7 @@ export function Header({ onOpenBook }: HeaderProps) {
   )
 }
 
-/** Оглавление-«закладка» слева: римские номера глав, активная подсвечена */
+/** Оглавление-«закладка» слева: символы глав, активный светится */
 export function ChapterRail() {
   const [active, setActive] = useState<ChapterId>('prologue')
 
@@ -151,7 +163,7 @@ export function ChapterRail() {
           onClick={() => go(c.id)}
           aria-current={active === c.id ? 'true' : undefined}
         >
-          <span className="lx-rail__roman">{c.roman}</span>
+          <SacredIcon id={c.icon ?? c.symbol} className="lx-rail__icon" />
           <span className="lx-rail__label">{c.label}</span>
         </button>
       ))}
