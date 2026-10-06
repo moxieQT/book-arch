@@ -54,7 +54,8 @@ export function Header({ onOpenBook, theme, onToggleTheme }: HeaderProps) {
       <header className="lx-header">
         <button type="button" className="lx-brand" onClick={() => navTo('prologue')} aria-label="Alina Tarot Energy — в начало">
           <MerkabaMark size={24} />
-          <span className="lx-brand__name">Alina</span>
+          <span className="lx-brand__name">Alina</span>{' '}
+          {/* пробел нужен для видимого текста («Alina Tarot Energy» входит в aria-label); контейнер flex — визуально не виден */}
           <span className="lx-brand__sub">Tarot Energy</span>
         </button>
 

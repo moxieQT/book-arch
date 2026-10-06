@@ -24,6 +24,11 @@ function readTheme(): 'light' | 'dark' {
   }
 }
 
+/** Цвет адресной строки браузера следует за темой; светлый — по умолчанию, как в index.html и манифесте */
+function setThemeColor(theme: 'light' | 'dark') {
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#050307' : '#F4EFE6')
+}
+
 const LegalRiskChecker = lazy(() => import('../components/LegalRiskChecker').then((m) => ({ default: m.LegalRiskChecker })))
 
 interface LandingProps {
@@ -44,12 +49,16 @@ export function Landing({ onOpenBook, onOpenBookWithDate, restoreScroll }: Landi
   // Тема живёт на <html>: её видят и выдвижные панели, вынесенные порталом в body
   useLayoutEffect(() => {
     document.documentElement.dataset.lxTheme = theme
+    setThemeColor(theme)
     try {
       localStorage.setItem(THEME_KEY, theme)
     } catch {
       // приватный режим — тема просто не запомнится
     }
   }, [theme])
+
+  // Книга всегда светлая: уходя с лендинга, возвращаем светлый цвет адресной строки
+  useLayoutEffect(() => () => setThemeColor('light'), [])
 
   useLayoutEffect(() => {
     document.documentElement.classList.add('lx-root')

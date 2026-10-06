@@ -11,7 +11,10 @@ export function Philosophy() {
     if (!motion) return
 
     // Манифест: слова по очереди загораются золотым светом по мере прокрутки
-    const split = SplitText.create('.lx-manifesto__text', { type: 'words', wordsClass: 'lx-word' })
+    // aria: 'none' — по умолчанию SplitText вешает на <p> aria-label, а на абзаце он запрещён (axe);
+    // 'hidden' не подходит: абзац пропал бы для скринридеров. tag: 'span' — слова внутри <p> без <div>
+    // (display у слов всё равно inline-block, вид не меняется)
+    const split = SplitText.create('.lx-manifesto__text', { type: 'words', wordsClass: 'lx-word', aria: 'none', tag: 'span' })
     gsap.fromTo(
       split.words,
       { opacity: 0.13 },
@@ -90,7 +93,7 @@ export function Philosophy() {
           {PILLARS.map((p) => (
             <article key={p.title} className="lx-pillar lx-glass">
               <SacredIcon id={p.symbol} className="lx-pillar__icon" draw />
-              <h3 className="lx-pillar__title">{p.title}</h3>
+              <h2 className="lx-pillar__title">{p.title}</h2>
               <p className="lx-pillar__text">{p.text}</p>
             </article>
           ))}
