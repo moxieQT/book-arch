@@ -1,5 +1,5 @@
 // Аудит дизайна лендинга: контраст, читаемость, доступность, переполнение.
-// Запуск: npm run audit:design [-- --url http://localhost:5174 --shots --strict --quick --viewport mobile --theme dark]
+// Запуск: npm run audit:design [-- --url http://localhost:5174 --shots --strict --quick --viewport mobile --theme dark --port 5199]
 //
 // Что проверяется (светлая и тёмная тема × 320 / 768 / 1440 px):
 //  1. Контраст текста по WCAG 2.x — по реальным пикселям: текст скрывается, снимок фона
@@ -14,6 +14,7 @@
 import { spawn } from 'node:child_process'
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
+import { createServer } from 'node:net'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium } from 'playwright-core'
@@ -63,10 +64,22 @@ async function waitForServer(url, timeoutMs = 60000) {
   throw new Error(`Сервер ${url} не ответил за ${timeoutMs / 1000} с`)
 }
 
+/** Свободный порт: параллельные запуски (несколько worktree) не должны драться за один. */
+function freePort() {
+  return new Promise((resolve, reject) => {
+    const srv = createServer()
+    srv.once('error', reject)
+    srv.listen(0, () => {
+      const { port } = srv.address()
+      srv.close(() => resolve(port))
+    })
+  })
+}
+
 async function ensureServer() {
   const given = opt('url')
   if (given) return { url: given, stop: () => {} }
-  const port = 5199
+  const port = Number(opt('port')) || (await freePort())
   const url = `http://localhost:${port}`
   const vite = join(ROOT, 'node_modules', 'vite', 'bin', 'vite.js')
   const child = spawn(process.execPath, [vite, '--port', String(port), '--strictPort'], {
