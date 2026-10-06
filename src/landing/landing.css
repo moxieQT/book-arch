@@ -187,9 +187,9 @@ html.lx-locked body {
   gap: 14px;
   margin: 0;
   font-family: var(--sans);
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.32em;
+  letter-spacing: 0.26em;
   text-transform: uppercase;
   color: var(--gold);
 }
@@ -256,9 +256,9 @@ html.lx-locked body {
   cursor: pointer;
   isolation: isolate;
   font-family: var(--sans) !important;
-  font-size: 11.5px !important;
+  font-size: 12px !important;
   font-weight: 600;
-  letter-spacing: 0.24em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   text-decoration: none;
   white-space: nowrap;
@@ -311,7 +311,7 @@ html.lx-locked body {
 .lx-btn--small {
   min-height: 44px;
   padding: 0 24px;
-  font-size: 10.5px !important;
+  font-size: 12px !important;
 }
 .lx-btn[aria-disabled='true'] {
   opacity: 0.4;
@@ -370,9 +370,9 @@ html.lx-locked body {
   border: 1px solid var(--line-2);
   border-radius: 999px;
   font-family: var(--sans);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--gold-2);
   background: rgba(220, 184, 119, 0.06);
@@ -448,17 +448,17 @@ html.lx-locked body {
 .lx-preloader__sub {
   margin-top: -14px;
   font-family: var(--sans);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.52em;
-  padding-left: 0.52em;
+  letter-spacing: 0.4em;
+  padding-left: 0.4em;
   text-transform: uppercase;
   color: var(--gold);
 }
 .lx-preloader__count {
   font-family: var(--sans);
-  font-size: 10px;
-  letter-spacing: 0.42em;
+  font-size: 12px;
+  letter-spacing: 0.34em;
   color: var(--text-3);
 }
 
@@ -514,9 +514,9 @@ html.lx-scrolled .lx-header {
   padding-left: 12px;
   border-left: 1px solid var(--line-2);
   font-family: var(--sans);
-  font-size: 9.5px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--gold);
 }
@@ -531,9 +531,9 @@ html.lx-scrolled .lx-header {
   background: none;
   cursor: pointer;
   font-family: var(--sans) !important;
-  font-size: 10.5px !important;
+  font-size: 12px !important;
   font-weight: 600;
-  letter-spacing: 0.24em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--text-2) !important;
   transition: color 0.4s;
@@ -604,9 +604,9 @@ html.lx-scrolled .lx-header {
 }
 .lx-sound__label {
   font-family: var(--sans);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.16em;
 }
 .lx-burger {
   display: none;
@@ -712,6 +712,11 @@ html.lx-scrolled .lx-header {
 }
 .lx-menu__book {
   align-self: flex-start;
+  max-width: 100%;
+  padding: 14px 34px;
+  /* подпись в 12 px длиннее экрана 320 px — переносим, а не обрезаем */
+  white-space: normal;
+  text-align: center;
 }
 
 .lx-rail {
@@ -757,9 +762,9 @@ html.lx-scrolled .lx-header {
 }
 .lx-rail__label {
   font-family: var(--sans);
-  font-size: 9.5px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.24em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--gold-2);
   opacity: 0;
@@ -815,16 +820,16 @@ html.lx-has-cursor .lx-drawer label {
   transition: width 0.5s var(--ease), height 0.5s var(--ease), background 0.5s, border-color 0.5s;
 }
 .lx-cursor-ring.is-hover {
-  width: 76px;
-  height: 76px;
+  width: 96px;
+  height: 96px;
   border-color: rgba(236, 190, 112, 0.8);
   background: rgba(236, 190, 112, 0.08);
 }
 .lx-cursor-ring__label {
   font-family: var(--sans);
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--gold-2);
   opacity: 0;
@@ -911,9 +916,9 @@ html.lx-has-cursor .lx-drawer label {
 }
 .lx-hero__sigil-kicker {
   font-family: var(--sans);
-  font-size: 9.5px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.34em;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
   color: var(--text-3);
 }
@@ -955,9 +960,9 @@ html.lx-has-cursor .lx-drawer label {
   justify-content: space-between;
   align-items: center;
   font-family: var(--sans);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.28em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--text-3);
 }
@@ -1042,9 +1047,9 @@ html.lx-has-cursor .lx-drawer label {
   gap: 12px;
   margin: 0;
   font-family: var(--sans);
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
   color: var(--gold);
 }
@@ -1119,9 +1124,9 @@ html.lx-has-cursor .lx-drawer label {
 .lx-stat__label {
   margin: 10px 0 0;
   font-family: var(--sans);
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.14em;
   line-height: 1.6;
   text-transform: uppercase;
   color: var(--text-3);
@@ -1190,8 +1195,8 @@ html.lx-has-cursor .lx-drawer label {
   gap: 18px;
   margin-top: 40px;
   font-family: var(--sans);
-  font-size: 11px;
-  letter-spacing: 0.24em;
+  font-size: 12px;
+  letter-spacing: 0.2em;
   color: var(--text-3);
 }
 .lx-paths__count span {
@@ -1275,9 +1280,9 @@ html.lx-has-cursor .lx-drawer label {
   justify-content: space-between;
   gap: 12px;
   font-family: var(--sans);
-  font-size: 9.5px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-3);
 }
@@ -1336,9 +1341,9 @@ html.lx-has-cursor .lx-drawer label {
   padding-top: 14px;
   border-top: 1px solid var(--line);
   font-family: var(--sans);
-  font-size: 9.5px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--gold);
 }
@@ -1490,9 +1495,9 @@ html.lx-has-cursor .lx-drawer label {
 .lx-drawer h4 {
   margin: 0 0 10px;
   font-family: var(--sans);
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.24em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--gold);
 }
@@ -1569,8 +1574,8 @@ html.lx-has-cursor .lx-drawer label {
   padding: 16px 10px 20px;
   border-top: 1px solid var(--line);
   font-family: var(--sans);
-  font-size: 11px;
-  letter-spacing: 0.14em;
+  font-size: 12px;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-3);
   background: #08060b;
@@ -1684,8 +1689,8 @@ html.lx-has-cursor .lx-drawer label {
 }
 .lx-folio__step-num {
   font-family: var(--sans);
-  font-size: 10px;
-  letter-spacing: 0.3em;
+  font-size: 12px;
+  letter-spacing: 0.24em;
   color: var(--gold);
 }
 .lx-folio__step-title {
@@ -1824,7 +1829,7 @@ html.lx-has-cursor .lx-drawer label {
 }
 .lx-arcard {
   position: relative;
-  aspect-ratio: 0.6;
+  aspect-ratio: 0.56;
 }
 .lx-arcard__inner {
   position: absolute;
@@ -1865,9 +1870,9 @@ html.lx-has-cursor .lx-drawer label {
 .lx-arcard__back-label {
   position: relative;
   font-family: var(--sans);
-  font-size: 8.5px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.04em;
   text-align: center;
   text-transform: uppercase;
   color: var(--gold-2);
@@ -1886,9 +1891,9 @@ html.lx-has-cursor .lx-drawer label {
 }
 .lx-arcard__position {
   font-family: var(--sans);
-  font-size: 8.5px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--gold);
 }
@@ -2128,9 +2133,9 @@ html.lx-has-cursor .lx-drawer label {
   padding: 4px 10px;
   border-radius: 999px;
   font-family: var(--sans);
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: #1b1008;
   background: var(--gold-2);
@@ -2273,9 +2278,9 @@ html.lx-has-cursor .lx-drawer label {
   padding-top: 16px;
   border-top: 1px solid var(--line);
   font-family: var(--sans);
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.24em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--text-3);
 }
@@ -2338,9 +2343,9 @@ html.lx-has-cursor .lx-drawer label {
   gap: 10px;
   margin-top: 16px;
   font-family: var(--sans);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.26em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--gold);
 }
@@ -2370,9 +2375,9 @@ html.lx-has-cursor .lx-drawer label {
 .lx-contact__label {
   grid-area: label;
   font-family: var(--sans);
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.26em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--gold);
 }
@@ -2414,9 +2419,9 @@ html.lx-has-cursor .lx-drawer label {
 .lx-footer h4 {
   margin: 0 0 16px;
   font-family: var(--sans);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.26em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--gold);
 }
@@ -2481,7 +2486,7 @@ html.lx-has-cursor .lx-drawer label {
   max-width: 70em;
   margin: 0;
   font-family: var(--sans);
-  font-size: 11.5px;
+  font-size: 12px;
   line-height: 1.7;
   color: var(--text-3);
 }
@@ -2497,7 +2502,7 @@ html.lx-has-cursor .lx-drawer label {
   padding-top: 20px;
   border-top: 1px solid rgba(220, 184, 119, 0.1);
   font-family: var(--sans);
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-3);
 }
 .lx-footer__bottom button {
@@ -2506,7 +2511,7 @@ html.lx-has-cursor .lx-drawer label {
   background: none;
   cursor: pointer;
   font-family: var(--sans) !important;
-  font-size: 11px !important;
+  font-size: 12px !important;
   text-decoration: underline;
   text-underline-offset: 4px;
   color: var(--text-2) !important;
@@ -2636,6 +2641,11 @@ html.lx-has-cursor .lx-drawer label {
   .lx-drawer__cols {
     grid-template-columns: 1fr;
   }
+  /* подпись, ссылка и кнопка в 12 px не умещаются в одну строку — кнопка уходит на свою */
+  .lx-bank__bar {
+    flex-wrap: wrap;
+    gap: 12px 20px;
+  }
 
   .lx-folio__intro {
     left: var(--pad);
@@ -2726,6 +2736,15 @@ html.lx-has-cursor .lx-drawer label {
   }
   .lx-footer__cols {
     grid-template-columns: 1fr;
+  }
+}
+
+/* карта кода на 320–374 px: в ~110 px текста «ПРЕДНАЗНАЧЕНИЯ» капсом в 12 px не помещается */
+@media (max-width: 374px) {
+  .lx-arcard__back-label,
+  .lx-arcard__position {
+    letter-spacing: 0.02em;
+    text-transform: none;
   }
 }
 

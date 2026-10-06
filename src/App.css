@@ -529,15 +529,15 @@
 }
 
 .book-mockup__author {
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   letter-spacing: 0.1em;
   color: var(--gold);
   margin-top: 6px;
 }
 
 .book-mockup__seal {
-  font-size: 0.68rem;
-  letter-spacing: 0.16em;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
   color: rgba(248, 243, 234, 0.5);
 }
 
@@ -1276,8 +1276,8 @@
 
 .book-navbar-overlay__badge {
   display: inline-block;
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--gold-dark);
   background: rgba(198, 167, 107, 0.12);
@@ -1805,7 +1805,7 @@
 }
 
 .pricing-pill__online-tag {
-  font-size: 0.74rem;
+  font-size: 0.75rem;
   padding: 1px 6px;
   background: var(--wine);
   color: #FAF6EE;
