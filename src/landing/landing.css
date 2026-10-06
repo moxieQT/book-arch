@@ -304,7 +304,10 @@ html.lx-locked body {
   box-shadow: var(--glow);
 }
 .lx-btn--wine {
-  color: var(--ivory) !important;
+  /* текст всегда светлый (фон винный в обеих темах): --ivory в светлой теме — чернила, 1,4:1 */
+  color: #f3ead9 !important;
+  /* цвет постоянный — в transition его нет, иначе при смене темы текст на время «в полёте» */
+  transition: transform 0.6s var(--ease), box-shadow 0.6s var(--ease), border-color 0.4s;
   background: linear-gradient(135deg, var(--wine-2), var(--wine));
   box-shadow: 0 0 0 1px rgba(255, 190, 210, 0.18) inset, 0 12px 40px -14px rgba(146, 40, 79, 0.8);
 }
@@ -475,11 +478,17 @@ html.lx-locked body {
   align-items: center;
   height: var(--header-h);
   padding: 0 var(--pad);
-  transition: transform 0.9s var(--ease), background 0.6s, border-color 0.6s;
+  /* Цвет задан здесь, а не наследуется от .lx: у .lx он плывёт 0,8 с, и шапка на это время теряла контраст.
+     Его наследуют бренд и «432 Гц» (.lx button { color: inherit } сильнее их собственных color).
+     Градиент фона не анимируется, поэтому в transition его нет: подложка и текст меняются в один кадр. */
+  color: var(--text);
+  transition: transform 0.9s var(--ease), border-color 0.6s;
   border-bottom: 1px solid transparent;
 }
+/* Подложка почти глухая: canvas под шапкой меняется непрерывно (ночь книги) и отстаёт от флага
+   html.lx-night, так что читаемость не должна зависеть от того, какие пиксели оказались под ней */
 html.lx-scrolled .lx-header {
-  background: linear-gradient(180deg, rgba(5, 3, 7, 0.82), rgba(5, 3, 7, 0.55));
+  background: linear-gradient(180deg, rgba(5, 3, 7, 0.94), rgba(5, 3, 7, 0.88));
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom-color: rgba(220, 184, 119, 0.1);
@@ -536,7 +545,8 @@ html.lx-scrolled .lx-header {
   letter-spacing: 0.24em;
   text-transform: uppercase;
   color: var(--text-2) !important;
-  transition: color 0.4s;
+  /* смена палитры (день ↔ ночь книги) — мгновенная, плавно цвет меняется только при наведении */
+  transition: none;
 }
 .lx-nav__link::after {
   content: '';
@@ -554,6 +564,7 @@ html.lx-scrolled .lx-header {
 }
 .lx-nav__link:hover {
   color: var(--gold-2) !important;
+  transition: color 0.4s;
 }
 .lx-nav__link:hover::after {
   opacity: 1;
@@ -574,11 +585,14 @@ html.lx-scrolled .lx-header {
   background: none;
   cursor: pointer;
   color: var(--text-3);
-  transition: color 0.4s;
+  transition: none;
 }
 .lx-sound:hover,
 .lx-sound.is-on {
   color: var(--gold-2);
+}
+.lx-sound:hover {
+  transition: color 0.4s;
 }
 .lx-sound__bars {
   display: flex;
@@ -2858,7 +2872,7 @@ html[data-lx-theme='light'] .lx-preloader__name {
   text-shadow: none;
 }
 html[data-lx-theme='light'].lx-scrolled .lx-header {
-  background: linear-gradient(180deg, rgba(244, 239, 230, 0.9), rgba(244, 239, 230, 0.7));
+  background: linear-gradient(180deg, rgba(244, 239, 230, 0.98), rgba(244, 239, 230, 0.95));
   border-bottom-color: rgba(142, 114, 64, 0.14);
 }
 html[data-lx-theme='light'] .lx-nav__link::after {
@@ -3006,14 +3020,17 @@ html[data-lx-theme='light'].lx-night .lx-folio__intro {
   text-shadow: 0 0 30px rgba(5, 3, 7, 0.9);
 }
 html[data-lx-theme='light'].lx-night.lx-scrolled .lx-header {
-  background: linear-gradient(180deg, rgba(5, 3, 7, 0.82), rgba(5, 3, 7, 0.55));
+  background: linear-gradient(180deg, rgba(5, 3, 7, 0.94), rgba(5, 3, 7, 0.88));
   border-bottom-color: rgba(220, 184, 119, 0.1);
+}
+html[data-lx-theme='light'].lx-night .lx-burger {
+  background: rgba(16, 10, 20, 0.4);
 }
 html[data-lx-theme='light'].lx-night .lx-rail__icon {
   background: rgba(5, 3, 7, 0.7);
 }
+/* шапка сюда не входит: её цвет меняется сразу вместе с подложкой (см. .lx-header) */
 .lx,
-.lx-header,
 .lx-folio {
   transition: color 0.8s var(--ease-soft);
 }
