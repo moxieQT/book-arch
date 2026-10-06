@@ -39,7 +39,8 @@ html.lx-locked body {
   --ivory: #f3ead9;
   --text: rgba(243, 234, 217, 0.94);
   --text-2: rgba(243, 234, 217, 0.66);
-  --text-3: rgba(243, 234, 217, 0.44);
+  /* третий ярус текста: ≥4.5:1 на ночном фоне (при .44 было ≈3.8:1) */
+  --text-3: rgba(243, 234, 217, 0.55);
   --line: rgba(220, 184, 119, 0.18);
   --line-2: rgba(220, 184, 119, 0.34);
   --glass: rgba(16, 10, 20, 0.78);
@@ -1574,11 +1575,11 @@ html.lx-has-cursor .lx-drawer label {
   text-transform: uppercase;
   color: var(--text-3);
   background: #08060b;
-  opacity: 0.5;
-  transition: opacity 0.4s;
+  transition: color 0.4s;
 }
+/* Без выбора «приглушены» только сами действия (у них свой disabled); подпись остаётся читаемой, с выбором — ярче */
 .lx-bank__bar.is-visible {
-  opacity: 1;
+  color: var(--text-2);
 }
 .lx-bank__bar strong {
   color: var(--gold-2);
@@ -1788,7 +1789,7 @@ html.lx-has-cursor .lx-drawer label {
   width: 3.6em;
 }
 .lx-date__field input::placeholder {
-  color: rgba(243, 234, 217, 0.22);
+  color: var(--text-3);
 }
 .lx-date__field input:focus {
   border-bottom-color: var(--gold-2);
@@ -2801,14 +2802,15 @@ html[data-lx-theme='light'] :is(.lx, .lx-drawer, .lx-preloader) {
   --night-2: #fbf8f2;
   --wine: #5c192e;
   --wine-2: #7a2440;
-  --gold: #8e7240;
+  /* gold и text-3 затемнены до ≥4.5:1 и на кремовом фоне, и на розово-сиреневых подсветках неба */
+  --gold: #715b33;
   --gold-2: #7a5528;
   --gold-3: #5c192e;
   --gold-deep: #6e5530;
   --ivory: #1e1a21;
   --text: rgba(30, 26, 33, 0.92);
   --text-2: #4f4855;
-  --text-3: #857d8a;
+  --text-3: #625c66;
   --line: rgba(142, 114, 64, 0.22);
   --line-2: rgba(142, 114, 64, 0.42);
   --glass: rgba(255, 251, 244, 0.86);
@@ -2935,9 +2937,6 @@ html[data-lx-theme='light'] .lx-bank__bar {
 html[data-lx-theme='light'] .lx-folio__step {
   background: rgba(255, 251, 244, 0.9);
 }
-html[data-lx-theme='light'] .lx-date__field input::placeholder {
-  color: rgba(30, 26, 33, 0.22);
-}
 html[data-lx-theme='light'] .lx-date__error {
   color: #9c3558;
 }
@@ -2994,7 +2993,7 @@ html[data-lx-theme='light'].lx-night :is(.lx, .lx-drawer) {
   --ivory: #f3ead9;
   --text: rgba(243, 234, 217, 0.94);
   --text-2: rgba(243, 234, 217, 0.66);
-  --text-3: rgba(243, 234, 217, 0.44);
+  --text-3: rgba(243, 234, 217, 0.55);
   --line: rgba(220, 184, 119, 0.18);
   --line-2: rgba(220, 184, 119, 0.34);
   --glass: rgba(16, 10, 20, 0.78);
