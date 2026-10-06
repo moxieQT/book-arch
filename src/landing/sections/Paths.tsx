@@ -95,15 +95,9 @@ export function Paths() {
           </div>
         </div>
 
+        {/* без aria-label: имя кнопки — её видимый текст (WCAG 2.5.3, axe label-content-name-mismatch) */}
         {PATHS.map((p) => (
-          <button
-            key={p.id}
-            type="button"
-            className="lx-card"
-            onClick={() => setOpen(p)}
-            data-cursor="Открыть"
-            aria-label={`${p.title} — подробнее`}
-          >
+          <button key={p.id} type="button" className="lx-card" onClick={() => setOpen(p)} data-cursor="Открыть">
             <span className="lx-card__frame" aria-hidden="true" />
             <span className="lx-card__aura" aria-hidden="true" />
             <span className="lx-card__top">

@@ -17,7 +17,8 @@ export function Contact({ onOpenBook, onOpenLegal }: ContactProps) {
 
   useGsap(root, ({ motion }) => {
     if (!motion) return
-    const split = SplitText.create('.lx-contact__quote', { type: 'lines', mask: 'lines' })
+    // aria: 'none' — без aria-label на цитате; текст остаётся доступным скринридерам
+    const split = SplitText.create('.lx-contact__quote', { type: 'lines', mask: 'lines', aria: 'none' })
     gsap.from(split.lines, {
       yPercent: 100,
       duration: 1.4,
