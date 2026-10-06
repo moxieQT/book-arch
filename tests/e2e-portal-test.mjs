@@ -14,6 +14,7 @@
  */
 
 import assert from 'node:assert/strict'
+import { execFileSync } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -479,8 +480,13 @@ runTest('tier1', 'F10.5: WebGL output color space configured with sRGB for accur
 // --- Feature 11: Hybrid Rendering Architecture ---
 runTest('tier1', 'F11.1: Landing renders crisp DOM chapters over a fixed atmosphere layer', () => {
   const content = readLanding('Landing.tsx')
-  assert.ok(content.includes('className="lx-atmo"'))
+  assert.ok(content.includes('className="lx-sky"'))
   assert.ok(content.includes('<main>'))
+  // слой неба действительно fixed: иначе он занял бы место в потоке и сдвинул контент
+  const css = readLanding('landing.css')
+  const sky = css.match(/(?:^|\n)\.lx-sky\s*\{([^}]*)\}/)
+  assert.ok(sky, '.lx-sky rule not found in landing.css')
+  assert.ok(/position:\s*fixed/.test(sky[1]))
 })
 
 runTest('tier1', 'F11.2: BookNavbarOverlay renders vector DOM top bar with title and badge in 3D book mode', () => {
@@ -1441,36 +1447,50 @@ runTest('tier1', 'F39.5: React 19 and Three.js 0.185.1 are declared in dependenc
   assert.ok(pkg.dependencies.three.includes('0.185'))
 })
 
-// --- Feature 40: Strict Local Git Sandbox ---
-runTest('tier1', 'F40.1: AGENTS.md enforces STRICT LOCAL GIT ONLY policy and disables remote pushes', () => {
+// --- Feature 40: Git Policy (коммиты локальные, push — по просьбе владельца) ---
+// Git читаем командами, а не файлами из .git: в worktree `.git` — файл-указатель, а не каталог
+const gitOut = (...args) => execFileSync('git', args, { cwd: ROOT_DIR, encoding: 'utf8' }).trim()
+
+runTest('tier1', 'F40.1: AGENTS.md documents local-commit, push-on-owner-request policy', () => {
   const content = fs.readFileSync(path.join(ROOT_DIR, 'AGENTS.md'), 'utf8')
-  assert.ok(content.includes('STRICT LOCAL GIT ONLY'))
-  assert.ok(content.includes('remote.origin.pushurl = DISABLED'))
+  assert.ok(content.includes('git push'))
+  assert.ok(content.includes('по просьбе владельца'))
 })
 
-runTest('tier1', 'F40.2: GEMINI.md enforces identical STRICT LOCAL GIT ONLY rules', () => {
+runTest('tier1', 'F40.2: GEMINI.md documents the same local-commit, push-on-owner-request policy', () => {
   const content = fs.readFileSync(path.join(ROOT_DIR, 'GEMINI.md'), 'utf8')
-  assert.ok(content.includes('STRICT LOCAL GIT ONLY'))
+  assert.ok(content.includes('git push'))
+  assert.ok(content.includes('по просьбе владельца'))
+  // старая политика (запрет push) не должна расходиться с AGENTS.md
+  assert.ok(!content.includes('STRICT LOCAL GIT ONLY'))
 })
 
-runTest('tier1', 'F40.3: Git config remote origin pushurl is set to DISABLED', () => {
-  const gitConfigPath = path.join(ROOT_DIR, '.git', 'config')
-  if (fs.existsSync(gitConfigPath)) {
-    const content = fs.readFileSync(gitConfigPath, 'utf8')
-    assert.ok(content.includes('pushurl = DISABLED'))
+runTest('tier1', 'F40.3: origin remote is configured and push is not disabled', () => {
+  let cfg = ''
+  try {
+    cfg = gitOut('config', '--get-regexp', '^remote\\.origin\\.')
+  } catch {
+    // git config выходит с кодом 1, если секции remote.origin нет вовсе
+    assert.fail('remote "origin" is not configured')
   }
+  assert.ok(/^remote\.origin\.url\s+\S+/m.test(cfg), 'remote "origin" has no url')
+  assert.ok(!/^remote\.origin\.pushurl\s+DISABLED\s*$/im.test(cfg), 'push to origin is disabled')
 })
 
-runTest('tier1', 'F40.4: Pre-push git hook exists and aborts push with exit code 1', () => {
-  const hookPath = path.join(ROOT_DIR, '.git', 'hooks', 'pre-push')
+runTest('tier1', 'F40.4: if a pre-push hook exists, it does not abort pushes with exit 1', () => {
+  // каталог хуков общий для worktree — спрашиваем у git, а не собираем путь руками
+  const hookPath = path.join(path.resolve(ROOT_DIR, gitOut('rev-parse', '--git-path', 'hooks')), 'pre-push')
   if (fs.existsSync(hookPath)) {
     const content = fs.readFileSync(hookPath, 'utf8')
-    assert.ok(content.includes('exit 1'))
+    // безусловный `exit 1` на верхнем уровне (как в прежнем «запрещающем» хуке);
+    // проверки вида `npm test || exit 1` или `exit 1` внутри if-блока — законны
+    assert.ok(!/^exit\s+1\s*$/m.test(content))
   }
 })
 
-runTest('tier1', 'F40.5: Local commit history is maintained strictly locally without remote publication', () => {
-  assert.ok(fs.existsSync(path.join(ROOT_DIR, '.git', 'HEAD')))
+runTest('tier1', 'F40.5: Git repository keeps local commit history (HEAD resolves to a commit)', () => {
+  // 40 hex — SHA-1, 64 — SHA-256-репозитории
+  assert.match(gitOut('rev-parse', '--verify', 'HEAD'), /^(?:[0-9a-f]{40}|[0-9a-f]{64})$/)
 })
 
 // ─────────────────────────────────────────────────────────────────────────────

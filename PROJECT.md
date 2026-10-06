@@ -77,7 +77,7 @@ Every feature identified during the survey phase is assigned to a milestone:
 | 37| Hash Navigation & Scroll Return | `#book` vs `#` hash routing with scroll position restored to exact pixels | M1 | Survey (R3/R5) |
 | 38| Oxlint Linting Suite | 0 warnings, 0 errors quality gate | M-TEST | Survey (AC) |
 | 39| TypeScript & Rolldown Production Build | `tsc -b && vite build` clean exit code 0 quality gate | M-FINAL| Survey (AC) |
-| 40| Strict Local Git Sandbox | `origin.pushurl = DISABLED`, pre-push hook active | M-FINAL| Survey (AC) |
+| 40| Git Policy | local commits, `git push` on owner request; `origin` push not disabled | M-FINAL| Survey (AC) |
 
 ## Milestones
 

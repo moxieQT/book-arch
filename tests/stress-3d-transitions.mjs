@@ -2,7 +2,7 @@
  * Empirical Stress Test Suite: 3D Transition & State Machine
  * Challenger 2 (Empirical Challenger)
  *
- * Verifies in real headless Google Chrome via CDP:
+ * Verifies in real headless Chrome/Chromium via CDP:
  * 1. Rapid hash toggling between '#' and '#book' (both programmatic and UI clicks)
  * 2. Browser history: forward, back, reload on '#book', reload on '#'
  * 3. Scroll restoration: scroll to 2500px, transition to '#book', click '← На сайт Alina Tarot Energy', verify scroll restored to 2500px
@@ -11,11 +11,13 @@
  *
  * Run command:
  *   node tests/stress-3d-transitions.mjs
+ *   (браузер ищет findChrome(); путь можно задать через CHROMIUM_PATH)
  */
 
 import assert from 'node:assert/strict'
 import http from 'node:http'
 import fs from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 import { spawn } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
@@ -200,6 +202,40 @@ class CDPClient {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// BROWSER DISCOVERY
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Путь к Chrome/Chromium: CHROMIUM_PATH → Playwright-браузер → macOS → `google-chrome` из PATH.
+ * Образец — chromiumPath() в scripts/audit-design.mjs.
+ */
+function findChrome() {
+  const env = process.env.CHROMIUM_PATH
+  if (env && fs.existsSync(env)) return env
+
+  const pwBase = process.env.PLAYWRIGHT_BROWSERS_PATH
+  if (pwBase && fs.existsSync(pwBase)) {
+    // ревизия в имени папки (chromium-1194) у разных версий playwright разная — берём новейшую;
+    // подпапка тоже зависит от версии: chrome-linux или chrome-linux64
+    const dirs = fs
+      .readdirSync(pwBase)
+      .filter((d) => /^chromium-\d+$/.test(d))
+      .sort((a, b) => Number(b.slice(9)) - Number(a.slice(9)))
+    for (const dir of dirs) {
+      for (const sub of ['chrome-linux', 'chrome-linux64']) {
+        const exe = path.join(pwBase, dir, sub, 'chrome')
+        if (fs.existsSync(exe)) return exe
+      }
+    }
+  }
+
+  const mac = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+  if (fs.existsSync(mac)) return mac
+
+  return 'google-chrome'
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // MAIN TEST HARNESS
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -217,18 +253,31 @@ async function main() {
   await new Promise((resolve) => server.listen(HTTP_PORT, resolve))
   console.log(`  [Server] Static build server listening on http://127.0.0.1:${HTTP_PORT}`)
 
-  // Launch Google Chrome headless with native WebGL enabled (NO --disable-gpu)
-  const chromePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+  // Launch Chrome headless with native WebGL enabled (NO --disable-gpu)
+  const chromePath = findChrome()
+  console.log(`  [Chrome] Using browser: ${chromePath}`)
+  // Отдельный профиль: общий профиль по умолчанию мог бы подхватить уже запущенный Chrome
+  const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'stress-3d-chrome-'))
   const chromeArgs = [
     '--headless=new',
     `--remote-debugging-port=${CDP_PORT}`,
+    `--user-data-dir=${userDataDir}`,
     '--no-sandbox',
     '--disable-dev-shm-usage',
     '--window-size=1280,900',
+    // без GPU (Linux/CI) WebGL идёт через программный swiftshader; на macOS остаётся нативный GPU
+    ...(process.platform === 'darwin'
+      ? []
+      : ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist']),
     `http://127.0.0.1:${HTTP_PORT}/`
   ]
 
   const chromeProc = spawn(chromePath, chromeArgs, { stdio: 'ignore' })
+  // Без обработчика ENOENT на spawn валит процесс неинформативным стеком
+  chromeProc.on('error', (err) => {
+    console.error(`${colors.red}Failed to launch Chrome (${chromePath}): ${err.message}. Set CHROMIUM_PATH.${colors.reset}`)
+    process.exit(1)
+  })
 
   // Clean shutdown handlers
   let cleanedUp = false
@@ -240,6 +289,9 @@ async function main() {
     } catch {}
     try {
       server.close()
+    } catch {}
+    try {
+      fs.rmSync(userDataDir, { recursive: true, force: true })
     } catch {}
   }
   process.on('exit', cleanup)

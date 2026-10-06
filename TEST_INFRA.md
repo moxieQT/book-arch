@@ -2,7 +2,7 @@
 
 **Project**: Master Alina Energy Healing Portal & Living Grimoire 3D Folio («Архетипы и Тени») — Prototype 1  
 **Author**: E2E Test Writer (M-TEST)  
-**Integrity Mode**: Development / Strict Local Git Sandbox  
+**Integrity Mode**: Development / Local commits, push on owner request  
 **Standard**: 4-Tier Opaque-Box Quality Assurance Methodology  
 
 ---
@@ -58,7 +58,7 @@ Features are partitioned into twelve functional domains:
 9. **Legal Compliance (РФ)**: Russian Federation Legal Risk Engine (14 rules, 38-FZ, 323-FZ, 159 UK RF), Interactive Legal Risk Checker UI, Statutory 18+ Non-Medical Footer Disclaimer.
 10. **Numerology & Living Grimoire**: 13 Personal Arcana Chapters Calculation, 5 Multidimensional Reading Layer Tabs, 5-Star Self-Assessment Rating System, Non-Linear 820ms Page Curl Animation.
 11. **Navigation & Overlays**: Floating Navigation Bar (`BookNavbarOverlay`), Hash Routing (`#book` vs `#`) & Pixel-Perfect Scroll Restoration.
-12. **Quality Gates & Governance**: Oxlint Static Analysis, TypeScript & Rolldown Production Build, Strict Local Git Sandbox (`origin.pushurl = DISABLED`).
+12. **Quality Gates & Governance**: Oxlint Static Analysis, TypeScript & Rolldown Production Build, Git Policy (коммиты локальные, `git push` — по просьбе владельца).
 
 ### Tier 2: Boundary Value Analysis (BVA)
 BVA targets the critical limits where software failures typically occur:
@@ -140,7 +140,7 @@ End-to-end customer workflows simulating real client interactions:
 | 37 | Hash Navigation & Scroll Return | M1 | `src/App.tsx` | `#book` vs `#` | URL hash synchronizer, `sessionStorage` scroll Y restoration with RAF, popstate | `F37.1`–`F37.5` |
 | 38 | Oxlint Linting Suite | M-TEST | `package.json` | Project source files | `npm run lint` finishes with 0 warnings and 0 errors | `F38.1`–`F38.5` |
 | 39 | TypeScript & Rolldown Production Build | M-FINAL| `package.json`, `vite.config.ts` | Full repository | `npm run build` exits code 0, generates chunks in `dist/` with PWA manifest | `F39.1`–`F39.5` |
-| 40 | Strict Local Git Sandbox | M-FINAL| `AGENTS.md`, `GEMINI.md`, `.git/config`| Git commands | `origin.pushurl = DISABLED`, `.git/hooks/pre-push` aborts any push attempt | `F40.1`–`F40.5` |
+| 40 | Git Policy | M-FINAL| `AGENTS.md`, `GEMINI.md`, git config (via `git config`) | Git commands | `AGENTS.md`/`GEMINI.md` document local commits and push on owner request; `origin` is configured and its push is not `DISABLED`; an existing `pre-push` hook must not `exit 1` unconditionally | `F40.1`–`F40.5` |
 
 ---
 
@@ -175,7 +175,7 @@ npm run lint
 # 2. Strict TypeScript typechecking & Rolldown production bundling
 npm run build
 
-# 3. Verify Strict Local Git Sandbox
+# 3. Verify git policy (origin configured, push not disabled)
 git remote -v
 ```
 
@@ -192,4 +192,4 @@ The test suite will fail (exit code 1) and invalidate the build if:
 6. The Russian legal risk engine fails ReDoS testing or produces scores outside $[0, 100]$.
 7. The 3D Astrolabe lacks Cauchy dispersion tokens, 22k gold PBR materials, or WebGL disposal logic.
 8. The 432 Hz soundscape oscillator frequencies (432 Hz, 864 Hz, 216 Hz) or filter bounds are altered.
-9. Any remote push URL is configured in git (`origin.pushurl !== 'DISABLED'`).
+9. `origin` is missing, or its push is disabled in git (`origin.pushurl = DISABLED`), or a `pre-push` hook unconditionally aborts pushes.
