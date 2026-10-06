@@ -25,3 +25,6 @@ dist-ssr
 
 # Исходные PDF автора (не публикуются)
 from aline/
+
+# Отчёты аудита дизайна (npm run audit:design)
+audit-design/

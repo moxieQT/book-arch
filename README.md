@@ -25,6 +25,7 @@ npm install
 npm run dev      # http://localhost:5173 (или порт из переменной PORT)
 npm run build    # проверка типов + production-сборка в dist/
 npm run lint     # oxlint
+npm run audit:design -- --quick  # аудит контраста/читаемости/a11y (desktop); без --quick — 3 размера; отчёт в audit-design/report.md
 ```
 
 ## Структура
